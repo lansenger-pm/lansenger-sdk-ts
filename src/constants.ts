@@ -1,0 +1,189 @@
+export const API_ENDPOINTS: Record<string, Record<string, string>> = {
+  auth: {
+    tenant_access_token: "/auth/v3/tenant_access_token/internal",
+  },
+  app_token: {
+    create: "/v1/apptoken/create",
+  },
+  oauth2: {
+    authorize: "/oauth2/authorize",
+    user_token_create: "/v2/user_token/create",
+    refresh_token_create: "/v1/refresh_token/create",
+  },
+  users: {
+    fetch: "/v1/users/fetch",
+  },
+  staffs: {
+    fetch: "/v1/staffs/{staff_id}/fetch",
+    detail_fetch: "/v1/staffs/{staff_id}/infor/fetch",
+    department_ancestors: "/v1/staffs/{staff_id}/departmentancestors/fetch",
+    id_mapping: "/v2/staffs/id_mapping/fetch",
+    search: "/v2/staffs/search",
+  },
+  departments: {
+    fetch: "/v1/departments/{department_id}/fetch",
+    children_fetch: "/v1/departments/{department_id}/children/fetch",
+    staffs_fetch: "/v1/departments/{department_id}/staffs/fetch",
+  },
+  org: {
+    fetch: "/v1/org/{org_id}/fetch",
+    extra_field_ids: "/v1/org/{org_id}/extrafieldids/fetch",
+  },
+  websocket: {
+    endpoint: "/v1/ws/endpoint/create",
+  },
+  smart_bot: {
+    private_message: "/v1/bot/messages/create",
+    group_message: "/v1/messages/group/create",
+  },
+  account_message: {
+    create: "/v1/messages/create",
+  },
+  user_message: {
+    create: "/v1/messages/chat/create",
+  },
+  bot: {
+    message_create: "/v1/bot/messages/create",
+  },
+  sse: {
+    msg_create: "/v1/sse/msg/create",
+    msg_fetch: "/v1/sse/msg/fetch",
+  },
+  media: {
+    create: "/v1/medias/create",
+    app_create: "/v1/app/medias/create",
+    fetch: "/v1/medias/{media_id}/fetch",
+    path_fetch: "/v1/medias/{media_id}/path/fetch",
+  },
+  message: {
+    revoke: "/v1/messages/revoke",
+    dynamic_update: "/v1/messages/dynamic/update",
+    reminder_create: "/v1/messages/reminder/create",
+  },
+  groups: {
+    fetch: "/v2/groups/fetch",
+  },
+  groups_v2: {
+    create: "/v2/groups/create",
+    info_fetch: "/v2/groups/{group_id}/info/fetch",
+    info_update: "/v2/groups/{group_id}/info/update",
+    members_fetch: "/v2/groups/{group_id}/members/fetch",
+    members_update: "/v2/groups/{group_id}/members/update",
+    groups_fetch: "/v2/groups/fetch",
+    is_in_group: "/v2/groups/{group_id}/members/is_in_group",
+    delete: "/v2/groups/{group_id}/delete",
+    share_create: "/v2/groups/{group_id}/share/create",
+  },
+  chats: {
+    fetch: "/v1/chats/fetch",
+    messages_fetch: "/v1/messages/fetch",
+  },
+  calendars: {
+    primary: "/v1/calendars/primary",
+    schedule_create: "/v1/calendars/{calendar_id}/schedules/create",
+    schedule_fetch: "/v1/calendars/{calendar_id}/schedules/{schedule_id}/fetch",
+    schedule_update: "/v1/calendars/{calendar_id}/schedules/{schedule_id}/update",
+    schedule_delete: "/v1/calendars/{calendar_id}/schedules/{schedule_id}/delete",
+    schedule_list: "/v1/calendars/{calendar_id}/schedules/fetch",
+    attendees_fetch: "/v1/calendars/{calendar_id}/schedules/{schedule_id}/members/fetch",
+    attendees_create: "/v1/calendars/{calendar_id}/schedules/{schedule_id}/members/create",
+    attendees_delete: "/v1/calendars/{calendar_id}/schedules/{schedule_id}/members/delete",
+    attendees_meta_update: "/v1/calendars/{calendar_id}/schedules/{schedule_id}/members/meta/update",
+  },
+  todo: {
+    create: "/xtra/task/unified/v1/todotask/create",
+    info_update: "/xtra/task/unified/v1/todotask/info/update",
+    status_update: "/xtra/task/unified/v1/todotask/status/update",
+    sender_delete: "/xtra/task/unified/v1/sender/todotask/delete",
+    list_fetch: "/xtra/task/unified/v1/todotask/list/fetch",
+    info_fetch_by_source_id: "/xtra/task/unified/v1/todotask/info/fetchbysourceid",
+    info_fetch: "/xtra/task/unified/v1/todotask/info/fetch",
+    status_count_list_fetch: "/xtra/task/unified/v1/todotask/status/countList/fetch",
+    executor_status_update: "/xtra/task/unified/v1/todotask/executor/status/update",
+    executor_create: "/xtra/task/unified/v1/todotask/executor/create",
+    executor_delete: "/xtra/task/unified/v1/todotask/executor/delete",
+    executor_list_fetch: "/xtra/task/unified/v1/todotask/executor/list/fetch",
+    staff_application_fetch: "/xtra/task/unified/v1/staff/application/fetch",
+  },
+};
+
+export const OAUTH2_SCOPE_BASIC_USER_INFO = "basic_userinfor";
+
+export const OAUTH2_SCOPES: Record<string, string> = {
+  basic_user_info: OAUTH2_SCOPE_BASIC_USER_INFO,
+};
+
+export const MEDIA_TYPE_VIDEO = 1;
+export const MEDIA_TYPE_IMAGE = 2;
+export const MEDIA_TYPE_FILE = 3;
+export const MEDIA_TYPE_AUDIO = 4;
+
+export const APP_MEDIA_TYPE_FILE = "file";
+export const APP_MEDIA_TYPE_VIDEO = "video";
+export const APP_MEDIA_TYPE_IMAGE = "image";
+export const APP_MEDIA_TYPE_AUDIO = "audio";
+
+export const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
+export const VIDEO_EXTENSIONS = new Set([".mp4", ".mov", ".avi", ".mkv", ".webm", ".3gp"]);
+export const AUDIO_EXTENSIONS = new Set([".mp3", ".wav", ".amr", ".m4a", ".ogg", ".flac", ".aac"]);
+
+export const MAX_MESSAGE_LENGTH = 4000;
+export const TOKEN_REFRESH_MARGIN = 300;
+
+export const TODO_TODO_STATUS_PENDING_READ = "11";
+export const TODO_TODO_STATUS_READ = "12";
+export const TODO_TODO_STATUS_PENDING_DO = "21";
+export const TODO_TODO_STATUS_DONE = "22";
+
+export const TODO_TYPE_NOTIFICATION = 1;
+export const TODO_TYPE_APPROVAL = 2;
+
+export const REMINDER_TYPE_NONE = 0;
+export const REMINDER_TYPE_POPUP = 1;
+export const REMINDER_TYPE_SMS = 2;
+export const REMINDER_TYPE_PHONE = 3;
+
+export const CALLBACK_EVENT_TYPES: Record<string, string> = {
+  account_subscribe: "public_account",
+  account_unsubscribe: "public_account",
+  account_message: "public_account",
+  staff_info: "staff",
+  staff_modify: "staff",
+  staff_create: "staff",
+  staff_delete: "staff",
+  telephone_track: "telephone_track",
+  dept_create: "department",
+  dept_modify: "department",
+  dept_delete: "department",
+  tag_member: "tag",
+  app_install_org: "application",
+  app_uninstall_org: "application",
+  bot_private_message: "bot",
+  bot_group_message: "bot",
+  group_create_approve: "group",
+  ua_cert_create: "ua_cert",
+  ua_cert_delete: "ua_cert",
+  report_location: "location",
+  user_logout: "user",
+  data_scope: "data_scope",
+  wb_visible_config: "workbench",
+  schedule_modify: "schedule",
+  schedule_delete: "schedule",
+};
+
+export function guessMediaType(filePath: string): number {
+  const ext = filePath.substring(filePath.lastIndexOf(".")).toLowerCase();
+  if (IMAGE_EXTENSIONS.has(ext)) return MEDIA_TYPE_IMAGE;
+  if (VIDEO_EXTENSIONS.has(ext)) return MEDIA_TYPE_VIDEO;
+  return MEDIA_TYPE_FILE;
+}
+
+export function guessAppMediaType(filePath: string): string {
+  const ext = filePath.substring(filePath.lastIndexOf(".")).toLowerCase();
+  if (IMAGE_EXTENSIONS.has(ext)) return APP_MEDIA_TYPE_IMAGE;
+  if (VIDEO_EXTENSIONS.has(ext)) return APP_MEDIA_TYPE_VIDEO;
+  if (AUDIO_EXTENSIONS.has(ext)) return APP_MEDIA_TYPE_AUDIO;
+  return APP_MEDIA_TYPE_FILE;
+}
+
+export const VERSION = "1.4.1";
