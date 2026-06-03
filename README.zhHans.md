@@ -1,4 +1,4 @@
-[English](README.md) | [简体中文](README.zhHans.md)
+[English](README.md) | [简体中文](README.zhHans.md) | [繁体中文](README.zhHant.md) | [繁体中文香港](README.zhHantHK.md) | [Français](README.fr.md)
 
 # lansenger-sdk-ts
 
