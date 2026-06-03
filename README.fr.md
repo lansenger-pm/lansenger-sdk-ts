@@ -86,8 +86,8 @@ client.invalidateToken(); // force le refresh au prochain appel
 | Type de bot | Comment obtenir app_id + app_secret |
 |-------------|--------------------------------------|
 | **Bot personnel** | Client Lansenger (desktop) → Contacts → Bots intelligents → Bots personnels → cliquer sur l'icône ℹ️ (le client mobile ne permet pas de voir les identifiants) |
-| **Application Lansenger** | Créer sur le [Lansenger Developer Center](https://dev.lanxin.cn) — peut nécessiter l'approbation de l'administrateur de l'organisation |
-| **Bot d'organisation** | Créer sur le [Lansenger Developer Center](https://dev.lanxin.cn) — peut nécessiter l'approbation de l'administrateur de l'organisation |
+| **Application Lansenger** | Créer sur le Lansenger Developer Center — peut nécessiter l'approbation de l'administrateur de l'organisation |
+| **Bot d'organisation** | Créer sur le Lansenger Developer Center — peut nécessiter l'approbation de l'administrateur de l'organisation |
 
 ### Authentification OAuth2 niveau utilisateur
 
