@@ -1,6 +1,6 @@
 export { LansengerClient } from "./client";
 export { LansengerConfig } from "./config";
-export { TokenManager } from "./auth";
+export { TokenManager, UserTokenManager } from "./auth";
 export { CredentialStore } from "./persistence";
 export { FetchFn, doGet, doPost, doPostMultipart, parseApiResponse } from "./http";
 export { buildApiUrl } from "./urlHelpers";

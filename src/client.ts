@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import { LansengerConfig } from "./config";
-import { TokenManager } from "./auth";
+import { TokenManager, UserTokenManager } from "./auth";
 import { CredentialStore } from "./persistence";
 import { doGet, doPost, FetchFn } from "./http";
 import { buildApiUrl } from "./urlHelpers";
@@ -58,6 +58,7 @@ export class LansengerClient {
   private _config: LansengerConfig;
   private _fetchFn: FetchFn | undefined = undefined;
   private _tokenManager: TokenManager | null = null;
+  private _userTokenManager: UserTokenManager | null = null;
   private _store: CredentialStore | null = null;
 
   constructor(
@@ -102,6 +103,9 @@ export class LansengerClient {
     if (!this._tokenManager) {
       this._tokenManager = new TokenManager(this._config, this._fetchFn, this._store);
     }
+    if (!this._userTokenManager) {
+      this._userTokenManager = new UserTokenManager(this._config, this._fetchFn, this._tokenManager, this._store);
+    }
   }
 
   async getToken(): Promise<string> {
@@ -111,6 +115,18 @@ export class LansengerClient {
 
   invalidateToken(): void {
     if (this._tokenManager) this._tokenManager.invalidate();
+  }
+
+  async getUserToken(): Promise<string> {
+    await this._ensureInit();
+    return this._userTokenManager!.getToken();
+  }
+
+  setUserTokens(userToken: string, refreshToken: string, expiresIn: number = 7200, staffId: string = ""): void {
+    if (!this._userTokenManager) {
+      throw new LansengerConfigError("Client not initialized. Call a method first or use fromStore/fromEnv.");
+    }
+    this._userTokenManager.setTokens(userToken, refreshToken, expiresIn, staffId);
   }
 
   async healthCheck(): Promise<boolean> {
@@ -395,7 +411,21 @@ export class LansengerClient {
   async exchangeCode(code: string, opts?: { redirect_uri?: string }): Promise<UserTokenResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
-    return exchangeCodeForUserToken(this._config, token, code, { redirect_uri: opts?.redirect_uri, fetchFn: this._fetchFn! });
+    const result = await exchangeCodeForUserToken(this._config, token, code, { redirect_uri: opts?.redirect_uri, fetchFn: this._fetchFn! });
+
+    if (result.success) {
+      if (this._store) {
+        this._store.saveUserToken(result.user_token || "", result.refresh_token || "", result.expires_in);
+      }
+      this._userTokenManager!.setTokens(
+        result.user_token || "",
+        result.refresh_token || "",
+        result.expires_in,
+        result.staff_id || "",
+      );
+    }
+
+    return result;
   }
 
   async refreshUserToken(refreshToken: string, opts?: { scope?: string }): Promise<UserTokenResult> {
