@@ -1451,6 +1451,19 @@ export class ChatMessageInfo {
     if (this.content !== null) d.content = this.content;
     return d;
   }
+
+  plainText(): string {
+    const content = this.content;
+    if (content === null || content === undefined) return "";
+    if (typeof content === "string") return content;
+    if (typeof content === "object") {
+      if ("text" in content && content.text) return content.text;
+      if ("formatText" in content && typeof content.formatText === "object" && content.formatText !== null) {
+        return content.formatText.content || "";
+      }
+    }
+    return "";
+  }
 }
 
 export class ChatMessagesResult {
