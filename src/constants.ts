@@ -144,31 +144,31 @@ export const REMINDER_TYPE_SMS = 2;
 export const REMINDER_TYPE_PHONE = 3;
 
 export const CALLBACK_EVENT_TYPES: Record<string, string> = {
+  account_message: "public_account",
   account_subscribe: "public_account",
   account_unsubscribe: "public_account",
-  account_message: "public_account",
   staff_info: "staff",
   staff_modify: "staff",
   staff_create: "staff",
   staff_delete: "staff",
-  telephone_track: "telephone_track",
-  dept_create: "department",
   dept_modify: "department",
+  dept_create: "department",
   dept_delete: "department",
   tag_member: "tag",
-  app_install_org: "application",
-  app_uninstall_org: "application",
+  app_install_org: "app",
+  app_uninstall_org: "app",
   bot_private_message: "bot",
   bot_group_message: "bot",
   group_create_approve: "group",
-  ua_cert_create: "ua_cert",
-  ua_cert_delete: "ua_cert",
+  telephone_track: "notification",
+  ua_cert_create: "certificate",
+  ua_cert_delete: "certificate",
   report_location: "location",
-  user_logout: "user",
+  user_logout: "auth",
   data_scope: "data_scope",
   wb_visible_config: "workbench",
-  schedule_modify: "schedule",
-  schedule_delete: "schedule",
+  schedule_modify: "calendar",
+  schedule_delete: "calendar",
 };
 
 export function guessMediaType(filePath: string): number {
@@ -186,4 +186,4 @@ export function guessAppMediaType(filePath: string): string {
   return APP_MEDIA_TYPE_FILE;
 }
 
-export const VERSION = "1.4.1";
+export const VERSION = "1.1.0";

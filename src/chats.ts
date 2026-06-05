@@ -11,10 +11,10 @@ export async function fetchChatList(
   const userToken = opts?.user_token || "";
   const url = buildApiUrl(config, "chats", "fetch", appToken, { userToken });
   const payload: Record<string, any> = {};
-  if (opts?.chat_type) payload.chatType = opts.chat_type;
+  if (opts?.chat_type != null) payload.chatType = opts.chat_type;
   if (opts?.keyword) payload.keyword = opts.keyword;
-  if (opts?.start_time) payload.startTime = opts.start_time;
-  if (opts?.end_time) payload.endTime = opts.end_time;
+  if (opts?.start_time != null) payload.startTime = opts.start_time;
+  if (opts?.end_time != null) payload.endTime = opts.end_time;
   const [data, httpErr] = await doPost(url, payload, opts?.fetchFn);
   if (httpErr) return new ChatListResult({ success: false, error: httpErr });
   const errCode = data!.errCode ?? -1;
@@ -57,8 +57,8 @@ export async function fetchChatMessages(
   const payload: Record<string, any> = {};
   if (opts?.staff_id) payload.staffId = opts.staff_id;
   if (opts?.group_id) payload.groupId = opts.group_id;
-  if (opts?.start_time) payload.startTime = opts.start_time;
-  if (opts?.end_time) payload.endTime = opts.end_time;
+  if (opts?.start_time != null) payload.startTime = opts.start_time;
+  if (opts?.end_time != null) payload.endTime = opts.end_time;
   if (opts?.sender_id) payload.senderId = opts.sender_id;
   const [data, httpErr] = await doPost(url, payload, opts?.fetchFn);
   if (httpErr) return new ChatMessagesResult({ success: false, error: httpErr });

@@ -89,7 +89,9 @@ export function parseAuthorizeCallback(queryString: string | Record<string, stri
     params = {};
     for (const part of queryString.replace(/^\?/, "").split("&")) {
       if (part.includes("=")) {
-        const [key, value] = part.split("=", 1) as [string, string | undefined];
+        const eqIdx = part.indexOf("=");
+        const key = part.substring(0, eqIdx);
+        const value = part.substring(eqIdx + 1);
         params[key] = value || "";
       }
     }
