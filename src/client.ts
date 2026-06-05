@@ -415,13 +415,14 @@ export class LansengerClient {
 
     if (result.success) {
       if (this._store) {
-        this._store.saveUserToken(result.user_token || "", result.refresh_token || "", result.expires_in);
+        this._store.saveUserToken(result.user_token || "", result.refresh_token || "", result.expires_in, undefined, result.refresh_expires_in || 0);
       }
       this._userTokenManager!.setTokens(
         result.user_token || "",
         result.refresh_token || "",
         result.expires_in,
         result.staff_id || "",
+        result.refresh_expires_in || 0,
       );
     }
 

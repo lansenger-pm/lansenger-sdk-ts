@@ -94,6 +94,7 @@ export class UserTokenManager {
   private userToken: string | null = null;
   private refreshToken: string | null = null;
   private userTokenExpiry: number = 0;
+  private refreshTokenExpiry: number = 0;
   private staffId: string | null = null;
 
   constructor(
@@ -116,6 +117,7 @@ export class UserTokenManager {
         this.userToken = ut;
         this.refreshToken = rt;
         this.userTokenExpiry = expiry;
+        this.refreshTokenExpiry = cached.refresh_token_expiry || 0;
       }
     }
   }
@@ -152,7 +154,10 @@ export class UserTokenManager {
       const tokenData = data.data || {};
       this.userToken = tokenData.userToken;
       const expiresIn = tokenData.expiresIn || 7200;
-      this.refreshToken = tokenData.refreshToken;
+      const newRefreshToken = tokenData.refreshToken;
+      if (newRefreshToken) {
+        this.refreshToken = newRefreshToken;
+      }
       this.staffId = tokenData.staffId;
       this.userTokenExpiry = Math.floor(Date.now() / 1000) + expiresIn - USER_TOKEN_REFRESH_MARGIN;
 
@@ -161,7 +166,8 @@ export class UserTokenManager {
       }
 
       if (this.store) {
-        this.store.saveUserToken(this.userToken, this.refreshToken || "", expiresIn);
+        const refreshExpiresIn = tokenData.refreshExpiresIn || 0;
+        this.store.saveUserToken(this.userToken, this.refreshToken || "", expiresIn, USER_TOKEN_REFRESH_MARGIN, refreshExpiresIn);
       }
 
       return this.userToken;
@@ -171,14 +177,15 @@ export class UserTokenManager {
     }
   }
 
-  setTokens(userToken: string, refreshToken: string, expiresIn: number = 7200, staffId: string = ""): void {
+  setTokens(userToken: string, refreshToken: string, expiresIn: number = 7200, staffId: string = "", refreshExpiresIn: number = 0): void {
     this.userToken = userToken;
     this.refreshToken = refreshToken;
     this.userTokenExpiry = Math.floor(Date.now() / 1000) + expiresIn - USER_TOKEN_REFRESH_MARGIN;
+    if (refreshExpiresIn) this.refreshTokenExpiry = Math.floor(Date.now() / 1000) + refreshExpiresIn;
     if (staffId) this.staffId = staffId;
 
     if (this.store) {
-      this.store.saveUserToken(userToken, refreshToken, expiresIn);
+      this.store.saveUserToken(userToken, refreshToken, expiresIn, USER_TOKEN_REFRESH_MARGIN, refreshExpiresIn);
     }
   }
 
@@ -188,6 +195,10 @@ export class UserTokenManager {
 
   get refresh_token(): string | null {
     return this.refreshToken;
+  }
+
+  get refresh_token_expiry(): number {
+    return this.refreshTokenExpiry;
   }
 
   invalidate(): void {

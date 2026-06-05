@@ -138,15 +138,17 @@ export class CredentialStore {
       user_token: data.user_token || "",
       refresh_token: data.refresh_token || "",
       user_token_expiry: data.user_token_expiry || 0,
+      refresh_token_expiry: data.refresh_token_expiry || 0,
     };
   }
 
-  saveUserToken(userToken: string, refreshToken: string = "", expiresIn: number = 0): void {
+  saveUserToken(userToken: string, refreshToken: string = "", expiresIn: number = 0, margin: number = 300, refreshExpiresIn: number = 0): void {
     const state = this.load();
     const data = this.getProfileData(state);
     data.user_token = userToken;
     data.refresh_token = refreshToken;
-    if (expiresIn) data.user_token_expiry = Date.now() / 1000 + expiresIn;
+    if (expiresIn) data.user_token_expiry = Date.now() / 1000 + expiresIn - margin;
+    if (refreshExpiresIn) data.refresh_token_expiry = Date.now() / 1000 + refreshExpiresIn;
     this.save(this.setProfileData(state, data));
   }
 
