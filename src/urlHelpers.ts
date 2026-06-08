@@ -15,7 +15,11 @@ export function buildApiUrl(
   options?: BuildApiUrlOptions,
 ): string {
   const opts = options || {} as BuildApiUrlOptions;
-  const pathTemplate = API_ENDPOINTS[category][endpoint];
+  const categoryEndpoints = API_ENDPOINTS[category];
+  if (!categoryEndpoints || !categoryEndpoints[endpoint]) {
+    throw new Error(`Unknown API endpoint: ${category}/${endpoint}`);
+  }
+  const pathTemplate = categoryEndpoints[endpoint];
   let apiPath = pathTemplate;
 
   const pathVars = opts.pathVars || {};

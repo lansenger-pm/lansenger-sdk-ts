@@ -768,10 +768,10 @@ function _parseEventData(eventType: string, rawData: AnyDict): AnyDict | Callbac
   }
 
   if (eventType === "telephone_track") {
-    const callerRaw = rawData.caller || {};
-    const calleeRaw = rawData.callee || {};
-    const callerInfo = (typeof callerRaw === "object" && callerRaw.mobilePhone) || {};
-    const calleeInfo = (typeof calleeRaw === "object" && calleeRaw.mobilePhone) || {};
+    const callerRaw = (typeof rawData.caller === "object" && rawData.caller) || {};
+    const calleeRaw = (typeof rawData.callee === "object" && rawData.callee) || {};
+    const callerInfo = (callerRaw.mobilePhone) || {};
+    const calleeInfo = (calleeRaw.mobilePhone) || {};
     kwargs.caller = new TelephoneTrackCallerData({
       staff_id: callerRaw.staffId || "",
       country_code: callerInfo.countryCode || "",
@@ -803,7 +803,7 @@ function _parseDecryptedPayload(payload: AnyDict): CallbackEvent[] {
     const eventType = entry.eventType || entry.type || "";
     const category = CALLBACK_EVENT_TYPES[eventType] || "unknown";
     let rawData = entry.data || {};
-    if (!rawData || (typeof rawData === "object" && Object.keys(rawData).length === 0) && eventType) {
+    if ((!rawData || (typeof rawData === "object" && Object.keys(rawData).length === 0)) && eventType) {
       rawData = entry;
     }
     const parsedData = _parseEventData(eventType, rawData);
@@ -861,14 +861,9 @@ export function parseCallbackPayload(
 
   if (encodingKey) {
     if (opts.verifySignature) {
-      let dataEncrypt = input;
-      if (input.trim().startsWith("{")) {
-        const payloadInner = JSON.parse(input);
-        dataEncrypt = payloadInner.dataEncrypt || "";
-      }
       if (!verifyCallbackSignature(
         opts.timestamp || "", opts.nonce || "", opts.signature || "",
-        encodingKey, dataEncrypt, opts.callbackToken || "",
+        encodingKey, input, opts.callbackToken || "",
       )) {
         throw new Error("Callback signature verification failed");
       }
@@ -961,7 +956,10 @@ export function decryptCallbackPayload(
 }
 
 function _decodeAesKey(encodingKey: string): Buffer {
-  const padded = encodingKey + "=".repeat((-encodingKey.length) % 4);
+  if (encodingKey.length % 4 === 1) {
+    throw new Error(`Invalid Base64 key length (${encodingKey.length}): length mod 4 = 1 is not valid Base64`);
+  }
+  const padded = encodingKey + "=".repeat((4 - encodingKey.length % 4) % 4);
   const keyBytes = Buffer.from(padded, "base64");
   if (keyBytes.length < 32) {
     throw new Error(`Invalid AES key length: ${keyBytes.length} bytes (need >= 32)`);

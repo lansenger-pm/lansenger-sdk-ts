@@ -124,7 +124,7 @@ export class LansengerClient {
 
   setUserTokens(userToken: string, refreshToken: string, expiresIn: number = 7200, staffId: string = ""): void {
     if (!this._userTokenManager) {
-      throw new LansengerConfigError("Client not initialized. Call a method first or use fromStore/fromEnv.");
+      throw new LansengerConfigError("Client not initialized. Call an async method first or use fromStore/fromEnv.");
     }
     this._userTokenManager.setTokens(userToken, refreshToken, expiresIn, staffId);
   }
@@ -415,7 +415,7 @@ export class LansengerClient {
 
     if (result.success) {
       if (this._store) {
-        this._store.saveUserToken(result.user_token || "", result.refresh_token || "", result.expires_in, undefined, result.refresh_expires_in || 0);
+        this._store.saveUserToken(result.user_token || "", result.refresh_token || "", result.expires_in, 300, result.refresh_expires_in || 0);
       }
       this._userTokenManager!.setTokens(
         result.user_token || "",

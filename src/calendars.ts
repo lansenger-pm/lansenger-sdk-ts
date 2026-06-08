@@ -176,7 +176,7 @@ export async function fetchScheduleList(
   opts?: { user_token?: string; user_id?: string; fetchFn?: FetchFn },
 ): Promise<ScheduleListResult> {
   if (!calendarId) return new ScheduleListResult({ success: false, error: "calendar_id is required" });
-  if (!startTime || !endTime) return new ScheduleListResult({ success: false, error: "start_time and end_time are required" });
+  if (startTime == null || endTime == null) return new ScheduleListResult({ success: false, error: "start_time and end_time are required" });
   const userToken = opts?.user_token || "";
   const userId = opts?.user_id || "";
   const url = buildApiUrl(config, "calendars", "schedule_list", appToken, { userToken, userId, pathVars: { calendar_id: calendarId } });

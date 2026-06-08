@@ -42,7 +42,7 @@ export class LansengerConfig {
     const resolved_app_secret = app_secret || (process.env.LANSENGER_APP_SECRET || "").trim();
     const resolved_gateway = api_gateway_url || (process.env.LANSENGER_API_GATEWAY_URL || DEFAULT_API_GATEWAY_URL).trim();
     const resolved_passport = passport_url || (process.env.LANSENGER_PASSPORT_URL || "").trim();
-    const resolved_timeout = http_timeout || 30.0;
+    const resolved_timeout = http_timeout != null && http_timeout !== undefined ? http_timeout : 30.0;
     const resolved_encoding_key = encoding_key || (process.env.LANSENGER_ENCODING_KEY || "").trim();
     const resolved_callback_token = callback_token || (process.env.LANSENGER_CALLBACK_TOKEN || "").trim();
 
