@@ -5,6 +5,7 @@ export interface BuildApiUrlOptions {
   userToken?: string;
   userId?: string;
   pathVars?: Record<string, string>;
+  queryParams?: Record<string, string | number | boolean>;
 }
 
 export function buildApiUrl(
@@ -33,6 +34,11 @@ export function buildApiUrl(
   }
   if (opts.userId) {
     url += `&user_id=${encodeURIComponent(opts.userId)}`;
+  }
+  if (opts.queryParams) {
+    for (const [key, value] of Object.entries(opts.queryParams)) {
+      url += `&${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`;
+    }
   }
   return url;
 }

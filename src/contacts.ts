@@ -95,8 +95,10 @@ export async function fetchStaffIdMapping(
   if (!idType) return new StaffIdMappingResult({ success: false, error: "id_type is required" });
   if (!idValue) return new StaffIdMappingResult({ success: false, error: "id_value is required" });
   const userToken = opts?.user_token || "";
-  const url = buildApiUrl(config, "staffs", "id_mapping", appToken, { userToken })
-    + `&org_id=${encodeURIComponent(orgId)}&id_type=${encodeURIComponent(idType)}&id_value=${encodeURIComponent(idValue)}`;
+  const url = buildApiUrl(config, "staffs", "id_mapping", appToken, {
+    userToken,
+    queryParams: { org_id: orgId, id_type: idType, id_value: idValue },
+  });
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new StaffIdMappingResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
@@ -115,8 +117,11 @@ export async function fetchOrgExtraFieldIds(
   const userToken = opts?.user_token || "";
   const page = opts?.page || 1;
   const pageSize = opts?.page_size || 1000;
-  const url = buildApiUrl(config, "org", "extra_field_ids", appToken, { userToken, pathVars: { org_id: orgId } })
-    + `&page=${page}&page_size=${pageSize}`;
+  const url = buildApiUrl(config, "org", "extra_field_ids", appToken, {
+    userToken,
+    pathVars: { org_id: orgId },
+    queryParams: { page, page_size: pageSize },
+  });
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new ExtraFieldIdsResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
@@ -141,8 +146,16 @@ export async function searchStaff(
   const sectorIds = opts?.sector_ids;
   const page = opts?.page;
   const pageSize = opts?.page_size;
-  let url = buildApiUrl(config, "staffs", "search", appToken, { userToken, userId });
-  if (page != null && pageSize != null) url += `&page=${page}&page_size=${pageSize}`;
+  const queryParams: Record<string, string | number | boolean> = {};
+  if (page != null && pageSize != null) {
+    queryParams.page = page;
+    queryParams.page_size = pageSize;
+  }
+  const url = buildApiUrl(config, "staffs", "search", appToken, {
+    userToken,
+    userId,
+    queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+  });
   const body: Record<string, any> = { keyword, recursive };
   if (sectorIds) body.searchScope = { sectorIds };
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);

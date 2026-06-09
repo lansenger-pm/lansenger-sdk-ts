@@ -5,13 +5,11 @@ import {
   TodoTaskCreateResult, TodoTaskInfoResult, TodoTaskListResult,
   TodoTaskStatusCountResult, TodoTaskExecutorListResult,
 } from "./models";
-
-export const TODO_TODO_STATUS_PENDING_READ = "11";
-export const TODO_TODO_STATUS_READ = "12";
-export const TODO_TODO_STATUS_PENDING_DO = "21";
-export const TODO_TODO_STATUS_DONE = "22";
-export const TODO_TYPE_NOTIFICATION = 1;
-export const TODO_TYPE_APPROVAL = 2;
+import {
+  TODO_TODO_STATUS_PENDING_READ, TODO_TODO_STATUS_READ,
+  TODO_TODO_STATUS_PENDING_DO, TODO_TODO_STATUS_DONE,
+  TODO_TYPE_NOTIFICATION, TODO_TYPE_APPROVAL,
+} from "./constants";
 
 export async function createTodoTask(
   config: LansengerConfig,
