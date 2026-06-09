@@ -16,8 +16,11 @@ export async function fetchDepartmentDetail(
   if (!departmentId) return new DepartmentDetailResult({ success: false, error: "department_id is required" });
   const userToken = opts?.user_token || "";
   const tagId = opts?.tag_id || "";
-  let url = buildApiUrl(config, "departments", "fetch", appToken, { userToken, pathVars: { department_id: departmentId } });
-  if (tagId) url += `&tag_id=${encodeURIComponent(tagId)}`;
+  const queryParams: Record<string, string | number | boolean> = {};
+  if (tagId) queryParams.tag_id = tagId;
+  const url = buildApiUrl(config, "departments", "fetch", appToken, { 
+    userToken, pathVars: { department_id: departmentId }, queryParams 
+  });
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new DepartmentDetailResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
@@ -62,8 +65,10 @@ export async function fetchDepartmentStaffs(
   const userToken = opts?.user_token || "";
   const page = opts?.page || 1;
   const pageSize = opts?.page_size || 100;
-  const url = buildApiUrl(config, "departments", "staffs_fetch", appToken, { userToken, pathVars: { department_id: departmentId } })
-    + `&page=${page}&page_size=${pageSize}`;
+  const url = buildApiUrl(config, "departments", "staffs_fetch", appToken, { 
+    userToken, pathVars: { department_id: departmentId },
+    queryParams: { page, page_size: pageSize }
+  });
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new DepartmentStaffsResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);

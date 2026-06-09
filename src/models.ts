@@ -809,7 +809,7 @@ export class StreamMessageResult {
 
 export class GroupCreateInfo {
   name: string;
-  org_id: number;
+  org_id: string;
   owner_id: string;
   description: string;
   avatar_id: string;
@@ -822,7 +822,7 @@ export class GroupCreateInfo {
 
   constructor(init: {
     name: string;
-    org_id: number;
+    org_id: string;
     owner_id?: string;
     description?: string;
     avatar_id?: string;

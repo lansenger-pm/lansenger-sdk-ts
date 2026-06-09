@@ -320,9 +320,9 @@ describe("DynamicCardUpdateParams", () => {
 
 describe("GroupCreateInfo", () => {
   test("constructor defaults", () => {
-    const g = new GroupCreateInfo({ name: "G", org_id: 1 });
+    const g = new GroupCreateInfo({ name: "G", org_id: "1" });
     expect(g.name).toBe("G");
-    expect(g.org_id).toBe(1);
+    expect(g.org_id).toBe("1");
     expect(g.owner_id).toBe("");
     expect(g.staff_id_list).toBeNull();
   });

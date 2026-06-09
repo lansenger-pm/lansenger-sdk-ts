@@ -81,8 +81,10 @@ export async function fetchGroupMembers(
   const userToken = opts?.user_token || "";
   const pageOffset = opts?.page_offset || 0;
   const pageSize = opts?.page_size || 100;
-  const url = buildApiUrl(config, "groups_v2", "members_fetch", appToken, { userToken, pathVars: { group_id: groupId } })
-    + `&page_offset=${pageOffset}&page_size=${pageSize}`;
+  const url = buildApiUrl(config, "groups_v2", "members_fetch", appToken, { 
+      userToken, pathVars: { group_id: groupId },
+      queryParams: { page_offset: pageOffset, page_size: pageSize }
+    });
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new GroupMemberResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
@@ -102,8 +104,9 @@ export async function fetchGroupList(
   const userToken = opts?.user_token || "";
   const pageOffset = opts?.page_offset || 0;
   const pageSize = opts?.page_size || 100;
-  const url = buildApiUrl(config, "groups_v2", "groups_fetch", appToken, { userToken })
-    + `&page_offset=${pageOffset}&page_size=${pageSize}`;
+  const url = buildApiUrl(config, "groups_v2", "groups_fetch", appToken, { 
+      userToken, queryParams: { page_offset: pageOffset, page_size: pageSize }
+    });
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new GroupListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
@@ -123,8 +126,11 @@ export async function checkIsInGroup(
 ): Promise<IsInGroupResult> {
   if (!groupId) return new IsInGroupResult({ success: false, error: "group_id is required" });
   const userToken = opts?.user_token || "";
-  let url = buildApiUrl(config, "groups_v2", "is_in_group", appToken, { userToken, pathVars: { group_id: groupId } });
-  if (opts?.staff_id) url += `&staff_id=${encodeURIComponent(opts.staff_id)}`;
+  const queryParams: Record<string, string | number | boolean> = {};
+  if (opts?.staff_id) queryParams.staff_id = opts.staff_id;
+  const url = buildApiUrl(config, "groups_v2", "is_in_group", appToken, { 
+    userToken, pathVars: { group_id: groupId }, queryParams 
+  });
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new IsInGroupResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);

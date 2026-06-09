@@ -51,9 +51,9 @@ export async function fetchChatMessages(
   const userToken = opts?.user_token || "";
   const pageSize = opts?.page_size || 100;
   const baseVersion = opts?.base_version || "0";
-  let url = buildApiUrl(config, "chats", "messages_fetch", appToken, { userToken })
-    + `&page_size=${pageSize}`;
-  if (baseVersion) url += `&base_version=${baseVersion}`;
+  const queryParams: Record<string, string | number | boolean> = { page_size: pageSize };
+  if (baseVersion !== "0") queryParams.base_version = baseVersion;
+  const url = buildApiUrl(config, "chats", "messages_fetch", appToken, { userToken, queryParams });
   const payload: Record<string, any> = {};
   if (opts?.staff_id) payload.staffId = opts.staff_id;
   if (opts?.group_id) payload.groupId = opts.group_id;

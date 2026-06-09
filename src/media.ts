@@ -8,6 +8,7 @@ import { TokenManager } from "./auth";
 import { MEDIA_TYPE_FILE, MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO, APP_MEDIA_TYPE_FILE, guessMediaType, guessAppMediaType } from "./constants";
 import { UploadMediaResult, DownloadMediaResult, MediaPathResult } from "./models";
 import { LansengerFileError } from "./exceptions";
+import FormData = require("form-data");
 
 export async function uploadMedia(
   config: LansengerConfig,

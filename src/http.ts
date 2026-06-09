@@ -47,7 +47,7 @@ export async function doPost(
 
 export async function doPostMultipart(
   url: string,
-  formData: FormData,
+  formData: any,
   fetchFn?: FetchFn,
 ): Promise<[AnyDict | null, string | null]> {
   const fn = fetchFn || (typeof fetch !== "undefined" ? fetch : undefined);

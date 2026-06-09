@@ -2,11 +2,9 @@ import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
 import { doPost, parseApiResponse, FetchFn } from "./http";
 import { SendMessageResult } from "./models";
+import { REMINDER_TYPE_NONE, REMINDER_TYPE_POPUP, REMINDER_TYPE_SMS, REMINDER_TYPE_PHONE } from "./constants";
 
-export const REMINDER_TYPE_NONE = 0;
-export const REMINDER_TYPE_POPUP = 1;
-export const REMINDER_TYPE_SMS = 2;
-export const REMINDER_TYPE_PHONE = 3;
+export { REMINDER_TYPE_NONE, REMINDER_TYPE_POPUP, REMINDER_TYPE_SMS, REMINDER_TYPE_PHONE };
 
 export async function sendReminder(
   config: LansengerConfig,
