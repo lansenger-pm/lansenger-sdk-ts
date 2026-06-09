@@ -113,11 +113,21 @@ export class UserTokenManager {
       const ut = cached.user_token || "";
       const rt = cached.refresh_token || "";
       const expiry = cached.user_token_expiry || 0;
+      const refreshExpiry = cached.refresh_token_expiry || 0;
+
+      // Load userToken (only if still valid, accounting for refresh margin)
       if (ut && expiry > Math.floor(Date.now() / 1000) + USER_TOKEN_REFRESH_MARGIN) {
         this.userToken = ut;
-        this.refreshToken = rt;
         this.userTokenExpiry = expiry;
-        this.refreshTokenExpiry = cached.refresh_token_expiry || 0;
+      }
+
+      // Load refreshToken independently — it stays valid (30 days)
+      // even after userToken (2h) has expired. Previously we only
+      // loaded it inside the ut-expiry guard, so a process restart
+      // after userToken expiry would lose the still-valid refreshToken.
+      if (rt && refreshExpiry > Math.floor(Date.now() / 1000)) {
+        this.refreshToken = rt;
+        this.refreshTokenExpiry = refreshExpiry;
       }
     }
   }
@@ -132,6 +142,16 @@ export class UserTokenManager {
       throw new LansengerAuthError(
         "No userToken available and no refreshToken for auto-refresh. " +
         "Run OAuth2 authorize flow: build_authorize_url → exchange_code."
+      );
+    }
+
+    // Check if refreshToken has actually expired before calling the API.
+    // Without this, the SDK would call the API with an expired token and
+    // return a confusing error.
+    if (this.refreshTokenExpiry > 0 && Math.floor(Date.now() / 1000) >= this.refreshTokenExpiry) {
+      throw new LansengerAuthError(
+        "RefreshToken has expired. " +
+        "Re-run OAuth2 authorize flow: build_authorize_url → exchange_code."
       );
     }
 
@@ -157,8 +177,12 @@ export class UserTokenManager {
       this.userToken = tokenData.userToken;
       const expiresIn = tokenData.expiresIn || 7200;
       const newRefreshToken = tokenData.refreshToken;
+      const refreshExpiresIn = tokenData.refreshExpiresIn || 0;
       if (newRefreshToken) {
         this.refreshToken = newRefreshToken;
+      }
+      if (refreshExpiresIn) {
+        this.refreshTokenExpiry = Math.floor(Date.now() / 1000) + refreshExpiresIn;
       }
       this.staffId = tokenData.staffId;
       this.userTokenExpiry = Math.floor(Date.now() / 1000) + expiresIn - USER_TOKEN_REFRESH_MARGIN;
