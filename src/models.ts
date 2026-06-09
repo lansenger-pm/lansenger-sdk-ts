@@ -126,7 +126,41 @@ export class StaffDetailResult {
   error!: string | null;
   raw_response!: AnyDict | null;
 
-  constructor(init: { success: boolean; [key: string]: any }) {
+  constructor(init: {
+    success: boolean;
+    name?: string | null;
+    signature?: string | null;
+    avatar_id?: string | null;
+    avatar_url?: string | null;
+    status?: number | null;
+    departments?: AnyDict[] | null;
+    gender?: number | null;
+    org_id?: string | null;
+    org_name?: string | null;
+    login_name?: string | null;
+    employee_number?: string | null;
+    email?: string | null;
+    external_id?: string | null;
+    nationality?: string | null;
+    birthdate?: string | null;
+    id_number?: string | null;
+    native_place?: string | null;
+    duties?: string | null;
+    parties?: string | null;
+    address?: string | null;
+    mobile_phone?: Record<string, string> | null;
+    extra_phones?: Record<string, string>[] | null;
+    introduction?: AnyDict | null;
+    education?: AnyDict[] | null;
+    career?: AnyDict[] | null;
+    login_ways?: number[] | null;
+    tags?: string[] | null;
+    extra_field_set?: Record<string, string> | null;
+    leaders?: string[] | null;
+    join_date?: number | null;
+    error?: string | null;
+    raw_response?: AnyDict | null;
+  }) {
     this.success = init.success;
     const keys = ["name", "signature", "avatar_id", "avatar_url", "status", "departments", "gender", "org_id", "org_name", "login_name", "employee_number", "email", "external_id", "nationality", "birthdate", "id_number", "native_place", "duties", "parties", "address", "mobile_phone", "extra_phones", "introduction", "education", "career", "login_ways", "tags", "extra_field_set", "leaders", "join_date", "error", "raw_response"] as const;
     for (const k of keys) {
@@ -864,7 +898,27 @@ export class GroupInfoResult {
   error!: string | null;
   raw_response!: AnyDict | null;
 
-  constructor(init: { success: boolean; [key: string]: any }) {
+  constructor(init: {
+    success: boolean;
+    name?: string | null;
+    description?: string | null;
+    avatar_id?: string | null;
+    avatar_url?: string | null;
+    owner?: Record<string, string> | null;
+    creator?: Record<string, string> | null;
+    state?: number | null;
+    manage_mode?: number | null;
+    location_share?: number | null;
+    needs_confirm?: number | null;
+    is_public?: number | null;
+    max_members?: number | null;
+    max_history_msg_count?: number | null;
+    total_members?: number | null;
+    remind_all?: boolean | null;
+    send_msg_status?: boolean | null;
+    error?: string | null;
+    raw_response?: AnyDict | null;
+  }) {
     this.success = init.success;
     const keys = ["name", "description", "avatar_id", "avatar_url", "owner", "creator", "state", "manage_mode", "location_share", "needs_confirm", "is_public", "max_members", "max_history_msg_count", "total_members", "remind_all", "send_msg_status", "error", "raw_response"] as const;
     for (const k of keys) {
@@ -1020,7 +1074,29 @@ export class DepartmentDetailResult {
   error!: string | null;
   raw_response!: AnyDict | null;
 
-  constructor(init: { success: boolean; [key: string]: any }) {
+  constructor(init: {
+    success: boolean;
+    id?: string | null;
+    name?: string | null;
+    external_id?: string | null;
+    parent_id?: string | null;
+    order?: number | null;
+    has_children?: boolean | null;
+    normal_members?: number | null;
+    inactive_members?: number | null;
+    frozen_members?: number | null;
+    deleted_members?: number | null;
+    tags?: string[] | null;
+    ancestor_departments?: Record<string, string>[] | null;
+    leaders?: string[] | null;
+    emails?: string[] | null;
+    phones?: string[] | null;
+    addresses?: string[] | null;
+    introductions?: string[] | null;
+    dept_type?: number | null;
+    error?: string | null;
+    raw_response?: AnyDict | null;
+  }) {
     this.success = init.success;
     const keys = ["id", "name", "external_id", "parent_id", "order", "has_children", "normal_members", "inactive_members", "frozen_members", "deleted_members", "tags", "ancestor_departments", "leaders", "emails", "phones", "addresses", "introductions", "dept_type", "error", "raw_response"] as const;
     for (const k of keys) {
@@ -1123,7 +1199,23 @@ export class TodoTaskInfoResult {
   error!: string | null;
   raw_response!: AnyDict | null;
 
-  constructor(init: { success: boolean; [key: string]: any }) {
+  constructor(init: {
+    success: boolean;
+    todotask_id?: string | null;
+    source_id?: string | null;
+    title?: string | null;
+    desc?: string | null;
+    status?: string | null;
+    type?: number | null;
+    link?: string | null;
+    pc_link?: string | null;
+    sender_id?: string | null;
+    executor_ids?: string[] | null;
+    create_time?: string | null;
+    app_id?: string | null;
+    error?: string | null;
+    raw_response?: AnyDict | null;
+  }) {
     this.success = init.success;
     const keys = ["todotask_id", "source_id", "title", "desc", "status", "type", "link", "pc_link", "sender_id", "executor_ids", "create_time", "app_id", "error", "raw_response"] as const;
     for (const k of keys) {
@@ -1221,7 +1313,18 @@ export class CalendarPrimaryResult {
   error!: string | null;
   raw_response!: AnyDict | null;
 
-  constructor(init: { success: boolean; [key: string]: any }) {
+  constructor(init: {
+    success: boolean;
+    calendar_id?: string | null;
+    summary?: string | null;
+    description?: string | null;
+    permissions?: string | null;
+    color?: string | null;
+    type?: string | null;
+    role?: string | null;
+    error?: string | null;
+    raw_response?: AnyDict | null;
+  }) {
     this.success = init.success;
     const keys = ["calendar_id", "summary", "description", "permissions", "color", "type", "role", "error", "raw_response"] as const;
     for (const k of keys) {
@@ -1275,7 +1378,20 @@ export class ScheduleInfoResult {
   error!: string | null;
   raw_response!: AnyDict | null;
 
-  constructor(init: { success: boolean; [key: string]: any }) {
+  constructor(init: {
+    success: boolean;
+    schedule_id?: string | null;
+    summary?: string | null;
+    description?: string | null;
+    repeat_type?: string | null;
+    all_day?: string | null;
+    start_time?: AnyDict | null;
+    end_time?: AnyDict | null;
+    creator?: AnyDict | null;
+    rsvp_status?: string | null;
+    error?: string | null;
+    raw_response?: AnyDict | null;
+  }) {
     this.success = init.success;
     const keys = ["schedule_id", "summary", "description", "repeat_type", "all_day", "start_time", "end_time", "creator", "rsvp_status", "error", "raw_response"] as const;
     for (const k of keys) {

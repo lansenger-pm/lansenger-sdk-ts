@@ -770,8 +770,8 @@ function _parseEventData(eventType: string, rawData: AnyDict): AnyDict | Callbac
   if (eventType === "telephone_track") {
     const callerRaw = (typeof rawData.caller === "object" && rawData.caller) || {};
     const calleeRaw = (typeof rawData.callee === "object" && rawData.callee) || {};
-    const callerInfo = (callerRaw.mobilePhone) || {};
-    const calleeInfo = (calleeRaw.mobilePhone) || {};
+    const callerInfo = (typeof callerRaw.mobilePhone === "object" && callerRaw.mobilePhone) || {};
+    const calleeInfo = (typeof calleeRaw.mobilePhone === "object" && calleeRaw.mobilePhone) || {};
     kwargs.caller = new TelephoneTrackCallerData({
       staff_id: callerRaw.staffId || "",
       country_code: callerInfo.countryCode || "",

@@ -6,7 +6,8 @@ export async function doGet(
   url: string,
   fetchFn?: FetchFn,
 ): Promise<[AnyDict | null, string | null]> {
-  const fn = fetchFn || fetch;
+  const fn = fetchFn || (typeof fetch !== "undefined" ? fetch : undefined);
+  if (!fn) throw new Error("No fetch function available. Ensure the SDK is properly initialized or provide a fetchFn parameter.");
   try {
     const response = await fn(url);
     if (!response.ok) {
@@ -25,7 +26,8 @@ export async function doPost(
   body: AnyDict,
   fetchFn?: FetchFn,
 ): Promise<[AnyDict | null, string | null]> {
-  const fn = fetchFn || fetch;
+  const fn = fetchFn || (typeof fetch !== "undefined" ? fetch : undefined);
+  if (!fn) throw new Error("No fetch function available. Ensure the SDK is properly initialized or provide a fetchFn parameter.");
   try {
     const response = await fn(url, {
       method: "POST",
@@ -48,7 +50,8 @@ export async function doPostMultipart(
   formData: FormData,
   fetchFn?: FetchFn,
 ): Promise<[AnyDict | null, string | null]> {
-  const fn = fetchFn || fetch;
+  const fn = fetchFn || (typeof fetch !== "undefined" ? fetch : undefined);
+  if (!fn) throw new Error("No fetch function available. Ensure the SDK is properly initialized or provide a fetchFn parameter.");
   try {
     const response = await fn(url, {
       method: "POST",

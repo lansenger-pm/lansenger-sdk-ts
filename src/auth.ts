@@ -113,7 +113,7 @@ export class UserTokenManager {
       const ut = cached.user_token || "";
       const rt = cached.refresh_token || "";
       const expiry = cached.user_token_expiry || 0;
-      if (ut && expiry > Date.now() / 1000) {
+      if (ut && expiry > Math.floor(Date.now() / 1000) + USER_TOKEN_REFRESH_MARGIN) {
         this.userToken = ut;
         this.refreshToken = rt;
         this.userTokenExpiry = expiry;
@@ -136,8 +136,10 @@ export class UserTokenManager {
     }
 
     const appToken = await this.appTokenManager.getToken();
-    let url = buildApiUrl(this.config, "oauth2", "refresh_token_create", appToken)
-      + `&grant_type=refresh_token&refresh_token=${encodeURIComponent(this.refreshToken)}`;
+    const urlObj = new URL(buildApiUrl(this.config, "oauth2", "refresh_token_create", appToken));
+    urlObj.searchParams.set("grant_type", "refresh_token");
+    urlObj.searchParams.set("refresh_token", this.refreshToken);
+    const url = urlObj.toString();
 
     try {
       const response = await this.fetchFn(url);

@@ -23,9 +23,9 @@ export async function uploadMedia(
   try { token = await tokenManager.getToken(); } catch (e) { return new UploadMediaResult({ success: false, error: `Auth failed: ${e instanceof Error ? e.message : String(e)}` }); }
   const url = buildApiUrl(config, "media", "create", token, { userToken }) + `&type=${mediaType}`;
   try {
-    const fileContent = fs.readFileSync(filePath);
+    const fileStream = fs.createReadStream(filePath);
     const formData = new FormData();
-    formData.append("media", new Blob([fileContent]), path.basename(filePath));
+    formData.append("media", fileStream as any, path.basename(filePath));
     const [data, httpErr] = await doPostMultipart(url, formData, fetchFn);
     if (httpErr) return new UploadMediaResult({ success: false, error: httpErr });
     const errCode = data!.errCode ?? -1;
@@ -58,9 +58,9 @@ export async function uploadAppMedia(
   if (opts?.height != null) url += `&height=${opts.height}`;
   if (opts?.duration != null) url += `&duration=${opts.duration}`;
   try {
-    const fileContent = fs.readFileSync(filePath);
+    const fileStream = fs.createReadStream(filePath);
     const formData = new FormData();
-    formData.append("media", new Blob([fileContent]), path.basename(filePath));
+    formData.append("media", fileStream as any, path.basename(filePath));
     const [data, httpErr] = await doPostMultipart(url, formData, fetchFn);
     if (httpErr) return new UploadMediaResult({ success: false, error: httpErr });
     const errCode = data!.errCode ?? -1;

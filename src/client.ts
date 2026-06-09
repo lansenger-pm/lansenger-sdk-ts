@@ -89,7 +89,7 @@ export class LansengerClient {
   static fromStore(profile: string = "default", filePath?: string): LansengerClient {
     const store = new CredentialStore(filePath, profile);
     const creds = store.loadCredentials();
-    if (!creds.app_id || !creds.app_secret) throw new LansengerConfigError("No credentials found in store profile");
+    if (!creds.app_id || !creds.app_secret || !creds.api_gateway_url) throw new LansengerConfigError("No complete credentials found in store profile (need app_id, app_secret, api_gateway_url)");
     return new LansengerClient(creds.app_id, creds.app_secret, creds.api_gateway_url, creds.passport_url, 30, filePath, creds.encoding_key, creds.callback_token);
   }
 
@@ -122,11 +122,9 @@ export class LansengerClient {
     return this._userTokenManager!.getToken();
   }
 
-  setUserTokens(userToken: string, refreshToken: string, expiresIn: number = 7200, staffId: string = ""): void {
-    if (!this._userTokenManager) {
-      throw new LansengerConfigError("Client not initialized. Call an async method first or use fromStore/fromEnv.");
-    }
-    this._userTokenManager.setTokens(userToken, refreshToken, expiresIn, staffId);
+  async setUserTokens(userToken: string, refreshToken: string, expiresIn: number = 7200, staffId: string = ""): Promise<void> {
+    await this._ensureInit();
+    this._userTokenManager!.setTokens(userToken, refreshToken, expiresIn, staffId);
   }
 
   async healthCheck(): Promise<boolean> {
@@ -148,7 +146,7 @@ export class LansengerClient {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     const url = this._privateMsgUrl(token);
-    const payload: AnyDict = { chatId, msgType, msgData };
+    const payload: AnyDict = { userIdList: [chatId], msgType, msgData };
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
     if (httpErr) return new SendMessageResult({ success: false, error: httpErr, msg_type: msgType, operation: "private_message" });
     return _parseSendResponse(data!, msgType, "private_message");
@@ -167,38 +165,42 @@ export class LansengerClient {
   }
 
   async sendText(chatId: string, content: string, opts?: { file_path?: string; media_type?: number; cover_image_path?: string; reminder_all?: boolean; reminder_user_ids?: string[]; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
-    const msgData: AnyDict = { text: content };
-    const isGroup = opts?.is_group || false;
+    const textObj: AnyDict = { content };
     if (opts?.reminder_all || opts?.reminder_user_ids) {
       const reminder: AnyDict = {};
-      if (opts?.reminder_all) reminder.reminderAll = true;
-      if (opts?.reminder_user_ids) reminder.reminderUserIds = opts.reminder_user_ids;
-      msgData.reminder = reminder;
+      if (opts?.reminder_all) reminder.all = true;
+      if (opts?.reminder_user_ids) reminder.userIds = opts.reminder_user_ids;
+      textObj.reminder = reminder;
     }
     if (opts?.file_path) {
       await this._ensureInit();
       const token = await this._tokenManager!.getToken();
-      const mediaResult = await uploadMedia(this._config, this._tokenManager!, this._fetchFn!, opts.file_path, opts.media_type || guessMediaType(opts.file_path), opts.user_token || "");
+      const mt = opts.media_type || guessMediaType(opts.file_path);
+      const mediaResult = await uploadMedia(this._config, this._tokenManager!, this._fetchFn!, opts.file_path, mt, opts.user_token || "");
       if (!mediaResult.success) return new SendMessageResult({ success: false, error: mediaResult.error });
-      msgData.mediaId = mediaResult.media_id;
+      textObj.mediaType = mt;
+      textObj.mediaIds = [mediaResult.media_id];
       if (opts.cover_image_path) {
         const coverResult = await uploadMedia(this._config, this._tokenManager!, this._fetchFn!, opts.cover_image_path, MEDIA_TYPE_IMAGE, opts.user_token || "");
         if (!coverResult.success) return new SendMessageResult({ success: false, error: coverResult.error });
-        msgData.coverMediaId = coverResult.media_id;
+        textObj.coverMediaIds = [coverResult.media_id];
       }
     }
+    const msgData: AnyDict = { text: textObj };
+    const isGroup = opts?.is_group || false;
     if (isGroup) return this._sendGroup(chatId, "text", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "" });
     return this._sendPrivate(chatId, "text", msgData);
   }
 
   async sendMarkdown(chatId: string, content: string, opts?: { reminder_all?: boolean; reminder_user_ids?: string[]; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
-    const msgData: AnyDict = { formatText: content };
+    const formatTextObj: AnyDict = { formatType: 1, text: content };
     if (opts?.reminder_all || opts?.reminder_user_ids) {
       const reminder: AnyDict = {};
-      if (opts?.reminder_all) reminder.reminderAll = true;
-      if (opts?.reminder_user_ids) reminder.reminderUserIds = opts.reminder_user_ids;
-      msgData.reminder = reminder;
+      if (opts?.reminder_all) reminder.all = true;
+      if (opts?.reminder_user_ids) reminder.userIds = opts.reminder_user_ids;
+      formatTextObj.reminder = reminder;
     }
+    const msgData: AnyDict = { formatText: formatTextObj };
     const isGroup = opts?.is_group || false;
     if (isGroup) return this._sendGroup(chatId, "formatText", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "" });
     return this._sendPrivate(chatId, "formatText", msgData);
@@ -209,24 +211,39 @@ export class LansengerClient {
     const mediaType = opts?.media_type || guessMediaType(filePath);
     const uploadResult = await uploadMedia(this._config, this._tokenManager!, this._fetchFn!, filePath, mediaType, opts?.user_token || "");
     if (!uploadResult.success) return new SendMessageResult({ success: false, error: uploadResult.error });
-    const msgData: AnyDict = { mediaId: uploadResult.media_id };
-    if (opts?.caption) msgData.text = opts.caption;
+    const textObj: AnyDict = { content: opts?.caption || "", mediaType, mediaIds: [uploadResult.media_id] };
     if (opts?.cover_image_path) {
       const coverResult = await uploadMedia(this._config, this._tokenManager!, this._fetchFn!, opts.cover_image_path, MEDIA_TYPE_IMAGE, opts?.user_token || "");
       if (!coverResult.success) return new SendMessageResult({ success: false, error: coverResult.error });
-      msgData.coverMediaId = coverResult.media_id;
+      textObj.coverMediaIds = [coverResult.media_id];
     }
+    const msgData: AnyDict = { text: textObj };
     const isGroup = opts?.is_group || false;
-    if (isGroup) return this._sendGroup(chatId, "file", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "" });
-    return this._sendPrivate(chatId, "file", msgData);
+    if (isGroup) return this._sendGroup(chatId, "text", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "" });
+    return this._sendPrivate(chatId, "text", msgData);
   }
 
   async sendImageUrl(chatId: string, imageUrl: string, opts?: { caption?: string; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
-    const msgData: AnyDict = { imageUrl };
-    if (opts?.caption) msgData.text = opts.caption;
-    const isGroup = opts?.is_group || false;
-    if (isGroup) return this._sendGroup(chatId, "image", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "" });
-    return this._sendPrivate(chatId, "image", msgData);
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    const response = await this._fetchFn!(imageUrl, { method: "GET" });
+    if (!response.ok) return new SendMessageResult({ success: false, error: `Failed to download image from URL: ${response.status}` });
+    const arrayBuf = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuf);
+    const tmpDir = os.tmpdir();
+    const tmpPath = path.join(tmpDir, `lansenger_img_${Date.now()}.jpg`);
+    fs.writeFileSync(tmpPath, buffer);
+    try {
+      const uploadResult = await uploadMedia(this._config, this._tokenManager!, this._fetchFn!, tmpPath, MEDIA_TYPE_IMAGE, opts?.user_token || "");
+      if (!uploadResult.success) return new SendMessageResult({ success: false, error: uploadResult.error });
+      const textObj: AnyDict = { content: opts?.caption || "", mediaType: MEDIA_TYPE_IMAGE, mediaIds: [uploadResult.media_id] };
+      const msgData: AnyDict = { text: textObj };
+      const isGroup = opts?.is_group || false;
+      if (isGroup) return this._sendGroup(chatId, "text", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "" });
+      return this._sendPrivate(chatId, "text", msgData);
+    } finally {
+      try { fs.unlinkSync(tmpPath); } catch {}
+    }
   }
 
   async sendLinkCard(chatId: string, title: string, link: string, opts?: { description?: string; icon_link?: string; pc_link?: string; pad_link?: string; from_name?: string; from_icon_link?: string; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
@@ -248,7 +265,7 @@ export class LansengerClient {
   }
 
   async sendAppArticles(chatId: string, articles: AnyDict[], opts?: { is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
-    const msgData: AnyDict = { articles };
+    const msgData: AnyDict = { appArticles: articles };
     const isGroup = opts?.is_group || false;
     if (isGroup) return this._sendGroup(chatId, "appArticles", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "" });
     return this._sendPrivate(chatId, "appArticles", msgData);
@@ -318,10 +335,10 @@ export class LansengerClient {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     const url = buildApiUrl(this._config, "message", "dynamic_update", token);
-    const payload: AnyDict = { msgId: params.msg_id };
-    if (params.head_status_info) payload.headStatusInfo = params.head_status_info;
-    if (params.links) payload.links = params.links;
-    payload.isLastUpdate = params.is_last_update;
+    const appCardUpdateMsg: AnyDict = { isLastUpdate: params.is_last_update };
+    if (params.head_status_info) appCardUpdateMsg.headStatusInfo = params.head_status_info;
+    if (params.links) appCardUpdateMsg.links = params.links;
+    const payload: AnyDict = { msgId: params.msg_id, msgType: "appCard", msgData: { appCardUpdateMsg } };
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
     if (httpErr) return new SendMessageResult({ success: false, error: httpErr, msg_type: "dynamic_update" });
     return _parseSendResponse(data!, "dynamic_update", "update_dynamic_card");
@@ -331,7 +348,7 @@ export class LansengerClient {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     const url = buildApiUrl(this._config, "message", "revoke", token);
-    const payload: AnyDict = { msgIdList: messageIds, chatType: opts?.chat_type || "bot" };
+    const payload: AnyDict = { messageIds, chatType: opts?.chat_type || "bot" };
     if (opts?.sender_id) payload.senderId = opts.sender_id;
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
     if (httpErr) return new SendMessageResult({ success: false, error: httpErr, operation: "revoke_message" });
@@ -492,12 +509,18 @@ export class LansengerClient {
         results.push(await sendGroupMessage(this._config, token, gid, msgType, msgData, { user_token: opts?.user_token || "", fetchFn: this._fetchFn! }));
       }
       const first = results[0];
-      return new BotMessageResult({ success: first.success, message_id: first.message_id, error: first.error, raw_response: first.raw_response });
+      const allSuccess = results.every(r => r.success);
+      const allErrors = results.filter(r => !r.success).map(r => r.error || "");
+      const allMessageIds = results.map(r => r.message_id || "").filter(id => id);
+      if (allSuccess) {
+        return new BotMessageResult({ success: true, message_id: allMessageIds.join(",") || first.message_id, raw_response: first.raw_response });
+      }
+      return new BotMessageResult({ success: false, error: allErrors.join("; ") || first.error, raw_response: first.raw_response });
     }
     const url = buildApiUrl(this._config, "bot", "message_create", token, { userToken: opts?.user_token || "" });
     const payload: AnyDict = { msgType, msgData };
-    if (chatIds) payload.userIdList = chatIds;
-    if (departmentIds) payload.departmentIdList = departmentIds;
+    if (chatIds && chatIds.length > 0) payload.userIdList = chatIds;
+    if (departmentIds && departmentIds.length > 0) payload.departmentIdList = departmentIds;
     if (opts?.entry_id) payload.entryId = opts.entry_id;
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
     if (httpErr) return new BotMessageResult({ success: false, error: httpErr });

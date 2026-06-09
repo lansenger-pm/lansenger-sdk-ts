@@ -120,7 +120,7 @@ export class CredentialStore {
     const data = this.getProfileData(this.load());
     const token = data.app_token;
     const expiry = data.app_token_expiry || 0;
-    if (token && expiry > Date.now() / 1000) return token;
+    if (token && expiry > Math.floor(Date.now() / 1000)) return token;
     return null;
   }
 
@@ -128,7 +128,7 @@ export class CredentialStore {
     const state = this.load();
     const data = this.getProfileData(state);
     data.app_token = token;
-    data.app_token_expiry = Date.now() / 1000 + expiresIn - margin;
+    data.app_token_expiry = Math.floor(Date.now() / 1000) + expiresIn - margin;
     this.save(this.setProfileData(state, data));
   }
 
@@ -147,8 +147,8 @@ export class CredentialStore {
     const data = this.getProfileData(state);
     data.user_token = userToken;
     data.refresh_token = refreshToken;
-    if (expiresIn) data.user_token_expiry = Date.now() / 1000 + expiresIn - margin;
-    if (refreshExpiresIn) data.refresh_token_expiry = Date.now() / 1000 + refreshExpiresIn;
+    if (expiresIn) data.user_token_expiry = Math.floor(Date.now() / 1000) + expiresIn - margin;
+    if (refreshExpiresIn) data.refresh_token_expiry = Math.floor(Date.now() / 1000) + refreshExpiresIn;
     this.save(this.setProfileData(state, data));
   }
 
