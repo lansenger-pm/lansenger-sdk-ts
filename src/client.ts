@@ -358,7 +358,7 @@ export class LansengerClient {
   async queryGroups(opts?: { page_offset?: number; page_size?: number }): Promise<QueryGroupsResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
-    const pageOffset = opts?.page_offset || 1;
+    const pageOffset = opts?.page_offset ?? 0;
     const pageSize = opts?.page_size || 100;
     const url = buildApiUrl(this._config, "groups", "fetch", token, { 
       queryParams: { page_offset: pageOffset, page_size: pageSize }
