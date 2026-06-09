@@ -22,8 +22,8 @@ export async function fetchUserInfo(
   const d = data!.data || {};
   return new UserInfoResult({
     success: true, staff_id: d.staffId, name: d.name,
-    org_id: d.orgId, org_name: d.orgid || d.orgName || d.orgname,
-    avatar_id: d.avatarId, avatar_url: d.avatarUrl,
+    org_id: d.orgId, org_name: d.orgname || d.orgName,
+    avatar_id: d.avatarId, avatar_url: d.avatar,
     mobile_phone: d.mobilePhone, email: d.email,
     employee_number: d.employeeNumber, login_name: d.loginName,
     external_id: d.externalId, department: d.department,

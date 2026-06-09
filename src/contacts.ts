@@ -27,7 +27,7 @@ export async function fetchStaffBasicInfo(
   const d = data!.data || {};
   return new StaffBasicInfoResult({
     success: true, org_id: d.orgId, org_name: d.orgName, name: d.name,
-    gender: d.gender, signature: d.signature, avatar_url: d.avatarUrl,
+    gender: d.gender, signature: d.signature, avatar_url: d.avatar,
     avatar_id: d.avatarId, status: d.status, departments: d.departments,
     raw_response: data!,
   });
