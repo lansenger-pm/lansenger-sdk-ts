@@ -426,6 +426,7 @@ const types = LansengerClient.getCallbackEventTypes(); // 25 types d'événement
 | `LANSENGER_APP_SECRET` | ✓ | Secret App/Bot | — |
 | `LANSENGER_API_GATEWAY_URL` | ✗ | URL de la passerelle API | `https://open.e.lanxin.cn/open/apigw` |
 | `LANSENGER_PASSPORT_URL` | ✗ | URL Passport (pour OAuth2) | — |
+| `LANSENGER_REDIRECT_URI` | ✗ | URI de redirection OAuth2 | `http://localhost:8765` |
 | `LANSENGER_ENCODING_KEY` | ✗ | Clé de chiffrement AES callback (Base64) | — |
 | `LANSENGER_CALLBACK_TOKEN` | ✗ | Token de signature callback | — |
 

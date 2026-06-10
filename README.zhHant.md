@@ -426,6 +426,7 @@ const types = LansengerClient.getCallbackEventTypes(); // 25 種事件類型，1
 | `LANSENGER_APP_SECRET` | ✓ | 應用/機器人密鑰 | — |
 | `LANSENGER_API_GATEWAY_URL` | ✗ | API 网關 URL | `https://open.e.lanxin.cn/open/apigw` |
 | `LANSENGER_PASSPORT_URL` | ✗ | 通行證 URL（OAuth2） | — |
+| `LANSENGER_REDIRECT_URI` | ✗ | OAuth2 回調地址 | `http://localhost:8765` |
 | `LANSENGER_ENCODING_KEY` | ✗ | 回調 AES 加密密鑰 (Base64) | — |
 | `LANSENGER_CALLBACK_TOKEN` | ✗ | 回調簽名令牌 | — |
 
