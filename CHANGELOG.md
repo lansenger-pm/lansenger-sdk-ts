@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-06-10
+
+### Added
+- `config.redirect_uri` field + `LANSENGER_REDIRECT_URI` env var support
+- `CredentialStore.saveCredentials` / `loadCredentials` now persist `redirect_uri`
+- `buildAuthorizeUrl` uses `config.redirect_uri` as default fallback when `redirectUri` arg is empty
+- `saveUserToken` / `loadUserToken` now persist `staff_id` — survives process restarts
+- `UserTokenManager` loads/saves `staffId` from credential store
+
 ## [1.3.0] - 2026-06-10
 
 ### Fixed
