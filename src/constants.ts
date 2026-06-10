@@ -115,8 +115,7 @@ export const OAUTH2_SCOPES: Record<string, string> = {
 
 export const MEDIA_TYPE_VIDEO = 1;
 export const MEDIA_TYPE_IMAGE = 2;
-export const MEDIA_TYPE_FILE = 3;
-export const MEDIA_TYPE_AUDIO = 4;
+export const MEDIA_TYPE_AUDIO = 3;
 
 export const APP_MEDIA_TYPE_FILE = "file";
 export const APP_MEDIA_TYPE_VIDEO = "video";
@@ -175,7 +174,8 @@ export function guessMediaType(filePath: string): number {
   const ext = filePath.substring(filePath.lastIndexOf(".")).toLowerCase();
   if (IMAGE_EXTENSIONS.has(ext)) return MEDIA_TYPE_IMAGE;
   if (VIDEO_EXTENSIONS.has(ext)) return MEDIA_TYPE_VIDEO;
-  return MEDIA_TYPE_FILE;
+  if (AUDIO_EXTENSIONS.has(ext)) return MEDIA_TYPE_AUDIO;
+  return MEDIA_TYPE_IMAGE;
 }
 
 export function guessAppMediaType(filePath: string): string {
@@ -186,4 +186,4 @@ export function guessAppMediaType(filePath: string): string {
   return APP_MEDIA_TYPE_FILE;
 }
 
-export const VERSION = "1.2.8";
+export const VERSION = "1.2.9";

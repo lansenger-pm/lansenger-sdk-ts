@@ -1,6 +1,6 @@
 import {
-  API_ENDPOINTS, MEDIA_TYPE_VIDEO, MEDIA_TYPE_IMAGE, MEDIA_TYPE_FILE,
-  MEDIA_TYPE_AUDIO, APP_MEDIA_TYPE_FILE, APP_MEDIA_TYPE_VIDEO,
+  API_ENDPOINTS, MEDIA_TYPE_VIDEO, MEDIA_TYPE_IMAGE, MEDIA_TYPE_AUDIO,
+  APP_MEDIA_TYPE_FILE, APP_MEDIA_TYPE_VIDEO,
   APP_MEDIA_TYPE_IMAGE, APP_MEDIA_TYPE_AUDIO, IMAGE_EXTENSIONS,
   VIDEO_EXTENSIONS, AUDIO_EXTENSIONS, MAX_MESSAGE_LENGTH,
   TOKEN_REFRESH_MARGIN, TODO_TODO_STATUS_PENDING_READ,
@@ -63,8 +63,7 @@ describe("Media type constants", () => {
   test("numeric types", () => {
     expect(MEDIA_TYPE_VIDEO).toBe(1);
     expect(MEDIA_TYPE_IMAGE).toBe(2);
-    expect(MEDIA_TYPE_FILE).toBe(3);
-    expect(MEDIA_TYPE_AUDIO).toBe(4);
+    expect(MEDIA_TYPE_AUDIO).toBe(3);
   });
 
   test("app media type strings", () => {
@@ -96,10 +95,10 @@ describe("guessMediaType", () => {
     expect(guessMediaType("video.mov")).toBe(MEDIA_TYPE_VIDEO);
   });
 
-  test("falls back to file", () => {
-    expect(guessMediaType("doc.pdf")).toBe(MEDIA_TYPE_FILE);
-    expect(guessMediaType("data.xlsx")).toBe(MEDIA_TYPE_FILE);
-    expect(guessMediaType("archive.zip")).toBe(MEDIA_TYPE_FILE);
+  test("falls back to image", () => {
+    expect(guessMediaType("doc.pdf")).toBe(MEDIA_TYPE_IMAGE);
+    expect(guessMediaType("data.xlsx")).toBe(MEDIA_TYPE_IMAGE);
+    expect(guessMediaType("archive.zip")).toBe(MEDIA_TYPE_IMAGE);
   });
 
   test("case insensitive", () => {
@@ -162,6 +161,6 @@ describe("Other constants", () => {
   });
 
   test("VERSION", () => {
-    expect(VERSION).toBe("1.2.8");
+    expect(VERSION).toBe("1.2.9");
   });
 });

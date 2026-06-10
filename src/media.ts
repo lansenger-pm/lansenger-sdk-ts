@@ -5,7 +5,7 @@ import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
 import { doGet, doPost, doPostMultipart, parseApiResponse, FetchFn } from "./http";
 import { TokenManager } from "./auth";
-import { MEDIA_TYPE_FILE, MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO, APP_MEDIA_TYPE_FILE, guessMediaType, guessAppMediaType } from "./constants";
+import { MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO, APP_MEDIA_TYPE_FILE, guessMediaType, guessAppMediaType } from "./constants";
 import { UploadMediaResult, DownloadMediaResult, MediaPathResult } from "./models";
 import { LansengerFileError } from "./exceptions";
 import FormData = require("form-data");
@@ -15,7 +15,7 @@ export async function uploadMedia(
   tokenManager: TokenManager,
   fetchFn: FetchFn,
   filePath: string,
-  mediaType: number = MEDIA_TYPE_FILE,
+  mediaType: number = MEDIA_TYPE_IMAGE,
   userToken: string = "",
 ): Promise<UploadMediaResult> {
   if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile())

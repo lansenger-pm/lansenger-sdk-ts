@@ -6,7 +6,7 @@ import { TokenManager, UserTokenManager } from "./auth";
 import { CredentialStore } from "./persistence";
 import { doGet, doPost, FetchFn } from "./http";
 import { buildApiUrl } from "./urlHelpers";
-import { MEDIA_TYPE_FILE, MEDIA_TYPE_IMAGE, guessMediaType, guessAppMediaType, APP_MEDIA_TYPE_FILE } from "./constants";
+import { MEDIA_TYPE_IMAGE, guessMediaType, guessAppMediaType, APP_MEDIA_TYPE_FILE } from "./constants";
 import { LansengerAPIError, LansengerAuthError, LansengerConfigError, LansengerFileError } from "./exceptions";
 import {
   SendMessageResult, AppCardParams, LinkCardParams, OaCardParams,
