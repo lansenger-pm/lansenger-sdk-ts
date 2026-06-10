@@ -122,6 +122,14 @@ export const APP_MEDIA_TYPE_VIDEO = "video";
 export const APP_MEDIA_TYPE_IMAGE = "image";
 export const APP_MEDIA_TYPE_AUDIO = "audio";
 
+// Map app media type (4.5.4 upload string) → message body mediaType (int: 1=video, 2=image, 3=file)
+export const APP_TO_MSG_MEDIA_TYPE: Record<string, number> = {
+  [APP_MEDIA_TYPE_VIDEO]: MEDIA_TYPE_VIDEO,   // "video" → 1
+  [APP_MEDIA_TYPE_IMAGE]: MEDIA_TYPE_IMAGE,   // "image" → 2
+  [APP_MEDIA_TYPE_FILE]: MEDIA_TYPE_AUDIO,    // "file"  → 3
+  [APP_MEDIA_TYPE_AUDIO]: MEDIA_TYPE_AUDIO,   // "audio" → 3
+};
+
 export const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
 export const VIDEO_EXTENSIONS = new Set([".mp4", ".mov", ".avi", ".mkv", ".webm", ".3gp"]);
 export const AUDIO_EXTENSIONS = new Set([".mp3", ".wav", ".amr", ".m4a", ".ogg", ".flac", ".aac"]);
@@ -186,4 +194,4 @@ export function guessAppMediaType(filePath: string): string {
   return APP_MEDIA_TYPE_FILE;
 }
 
-export const VERSION = "1.3.3";
+export const VERSION = "1.3.4";
