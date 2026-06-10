@@ -6,7 +6,7 @@ import { TokenManager, UserTokenManager } from "./auth";
 import { CredentialStore } from "./persistence";
 import { doGet, doPost, FetchFn } from "./http";
 import { buildApiUrl } from "./urlHelpers";
-import { MEDIA_TYPE_IMAGE, guessMediaType, guessAppMediaType, APP_MEDIA_TYPE_FILE } from "./constants";
+import { APP_MEDIA_TYPE_IMAGE, APP_MEDIA_TYPE_FILE, guessMediaType, guessAppMediaType } from "./constants";
 import { LansengerAPIError, LansengerAuthError, LansengerConfigError, LansengerFileError } from "./exceptions";
 import {
   SendMessageResult, AppCardParams, LinkCardParams, OaCardParams,
@@ -165,7 +165,7 @@ export class LansengerClient {
     return _parseSendResponse(data!, msgType, "group_message");
   }
 
-  async sendText(chatId: string, content: string, opts?: { file_path?: string; media_type?: number; cover_image_path?: string; reminder_all?: boolean; reminder_user_ids?: string[]; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
+  async sendText(chatId: string, content: string, opts?: { file_path?: string; media_type?: string; cover_image_path?: string; reminder_all?: boolean; reminder_user_ids?: string[]; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
     const textObj: AnyDict = { content };
     if (opts?.reminder_all || opts?.reminder_user_ids) {
       const reminder: AnyDict = {};
@@ -175,14 +175,13 @@ export class LansengerClient {
     }
     if (opts?.file_path) {
       await this._ensureInit();
-      const token = await this._tokenManager!.getToken();
-      const mt = opts.media_type || guessMediaType(opts.file_path);
-      const mediaResult = await uploadMedia(this._config, this._tokenManager!, this._fetchFn!, opts.file_path, mt, opts.user_token || "");
+      const mt = opts.media_type || guessAppMediaType(opts.file_path) || APP_MEDIA_TYPE_FILE;
+      const mediaResult = await uploadAppMedia(this._config, this._tokenManager!, this._fetchFn!, opts.file_path, mt);
       if (!mediaResult.success) return new SendMessageResult({ success: false, error: mediaResult.error });
       textObj.mediaType = mt;
       textObj.mediaIds = [mediaResult.media_id];
       if (opts.cover_image_path) {
-        const coverResult = await uploadMedia(this._config, this._tokenManager!, this._fetchFn!, opts.cover_image_path, MEDIA_TYPE_IMAGE, opts.user_token || "");
+        const coverResult = await uploadAppMedia(this._config, this._tokenManager!, this._fetchFn!, opts.cover_image_path, APP_MEDIA_TYPE_IMAGE);
         if (!coverResult.success) return new SendMessageResult({ success: false, error: coverResult.error });
         textObj.coverMediaIds = [coverResult.media_id];
       }
@@ -207,14 +206,14 @@ export class LansengerClient {
     return this._sendPrivate(chatId, "formatText", msgData);
   }
 
-  async sendFile(chatId: string, filePath: string, opts?: { caption?: string; media_type?: number; cover_image_path?: string; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
+  async sendFile(chatId: string, filePath: string, opts?: { caption?: string; media_type?: string; cover_image_path?: string; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
     await this._ensureInit();
-    const mediaType = opts?.media_type || guessMediaType(filePath);
-    const uploadResult = await uploadMedia(this._config, this._tokenManager!, this._fetchFn!, filePath, mediaType, opts?.user_token || "");
+    const mediaType = opts?.media_type || guessAppMediaType(filePath) || APP_MEDIA_TYPE_FILE;
+    const uploadResult = await uploadAppMedia(this._config, this._tokenManager!, this._fetchFn!, filePath, mediaType);
     if (!uploadResult.success) return new SendMessageResult({ success: false, error: uploadResult.error });
     const textObj: AnyDict = { content: opts?.caption || "", mediaType, mediaIds: [uploadResult.media_id] };
     if (opts?.cover_image_path) {
-      const coverResult = await uploadMedia(this._config, this._tokenManager!, this._fetchFn!, opts.cover_image_path, MEDIA_TYPE_IMAGE, opts?.user_token || "");
+      const coverResult = await uploadAppMedia(this._config, this._tokenManager!, this._fetchFn!, opts.cover_image_path, APP_MEDIA_TYPE_IMAGE);
       if (!coverResult.success) return new SendMessageResult({ success: false, error: coverResult.error });
       textObj.coverMediaIds = [coverResult.media_id];
     }
@@ -235,9 +234,9 @@ export class LansengerClient {
     const tmpPath = path.join(tmpDir, `lansenger_img_${Date.now()}.jpg`);
     fs.writeFileSync(tmpPath, buffer);
     try {
-      const uploadResult = await uploadMedia(this._config, this._tokenManager!, this._fetchFn!, tmpPath, MEDIA_TYPE_IMAGE, opts?.user_token || "");
+      const uploadResult = await uploadAppMedia(this._config, this._tokenManager!, this._fetchFn!, tmpPath, APP_MEDIA_TYPE_IMAGE);
       if (!uploadResult.success) return new SendMessageResult({ success: false, error: uploadResult.error });
-      const textObj: AnyDict = { content: opts?.caption || "", mediaType: MEDIA_TYPE_IMAGE, mediaIds: [uploadResult.media_id] };
+      const textObj: AnyDict = { content: opts?.caption || "", mediaType: APP_MEDIA_TYPE_IMAGE, mediaIds: [uploadResult.media_id] };
       const msgData: AnyDict = { text: textObj };
       const isGroup = opts?.is_group || false;
       if (isGroup) return this._sendGroup(chatId, "text", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "" });

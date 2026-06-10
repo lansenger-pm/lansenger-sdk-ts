@@ -95,10 +95,10 @@ describe("guessMediaType", () => {
     expect(guessMediaType("video.mov")).toBe(MEDIA_TYPE_VIDEO);
   });
 
-  test("falls back to image", () => {
-    expect(guessMediaType("doc.pdf")).toBe(MEDIA_TYPE_IMAGE);
-    expect(guessMediaType("data.xlsx")).toBe(MEDIA_TYPE_IMAGE);
-    expect(guessMediaType("archive.zip")).toBe(MEDIA_TYPE_IMAGE);
+  test("returns undefined for unknown extensions", () => {
+    expect(guessMediaType("doc.pdf")).toBeUndefined();
+    expect(guessMediaType("data.xlsx")).toBeUndefined();
+    expect(guessMediaType("archive.zip")).toBeUndefined();
   });
 
   test("case insensitive", () => {

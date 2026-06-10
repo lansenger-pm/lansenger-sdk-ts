@@ -170,12 +170,12 @@ export const CALLBACK_EVENT_TYPES: Record<string, string> = {
   schedule_delete: "calendar",
 };
 
-export function guessMediaType(filePath: string): number {
+export function guessMediaType(filePath: string): number | undefined {
   const ext = filePath.substring(filePath.lastIndexOf(".")).toLowerCase();
   if (IMAGE_EXTENSIONS.has(ext)) return MEDIA_TYPE_IMAGE;
   if (VIDEO_EXTENSIONS.has(ext)) return MEDIA_TYPE_VIDEO;
   if (AUDIO_EXTENSIONS.has(ext)) return MEDIA_TYPE_AUDIO;
-  return MEDIA_TYPE_IMAGE;
+  return undefined;
 }
 
 export function guessAppMediaType(filePath: string): string {
@@ -186,4 +186,4 @@ export function guessAppMediaType(filePath: string): string {
   return APP_MEDIA_TYPE_FILE;
 }
 
-export const VERSION = "1.2.9";
+export const VERSION = "1.3.3";
