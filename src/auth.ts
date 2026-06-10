@@ -114,6 +114,7 @@ export class UserTokenManager {
       const rt = cached.refresh_token || "";
       const expiry = cached.user_token_expiry || 0;
       const refreshExpiry = cached.refresh_token_expiry || 0;
+      const sid = cached.staff_id || "";
 
       // Load userToken (only if still valid, accounting for refresh margin)
       if (ut && expiry > Math.floor(Date.now() / 1000) + USER_TOKEN_REFRESH_MARGIN) {
@@ -128,6 +129,11 @@ export class UserTokenManager {
       if (rt && refreshExpiry > Math.floor(Date.now() / 1000)) {
         this.refreshToken = rt;
         this.refreshTokenExpiry = refreshExpiry;
+      }
+
+      // Load staffId from cache — independent from token validity
+      if (sid) {
+        this.staffId = sid;
       }
     }
   }
@@ -193,7 +199,7 @@ export class UserTokenManager {
 
       if (this.store) {
         const refreshExpiresIn = tokenData.refreshExpiresIn || 0;
-        this.store.saveUserToken(this.userToken, this.refreshToken || "", expiresIn, USER_TOKEN_REFRESH_MARGIN, refreshExpiresIn);
+        this.store.saveUserToken(this.userToken, this.refreshToken || "", expiresIn, USER_TOKEN_REFRESH_MARGIN, refreshExpiresIn, this.staffId || "");
       }
 
       return this.userToken;
@@ -211,7 +217,7 @@ export class UserTokenManager {
     if (staffId) this.staffId = staffId;
 
     if (this.store) {
-      this.store.saveUserToken(userToken, refreshToken, expiresIn, USER_TOKEN_REFRESH_MARGIN, refreshExpiresIn);
+      this.store.saveUserToken(userToken, refreshToken, expiresIn, USER_TOKEN_REFRESH_MARGIN, refreshExpiresIn, staffId);
     }
   }
 

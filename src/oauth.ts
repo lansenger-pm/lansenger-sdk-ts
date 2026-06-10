@@ -8,13 +8,20 @@ import { randomUUID } from "crypto";
 
 export function buildAuthorizeUrl(
   config: LansengerConfig,
-  redirectUri: string,
+  redirectUri?: string,
   opts?: { scope?: string | string[]; state?: string },
 ): string {
   if (!config.passport_url) {
     throw new LansengerConfigError(
       "passport_url is required for OAuth2 flows. " +
       "Set LANSENGER_PASSPORT_URL env var or pass passport_url in config."
+    );
+  }
+  const resolvedRedirectUri = redirectUri || config.redirect_uri;
+  if (!resolvedRedirectUri) {
+    throw new LansengerConfigError(
+      "redirect_uri is required for OAuth2 authorize URL. " +
+      "Set LANSENGER_REDIRECT_URI env var, pass redirect_uri in config, or pass it directly."
     );
   }
   const state = opts?.state || randomUUID().replace(/-/g, "");
@@ -24,7 +31,7 @@ export function buildAuthorizeUrl(
   else scopeStr = opts.scope;
   const params = new URLSearchParams({
     appid: config.app_id, response_type: "code", scope: scopeStr,
-    state, redirect_uri: redirectUri,
+    state, redirect_uri: resolvedRedirectUri,
   });
   const baseUrl = config.passport_url.replace(/\/+$/, "") + API_ENDPOINTS.oauth2.authorize;
   return `${baseUrl}?${params.toString()}`;

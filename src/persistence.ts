@@ -8,7 +8,7 @@ const DEFAULT_PROFILE = "default";
 
 const LEGACY_KEYS = new Set([
   "app_id", "app_secret", "api_gateway_url", "passport_url",
-  "encoding_key", "callback_token",
+  "encoding_key", "callback_token", "redirect_uri",
   "app_token", "app_token_expiry", "user_token", "refresh_token",
   "user_token_expiry",
 ]);
@@ -86,6 +86,7 @@ export class CredentialStore {
       passport_url: data.passport_url || "",
       encoding_key: data.encoding_key || "",
       callback_token: data.callback_token || "",
+      redirect_uri: data.redirect_uri || "",
     };
   }
 
@@ -96,6 +97,7 @@ export class CredentialStore {
     passportUrl: string = "",
     encodingKey: string = "",
     callbackToken: string = "",
+    redirectUri: string = "",
   ): void {
     const state = this.load();
     const data = this.getProfileData(state);
@@ -105,6 +107,7 @@ export class CredentialStore {
     if (passportUrl) data.passport_url = passportUrl;
     data.encoding_key = encodingKey;
     data.callback_token = callbackToken;
+    data.redirect_uri = redirectUri;
     this.save(this.setProfileData(state, data));
   }
 
@@ -139,16 +142,18 @@ export class CredentialStore {
       refresh_token: data.refresh_token || "",
       user_token_expiry: data.user_token_expiry || 0,
       refresh_token_expiry: data.refresh_token_expiry || 0,
+      staff_id: data.staff_id || "",
     };
   }
 
-  saveUserToken(userToken: string, refreshToken: string = "", expiresIn: number = 0, margin: number = 300, refreshExpiresIn: number = 0): void {
+  saveUserToken(userToken: string, refreshToken: string = "", expiresIn: number = 0, margin: number = 300, refreshExpiresIn: number = 0, staffId: string = ""): void {
     const state = this.load();
     const data = this.getProfileData(state);
     data.user_token = userToken;
     data.refresh_token = refreshToken;
     if (expiresIn) data.user_token_expiry = Math.floor(Date.now() / 1000) + expiresIn - margin;
     if (refreshExpiresIn) data.refresh_token_expiry = Math.floor(Date.now() / 1000) + refreshExpiresIn;
+    if (staffId) data.staff_id = staffId;
     this.save(this.setProfileData(state, data));
   }
 

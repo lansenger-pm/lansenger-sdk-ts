@@ -70,8 +70,9 @@ export class LansengerClient {
     storePath?: string,
     encodingKey: string = "",
     callbackToken: string = "",
+    redirectUri: string = "",
   ) {
-    this._config = new LansengerConfig(appId, appSecret, apiGatewayUrl, passportUrl, httpTimeout, encodingKey, callbackToken);
+    this._config = new LansengerConfig(appId, appSecret, apiGatewayUrl, passportUrl, httpTimeout, encodingKey, callbackToken, redirectUri);
     if (storePath) {
       this._store = new CredentialStore(storePath);
     }
@@ -79,18 +80,18 @@ export class LansengerClient {
 
   static fromEnv(storePath?: string): LansengerClient {
     const config = LansengerConfig.fromEnv();
-    return new LansengerClient(config.app_id, config.app_secret, config.api_gateway_url, config.passport_url, config.http_timeout, storePath, config.encoding_key, config.callback_token);
+    return new LansengerClient(config.app_id, config.app_secret, config.api_gateway_url, config.passport_url, config.http_timeout, storePath, config.encoding_key, config.callback_token, config.redirect_uri);
   }
 
   static fromConfig(config: LansengerConfig, storePath?: string): LansengerClient {
-    return new LansengerClient(config.app_id, config.app_secret, config.api_gateway_url, config.passport_url, config.http_timeout, storePath, config.encoding_key, config.callback_token);
+    return new LansengerClient(config.app_id, config.app_secret, config.api_gateway_url, config.passport_url, config.http_timeout, storePath, config.encoding_key, config.callback_token, config.redirect_uri);
   }
 
   static fromStore(profile: string = "default", filePath?: string): LansengerClient {
     const store = new CredentialStore(filePath, profile);
     const creds = store.loadCredentials();
     if (!creds.app_id || !creds.app_secret || !creds.api_gateway_url) throw new LansengerConfigError("No complete credentials found in store profile (need app_id, app_secret, api_gateway_url)");
-    return new LansengerClient(creds.app_id, creds.app_secret, creds.api_gateway_url, creds.passport_url, 30, filePath, creds.encoding_key, creds.callback_token);
+    return new LansengerClient(creds.app_id, creds.app_secret, creds.api_gateway_url, creds.passport_url, 30, filePath, creds.encoding_key, creds.callback_token, creds.redirect_uri);
   }
 
   get config(): LansengerConfig { return this._config; }
@@ -415,7 +416,7 @@ export class LansengerClient {
     return fetchMediaPath(this._config, token, mediaId, { user_token: opts?.user_token || "", fetchFn: this._fetchFn! });
   }
 
-  buildAuthorizeUrl(redirectUri: string, opts?: { scope?: string | string[]; state?: string }): string {
+  buildAuthorizeUrl(redirectUri?: string, opts?: { scope?: string | string[]; state?: string }): string {
     return buildAuthorizeUrl(this._config, redirectUri, opts);
   }
 
