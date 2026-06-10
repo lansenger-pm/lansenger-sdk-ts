@@ -30,7 +30,7 @@
 - **訊息傳遞** — 3 種私聊通道（機械人、公眾號、人→人）+ 群聊，支援所有訊息類型，含 @提及和真人/機械人發送身分，加急提醒
 - **富卡片** — appCard（支援動態狀態更新）、oacard、linkCard、appArticles
 - **串流訊息** — SSE 即時投遞，專為 AI Agent 設計
-- **媒體上傳/下載** — 檔案、圖片、影片，自動偵測類型，媒體路徑取得
+- **媒體上載/下載** — 檔案、圖片、影片，自動偵測類型，媒體路徑取得
 - **訊息管理** — 撤回、動態卡片更新
 - **群組** — 建立、查詢資訊/成員/列表、成員檢查、更新設定與成員、解散
 - **日曆日程** — 主日曆、日程 CRUD + 更新、參會人管理 + 參會人元資料
@@ -85,7 +85,7 @@ client.invalidateToken(); // 強制下次呼叫時更新
 
 | 機械人類型 | 如何取得 app_id + app_secret |
 |------------|------------------------------|
-| **個人機械人** | 藍信桌面端 → 通訊錄 → 智慧機械人 → 個人機械人 → 點擊右側 ℹ️ 圖標（行動端不支援查看憑證） |
+| **個人機械人** | 藍信桌面端 → 通訊錄 → 智能機械人 → 個人機械人 → 點擊右側 ℹ️ 圖標（行動端不支援查看憑證） |
 | **藍信應用** | 在藍信開發者中心建立，可能需要向組織管理員申請 |
 | **組織機械人** | 在藍信開發者中心建立，可能需要向組織管理員申請 |
 
@@ -219,7 +219,7 @@ const result = await client.fetchStreamMessage("msg123");
 #### 媒體
 
 ```typescript
-// 上傳
+// 上載
 const upload = await client.uploadMediaFile("/path/to/file.pdf");
 
 // 下載
@@ -470,7 +470,7 @@ lansenger-sdk-ts/
 │   ├── accountMessages.ts    # 公眾號通道
 │   ├── userMessages.ts       # 人→人通道
 │   ├── groupMessages.ts      # 羣聊通道
-│   ├── media.ts              # 上傳/下載
+│   ├── media.ts              # 上載/下載
 │   ├── streaming.ts          # SSE 串流
 │   ├── persistence.ts        # CredentialStore — 檔案持久化
 │   ├── callbacks.ts          # 回呼事件 — 25 種事件、AES 解密、SHA1 簽名驗證

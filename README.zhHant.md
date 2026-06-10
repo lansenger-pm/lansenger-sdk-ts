@@ -27,7 +27,7 @@
 - **OAuth2 使用者認證** — 構建授權 URL、換取 userToken、刷新令牌
 - **組織與部門** — 組織資訊、部門詳情/子部門/員工
 - **員工與通訊錄** — 基礎/詳細資訊、ID 映射、部門祖先鏈、搜尋
-- **訊息傳遞** — 3 種私聊通道（機器人、公眾號、人→人）+ 群聊，支援所有訊息類型，含 @提及和真人/機器人發送身分，加急提醒
+- **訊息傳遞** — 3 種私聊通道（機器人、公眾號、人→人）+ 群聊，支援所有訊息類型，含 @提及和真人/機器人傳送身分，加急提醒
 - **富卡片** — appCard（支援動態狀態更新）、oacard、linkCard、appArticles
 - **流式訊息** — SSE 即時投遞，專為 AI Agent 設計
 - **媒體上傳/下載** — 檔案、圖片、影片，自動偵測類型，媒體路徑取得
@@ -79,7 +79,7 @@ client.invalidateToken(); // 強制下次呼叫時刷新
 `userToken` 代表特定藍信使用者的授權（透過 OAuth2 取得）。僅在以下場景需要：
 - 使用者級資訊（fetchUserInfo、fetchStaffDetail、searchStaff）
 - 日曆與日程操作（fetchPrimaryCalendar、createSchedule 等）
-- 作為真人發送者的群組操作
+- 作為真人傳送者的群組操作
 
 ### 取得憑證
 
@@ -324,7 +324,7 @@ await client.updateTodoTaskStatus("taskId", TODO_TODO_STATUS_DONE, "org1");
 // 更新內容
 await client.updateTodoTask("taskId", "已更新", "l", "p", "org1");
 
-// 刪除（僅限發送者）
+// 刪除（僅限傳送者）
 await client.deleteTodoTask("taskId", "org1");
 
 // 查詢
