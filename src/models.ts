@@ -887,9 +887,9 @@ export class GroupInfoResult {
   creator!: Record<string, string> | null;
   state!: number | null;
   manage_mode!: number | null;
-  location_share!: boolean | null;
-    needs_confirm!: boolean | null;
-    is_public!: boolean | null;
+  location_share!: number | null;
+  needs_confirm!: number | null;
+  is_public!: number | null;
   max_members!: number | null;
   max_history_msg_count!: number | null;
   total_members!: number | null;
