@@ -22,7 +22,7 @@ export async function createGroup(
   if (!name) return new CreateGroupResult({ success: false, error: "name is required" });
   if (!orgId) return new CreateGroupResult({ success: false, error: "org_id is required" });
   const userToken = opts?.user_token || "";
-  const url = buildApiUrl(config, "groups_v2", "create", appToken, { userToken });
+  const url = buildApiUrl(config, "groups", "create", appToken, { userToken });
   const body: Record<string, any> = { name, orgId };
   if (opts?.owner_id) body.ownerId = opts.owner_id;
   if (opts?.description) body.description = opts.description;

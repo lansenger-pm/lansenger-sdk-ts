@@ -360,7 +360,7 @@ export class LansengerClient {
     const token = await this._tokenManager!.getToken();
     const pageOffset = opts?.page_offset ?? 0;
     const pageSize = opts?.page_size || 100;
-    const url = buildApiUrl(this._config, "groups", "fetch", token, { 
+    const url = buildApiUrl(this._config, "groups", "groups_fetch", token, { 
       queryParams: { page_offset: pageOffset, page_size: pageSize }
     });
     const [data, httpErr] = await doGet(url, this._fetchFn);

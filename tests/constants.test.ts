@@ -29,9 +29,9 @@ describe("API_ENDPOINTS", () => {
     expect(API_ENDPOINTS.departments.fetch).toContain("{department_id}");
   });
 
-  test("has groups_v2 endpoints", () => {
-    expect(API_ENDPOINTS.groups_v2.create).toBe("/v2/groups/create");
-    expect(API_ENDPOINTS.groups_v2.info_fetch).toContain("{group_id}");
+  test("has groups endpoints", () => {
+    expect(API_ENDPOINTS.groups.create).toBe("/v2/groups/create");
+    expect(API_ENDPOINTS.groups.info_fetch).toContain("{group_id}");
   });
 
   test("has calendar endpoints with path vars", () => {

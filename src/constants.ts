@@ -61,9 +61,6 @@ export const API_ENDPOINTS: Record<string, Record<string, string>> = {
     reminder_create: "/v1/messages/reminder/create",
   },
   groups: {
-    fetch: "/v2/groups/fetch",
-  },
-  groups_v2: {
     create: "/v2/groups/create",
     info_fetch: "/v2/groups/{group_id}/info/fetch",
     info_update: "/v2/groups/{group_id}/info/update",
@@ -194,4 +191,4 @@ export function guessAppMediaType(filePath: string): string {
   return APP_MEDIA_TYPE_FILE;
 }
 
-export const VERSION = "1.3.4";
+export const VERSION = "1.3.5";
