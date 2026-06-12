@@ -154,7 +154,8 @@ export class UserTokenManager {
     // Check if refreshToken has actually expired before calling the API.
     // Without this, the SDK would call the API with an expired token and
     // return a confusing error.
-    if (this.refreshTokenExpiry > 0 && Math.floor(Date.now() / 1000) >= this.refreshTokenExpiry) {
+    // Add margin to avoid race at exact expiry boundary.
+    if (this.refreshTokenExpiry > 0 && Math.floor(Date.now() / 1000) >= this.refreshTokenExpiry - USER_TOKEN_REFRESH_MARGIN) {
       throw new LansengerAuthError(
         "RefreshToken has expired. " +
         "Re-run OAuth2 authorize flow: build_authorize_url → exchange_code."
