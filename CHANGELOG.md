@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.7] - 2026-06-12
+
+### Fixed
+
+- **auth**: Added 300-second margin to refreshToken expiry check in `UserTokenManager.getToken()`, matching the existing UserToken margin and preventing race conditions at the exact expiry boundary.
+- **build**: Rebuilt dist/ to include the auth.ts margin fix (v1.3.6 dist was stale).
+
 ## [1.3.6] - 2026-06-12
 
 ### Fixed
