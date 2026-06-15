@@ -42,20 +42,19 @@ export class CredentialStore {
           if (!profile.user_tokens || typeof profile.user_tokens !== "object") {
             profile.user_tokens = {};
           }
-          if (!(staffId in profile.user_tokens)) {
-            profile.user_tokens[staffId] = {
-              user_token: profile.user_token,
-              refresh_token: profile.refresh_token,
-              user_token_expiry: profile.user_token_expiry,
-              refresh_token_expiry: profile.refresh_token_expiry,
-            };
-            delete profile.user_token;
-            delete profile.refresh_token;
-            delete profile.user_token_expiry;
-            delete profile.refresh_token_expiry;
-            delete profile.staff_id;
-            didMigrate = true;
-          }
+          // Always merge flat into nested — old SDK may rewrite flat after migration
+          profile.user_tokens[staffId] = {
+            user_token: profile.user_token,
+            refresh_token: profile.refresh_token,
+            user_token_expiry: profile.user_token_expiry,
+            refresh_token_expiry: profile.refresh_token_expiry,
+          };
+          delete profile.user_token;
+          delete profile.refresh_token;
+          delete profile.user_token_expiry;
+          delete profile.refresh_token_expiry;
+          delete profile.staff_id;
+          didMigrate = true;
         }
       }
       if (didMigrate) {

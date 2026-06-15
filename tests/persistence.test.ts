@@ -281,4 +281,43 @@ describe("CredentialStore userToken isolation", () => {
     const got = store.loadUserToken("");
     expect(got.user_token).toBe("flat-ut");
   });
+
+  test("migration cleans stale flat fields when nested already exists (Issue #2)", () => {
+    // Write a file with BOTH nested user_tokens AND flat user_token/staff_id
+    const now = Math.floor(Date.now() / 1000);
+    fs.writeFileSync(filePath, JSON.stringify({
+      profiles: {
+        default: {
+          app_id: "app1",
+          app_secret: "secret1",
+          // Nested (old data from previous migration)
+          user_tokens: {
+            "staff-1": {
+              user_token: "nested-old",
+              refresh_token: "nested-rt",
+              user_token_expiry: now + 3600,
+              refresh_token_expiry: now + 86400,
+            },
+          },
+          // Flat (written by old SDK) — has NEWER token
+          user_token: "flat-new",
+          refresh_token: "flat-rt-new",
+          staff_id: "staff-1",
+          user_token_expiry: now + 7200,
+          refresh_token_expiry: now + 172800,
+        },
+      },
+      active_profile: "default",
+    }, null, 2));
+
+    const store = new CredentialStore(filePath);
+    const got = store.loadUserToken("staff-1");
+    expect(got.user_token).toBe("flat-new");
+
+    // Verify file has no flat fields after migration
+    const raw = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    const profile = raw.profiles.default;
+    expect(profile.user_token).toBeUndefined();
+    expect(profile.staff_id).toBeUndefined();
+  });
 });

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.11] - 2026-06-16
+
+### Fixed
+
+- **persistence**: `migrateLegacy` now always merges flat fields into nested entries, even when a nested entry already exists. Fixes stale flat fields left by old SDK after migration.
+
+### Added
+
+- **tests**: Test for stale flat field migration cleanup.
+
 ## [1.3.10] - 2026-06-16
 
 ### Added
