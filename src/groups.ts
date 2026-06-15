@@ -53,7 +53,7 @@ export async function fetchGroupInfo(
 ): Promise<GroupInfoResult> {
   if (!groupId) return new GroupInfoResult({ success: false, error: "group_id is required" });
   const userToken = opts?.user_token || "";
-  const url = buildApiUrl(config, "groups_v2", "info_fetch", appToken, { userToken, pathVars: { group_id: groupId } });
+  const url = buildApiUrl(config, "groups", "info_fetch", appToken, { userToken, pathVars: { group_id: groupId } });
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new GroupInfoResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
@@ -81,7 +81,7 @@ export async function fetchGroupMembers(
   const userToken = opts?.user_token || "";
   const pageOffset = opts?.page_offset || 0;
   const pageSize = opts?.page_size || 100;
-  const url = buildApiUrl(config, "groups_v2", "members_fetch", appToken, { 
+  const url = buildApiUrl(config, "groups", "members_fetch", appToken, { 
       userToken, pathVars: { group_id: groupId },
       queryParams: { page_offset: pageOffset, page_size: pageSize }
     });
@@ -104,7 +104,7 @@ export async function fetchGroupList(
   const userToken = opts?.user_token || "";
   const pageOffset = opts?.page_offset || 0;
   const pageSize = opts?.page_size || 100;
-  const url = buildApiUrl(config, "groups_v2", "groups_fetch", appToken, { 
+  const url = buildApiUrl(config, "groups", "groups_fetch", appToken, { 
       userToken, queryParams: { page_offset: pageOffset, page_size: pageSize }
     });
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
@@ -128,7 +128,7 @@ export async function checkIsInGroup(
   const userToken = opts?.user_token || "";
   const queryParams: Record<string, string | number | boolean> = {};
   if (opts?.staff_id) queryParams.staff_id = opts.staff_id;
-  const url = buildApiUrl(config, "groups_v2", "is_in_group", appToken, { 
+  const url = buildApiUrl(config, "groups", "is_in_group", appToken, { 
     userToken, pathVars: { group_id: groupId }, queryParams 
   });
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
@@ -156,7 +156,7 @@ export async function updateGroupInfo(
 ): Promise<UpdateGroupResult> {
   if (!groupId) return new UpdateGroupResult({ success: false, error: "group_id is required" });
   const userToken = opts?.user_token || "";
-  const url = buildApiUrl(config, "groups_v2", "info_update", appToken, { userToken, pathVars: { group_id: groupId } });
+  const url = buildApiUrl(config, "groups", "info_update", appToken, { userToken, pathVars: { group_id: groupId } });
   const body: Record<string, any> = {};
   if (opts?.name) body.name = opts.name;
   if (opts?.description) body.description = opts.description;
@@ -193,7 +193,7 @@ export async function updateGroupMembers(
   if (!opts?.add_user_list && !opts?.del_user_list && !opts?.add_department_id_list)
     return new UpdateGroupMembersResult({ success: false, error: "at least one of add_user_list, del_user_list, or add_department_id_list is required" });
   const userToken = opts?.user_token || "";
-  const url = buildApiUrl(config, "groups_v2", "members_update", appToken, { userToken, pathVars: { group_id: groupId } });
+  const url = buildApiUrl(config, "groups", "members_update", appToken, { userToken, pathVars: { group_id: groupId } });
   const body: Record<string, any> = {};
   if (opts?.add_user_list) body.addUserList = opts.add_user_list;
   if (opts?.del_user_list) body.delUserList = opts.del_user_list;
@@ -220,7 +220,7 @@ export async function dismissGroup(
 ): Promise<UpdateGroupResult> {
   if (!groupId) return new UpdateGroupResult({ success: false, error: "group_id is required" });
   const userToken = opts?.user_token || "";
-  const url = buildApiUrl(config, "groups_v2", "delete", appToken, { userToken, pathVars: { group_id: groupId } });
+  const url = buildApiUrl(config, "groups", "delete", appToken, { userToken, pathVars: { group_id: groupId } });
   const [data, httpErr] = await doPost(url, {}, opts?.fetchFn);
   if (httpErr) return new UpdateGroupResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);

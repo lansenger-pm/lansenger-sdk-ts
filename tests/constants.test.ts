@@ -161,6 +161,6 @@ describe("Other constants", () => {
   });
 
   test("VERSION", () => {
-    expect(VERSION).toBe("1.3.3");
+    expect(VERSION).toBe("1.3.9");
   });
 });

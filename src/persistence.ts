@@ -31,7 +31,38 @@ export class CredentialStore {
   }
 
   private migrateLegacy(state: Record<string, any>): Record<string, any> {
-    if ("profiles" in state) return state;
+    if ("profiles" in state) {
+      // Phase 2: migrate flat userToken → user_tokens[staff_id] per profile
+      const profiles = state.profiles as Record<string, Record<string, any>>;
+      let didMigrate = false;
+      for (const [name, profile] of Object.entries(profiles)) {
+        const staffId = (profile.staff_id || "").trim();
+        const userToken = (profile.user_token || "").trim();
+        if (staffId && userToken) {
+          if (!profile.user_tokens || typeof profile.user_tokens !== "object") {
+            profile.user_tokens = {};
+          }
+          if (!(staffId in profile.user_tokens)) {
+            profile.user_tokens[staffId] = {
+              user_token: profile.user_token,
+              refresh_token: profile.refresh_token,
+              user_token_expiry: profile.user_token_expiry,
+              refresh_token_expiry: profile.refresh_token_expiry,
+            };
+            delete profile.user_token;
+            delete profile.refresh_token;
+            delete profile.user_token_expiry;
+            delete profile.refresh_token_expiry;
+            delete profile.staff_id;
+            didMigrate = true;
+          }
+        }
+      }
+      if (didMigrate) {
+        this.save(state);
+      }
+      return state;
+    }
     const legacyData: Record<string, any> = {};
     for (const [k, v] of Object.entries(state)) {
       if (LEGACY_KEYS.has(k)) legacyData[k] = v;
@@ -135,25 +166,87 @@ export class CredentialStore {
     this.save(this.setProfileData(state, data));
   }
 
-  loadUserToken(): Record<string, any> {
+  loadUserToken(staffId: string = ""): Record<string, any> {
     const data = this.getProfileData(this.load());
-    return {
+
+    if (staffId) {
+      const nested = data.user_tokens;
+      if (nested && typeof nested === "object" && staffId in nested) {
+        const entry = nested[staffId];
+        if (entry && typeof entry === "object") {
+          return {
+            user_token: entry.user_token || "",
+            refresh_token: entry.refresh_token || "",
+            user_token_expiry: entry.user_token_expiry || 0,
+            refresh_token_expiry: entry.refresh_token_expiry || 0,
+            staff_id: staffId,
+          };
+        }
+      }
+    }
+
+    // Fallback: legacy flat fields (backward compat with old store format
+    // before migration runs). If flat is empty, try the first entry from
+    // the nested store (post-migration, when no staff_id is specified).
+    const flat = {
       user_token: data.user_token || "",
       refresh_token: data.refresh_token || "",
       user_token_expiry: data.user_token_expiry || 0,
       refresh_token_expiry: data.refresh_token_expiry || 0,
       staff_id: data.staff_id || "",
     };
+    if (flat.user_token && flat.staff_id) return flat;
+
+    const nested = data.user_tokens;
+    if (nested && typeof nested === "object") {
+      const keys = Object.keys(nested);
+      if (keys.length > 0) {
+        const firstEntry = nested[keys[0]];
+        if (firstEntry && typeof firstEntry === "object") {
+          return {
+            user_token: firstEntry.user_token || "",
+            refresh_token: firstEntry.refresh_token || "",
+            user_token_expiry: firstEntry.user_token_expiry || 0,
+            refresh_token_expiry: firstEntry.refresh_token_expiry || 0,
+            staff_id: keys[0],
+          };
+        }
+      }
+    }
+
+    return flat;
   }
 
   saveUserToken(userToken: string, refreshToken: string = "", expiresIn: number = 0, margin: number = 300, refreshExpiresIn: number = 0, staffId: string = ""): void {
     const state = this.load();
     const data = this.getProfileData(state);
-    data.user_token = userToken;
-    data.refresh_token = refreshToken;
-    if (expiresIn) data.user_token_expiry = Math.floor(Date.now() / 1000) + expiresIn - margin;
-    if (refreshExpiresIn) data.refresh_token_expiry = Math.floor(Date.now() / 1000) + refreshExpiresIn;
-    if (staffId) data.staff_id = staffId;
+
+    if (!staffId) {
+      // Legacy flat path — no staff_id to key on
+      data.user_token = userToken;
+      data.refresh_token = refreshToken;
+      if (expiresIn) data.user_token_expiry = Math.floor(Date.now() / 1000) + expiresIn - margin;
+      if (refreshExpiresIn) data.refresh_token_expiry = Math.floor(Date.now() / 1000) + refreshExpiresIn;
+      delete data.staff_id;
+    } else {
+      if (!data.user_tokens || typeof data.user_tokens !== "object") {
+        data.user_tokens = {};
+      }
+      const entry = data.user_tokens[staffId] || {};
+      entry.user_token = userToken;
+      entry.refresh_token = refreshToken;
+      if (expiresIn) entry.user_token_expiry = Math.floor(Date.now() / 1000) + expiresIn - margin;
+      if (refreshExpiresIn) entry.refresh_token_expiry = Math.floor(Date.now() / 1000) + refreshExpiresIn;
+      data.user_tokens[staffId] = entry;
+
+      // Clean up legacy flat fields after first nested save
+      delete data.user_token;
+      delete data.refresh_token;
+      delete data.user_token_expiry;
+      delete data.refresh_token_expiry;
+      delete data.staff_id;
+    }
+
     this.save(this.setProfileData(state, data));
   }
 
