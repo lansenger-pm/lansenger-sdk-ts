@@ -166,6 +166,26 @@ export class CredentialStore {
     }
   }
 
+  /**
+   * Delete a profile by name. If the deleted profile is the active one,
+   * automatically falls back to "default".
+   * @returns true if the profile was found and deleted, false otherwise.
+   */
+  deleteProfileByName(name: string): boolean {
+    const state = this.load();
+    const profiles = state.profiles || {};
+    if (!(name in profiles)) return false;
+
+    delete profiles[name];
+
+    if (state.active_profile === name) {
+      state.active_profile = DEFAULT_PROFILE;
+    }
+
+    this.save(state);
+    return true;
+  }
+
   clear(): void {
     if (fs.existsSync(this.filePath)) {
       fs.unlinkSync(this.filePath);
