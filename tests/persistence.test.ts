@@ -188,3 +188,97 @@ describe("CredentialStore", () => {
     expect(store.getActiveProfile()).toBe("default");
   });
 });
+
+// ── Multi-user userToken isolation ──────────────────────────────────────
+
+describe("CredentialStore userToken isolation", () => {
+  let filePath: string;
+
+  beforeEach(() => {
+    filePath = tempFilePath();
+  });
+
+  afterEach(() => {
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  });
+
+  test("two users in the same profile do not overwrite each other", () => {
+    const store = new CredentialStore(filePath);
+    store.saveUserToken("token-a", "rt-a", 7200, 300, 2592000, "staff-a");
+    store.saveUserToken("token-b", "rt-b", 7200, 300, 2592000, "staff-b");
+
+    const a = store.loadUserToken("staff-a");
+    const b = store.loadUserToken("staff-b");
+    expect(a.user_token).toBe("token-a");
+    expect(a.staff_id).toBe("staff-a");
+    expect(b.user_token).toBe("token-b");
+    expect(b.staff_id).toBe("staff-b");
+  });
+
+  test("saving staff-b does not wipe staff-a's tokens", () => {
+    const store = new CredentialStore(filePath);
+    store.saveUserToken("token-a", "rt-a", 7200, 300, 0, "staff-a");
+    store.saveUserToken("token-b", "rt-b", 7200, 300, 0, "staff-b");
+
+    const a = store.loadUserToken("staff-a");
+    expect(a.user_token).toBe("token-a");
+  });
+
+  test("updating staff-a does not affect staff-b", () => {
+    const store = new CredentialStore(filePath);
+    store.saveUserToken("token-a-v1", "rt-a", 7200, 300, 0, "staff-a");
+    store.saveUserToken("token-b", "rt-b", 7200, 300, 0, "staff-b");
+
+    store.saveUserToken("token-a-v2", "rt-a-v2", 7200, 300, 0, "staff-a");
+
+    expect(store.loadUserToken("staff-a").user_token).toBe("token-a-v2");
+    expect(store.loadUserToken("staff-b").user_token).toBe("token-b");
+  });
+
+  test("legacy flat format is auto-migrated on first access", () => {
+    // Write legacy flat format manually before creating the store
+    fs.writeFileSync(filePath, JSON.stringify({
+      profiles: {
+        default: {
+          app_id: "app1",
+          app_secret: "secret1",
+          user_token: "legacy-ut",
+          refresh_token: "legacy-rt",
+          staff_id: "legacy-staff",
+          user_token_expiry: Math.floor(Date.now() / 1000) + 7200,
+          refresh_token_expiry: Math.floor(Date.now() / 1000) + 2592000,
+        },
+      },
+      active_profile: "default",
+    }, null, 2));
+
+    const store = new CredentialStore(filePath);
+
+    // Migration should run and return legacy token via fallback
+    const got = store.loadUserToken("");
+    expect(got.user_token).toBe("legacy-ut");
+
+    // After migration, load by exact staff_id should work
+    const nested = store.loadUserToken("legacy-staff");
+    expect(nested.user_token).toBe("legacy-ut");
+  });
+
+  test("raw JSON structure has user_tokens nested per staff_id", () => {
+    const store = new CredentialStore(filePath);
+    store.saveUserToken("t-a", "r-a", 7200, 300, 0, "staff-a");
+    store.saveUserToken("t-b", "r-b", 7200, 300, 0, "staff-b");
+
+    const raw = store.load();
+    const data = store["getProfileData"](raw);
+    expect(typeof data.user_tokens).toBe("object");
+    expect(data.user_tokens["staff-a"].user_token).toBe("t-a");
+    expect(data.user_tokens["staff-b"].user_token).toBe("t-b");
+  });
+
+  test("save without staff_id writes flat fields for backward compat", () => {
+    const store = new CredentialStore(filePath);
+    store.saveUserToken("flat-ut", "flat-rt", 7200);
+    const got = store.loadUserToken("");
+    expect(got.user_token).toBe("flat-ut");
+  });
+});
