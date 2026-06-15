@@ -154,4 +154,37 @@ describe("CredentialStore", () => {
   test("currentProfile property", () => {
     expect(store.currentProfile).toBe("default");
   });
+
+  // ── deleteProfileByName ──────────────────────────────────────
+
+  test("deleteProfileByName removes profile and returns true", () => {
+    store.saveCredentials("app1", "sec1");
+    expect(store.deleteProfileByName("default")).toBe(true);
+    expect(store.listProfiles()).toEqual([]);
+    expect(store.hasCredentials()).toBe(false);
+  });
+
+  test("deleteProfileByName returns false for nonexistent profile", () => {
+    store.saveCredentials("app1", "sec1");
+    expect(store.deleteProfileByName("ghost")).toBe(false);
+    expect(store.listProfiles()).toEqual(["default"]);
+  });
+
+  test("deleteProfileByName preserves other profiles", () => {
+    const storeB = new CredentialStore(filePath, "beta");
+    store.saveCredentials("appA", "secA");
+    storeB.saveCredentials("appB", "secB");
+    expect(store.listProfiles().sort()).toEqual(["beta", "default"]);
+    expect(store.deleteProfileByName("default")).toBe(true);
+    expect(storeB.listProfiles()).toEqual(["beta"]);
+  });
+
+  test("deleteProfileByName falls back active_profile to default", () => {
+    store.setActiveProfile("staging");
+    const stagingStore = new CredentialStore(filePath, "staging");
+    stagingStore.saveCredentials("appX", "secX");
+    expect(store.getActiveProfile()).toBe("staging");
+    expect(store.deleteProfileByName("staging")).toBe(true);
+    expect(store.getActiveProfile()).toBe("default");
+  });
 });
