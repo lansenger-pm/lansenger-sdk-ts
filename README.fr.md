@@ -450,6 +450,72 @@ store.saveUserToken("user_token", "refresh_token");
 const token = store.loadAppToken(); // None si expiré
 ```
 
+## Identité & Permissions
+
+### Matrice des capacités par identité
+
+La plateforme Lansenger propose trois types d'identité avec différents accès API :
+
+| Domaine de commande | Bot Personnel | App d'organisation (Auto-créée) | App d'org + Bot | Notes |
+|--------|:---:|:---:|:---:|------|
+| `message send-text/markdown/file/...` (DM bot) | **Y** | N | **Y** | Seuls les bots peuvent envoyer des DMs |
+| `message send-text --group` (chat de groupe) | N* | N | **Y** | L'API bot personnel le supporte mais pas encore de fonction rejoindre-groupe |
+| `message send-group-message` | N* | N | **Y** | Idem ci-dessus |
+| `message send-account-message` (compte public) | N | **Y** | **Y** | Nécessite la capacité compte public |
+| `message send-user-message` (utilisateur-à-utilisateur) | N | **Y** | **Y** | Nécessite userToken + OAuth2 |
+| `message revoke` | **Y** | **Y** | **Y** | Révoquer ses propres messages |
+| `staff *` (contacts lecture seule) | N | **Y** | **Y** | `search` nécessite en plus userToken |
+| `department *` | N | **Y** | **Y** | Applications niveau organisation uniquement |
+| `calendar *` | N | **Y** | **Y** | Avec userToken = identité utilisateur ; sans = identité bot |
+| `todo *` | N | **Y** | **Y** | Applications niveau organisation uniquement |
+| `chat list/messages` | N | **Y** | **Y** | Applications niveau organisation uniquement |
+| `group *` (gestion de groupe V2) | N | N | **Y** | Nécessite que le bot soit dans le groupe |
+| `media upload` | **Y** | **Y** | **Y** | Upload général |
+| `media upload-app` | N | **Y** | **Y** | Apps auto-créées uniquement (pas ISV) |
+| `media download/path` | **Y** | **Y** | **Y** | Téléchargement général |
+| `oauth *` | N | **Y** | **Y** | Applications niveau organisation uniquement |
+| `streaming *` | N | **Y** | **Y** | Applications niveau organisation uniquement |
+| `callback *` (parsing d'événements) | N/A | N/A | N/A | Opération pure de données, aucune identité requise |
+
+> \* **N\*** = Capacité API existante, mais fonction rejoindre-groupe pas encore disponible.
+
+> **Bot Personnel** peut seulement envoyer/recevoir des messages et uploader/télécharger des fichiers. Ne peut pas accéder aux contacts, groupes, calendriers ou OAuth2.
+>
+> **App d'org vs App d'org + Bot** : Même appID/appSecret. La seule différence réside dans les canaux de messagerie — seuls les bots peuvent envoyer des DMs et des messages de groupe (car seuls les bots peuvent rejoindre les groupes). Toutes les autres API (contacts, calendrier, todo, chat, OAuth2, streaming) fonctionnent de manière identique pour les deux. Actuellement, seules les apps auto-créées supportent la capacité bot.
+
+### Permissions du Developer Center
+
+Au-delà du type d'identité, les appels API spécifiques dépendent également des permissions activées dans le Lansenger Developer Center. L'organisation peut restreindre l'accès développeur, nécessitant l'aide d'un administrateur.
+
+**Permissions de base (activées par défaut) :**
+
+| Permission | Description |
+|------|------|
+| Obtenir les infos utilisateur de base | Obtenir les infos de base du personnel pour la connexion système/app |
+| Envoyer des messages de notification | Obtenir les canaux de messagerie de l'organisation pour envoyer des messages aux personnes/groupes |
+
+**Permissions avancées (désactivées par défaut, doivent être activées manuellement) :**
+
+| Permission | Description | Compétence impactée |
+|------|------|-------------|
+| Contacts lecture seule | Accès en lecture aux contacts | `lansenger-staff`, `lansenger-department` |
+| Contacts édition | Accès en édition aux contacts | `lansenger-staff` (créer/mettre à jour/supprimer) |
+| Infos sensibles - Téléphone | Accès aux numéros de téléphone | `lansenger-staff` (détail, mapping ID) |
+| Infos sensibles - Email | Accès aux emails des utilisateurs | `lansenger-staff` (détail, mapping ID) |
+| Infos sensibles - N° d'identité | Accès aux numéros d'identité | `lansenger-staff` |
+| Infos sensibles - ID employé | Accès aux IDs employé | `lansenger-staff` |
+| Mapper attribut unique vers ID staff | Mapper téléphone/email/ID employé vers ID staff | `lansenger-staff` (mapping ID) |
+| Édition d'app | Créer et mettre à jour des apps | Gestion du Developer Center |
+| Groupes lecture seule | Accès en lecture aux groupes | `lansenger-group` (infos/membres) |
+| Groupes édition | Accès en édition aux groupes | `lansenger-group` (créer/mettre à jour/dissoudre/membres) |
+| Calendrier lecture seule | Accès en lecture au calendrier & schedules | `lansenger-calendar` (requête) |
+| Calendrier édition | Accès en édition au calendrier & schedules | `lansenger-calendar` (créer/mettre à jour/supprimer) |
+| Upload média | Permission d'upload de fichiers média | `lansenger-media` (upload, upload-app) |
+| Template workbench lecture | Accès en lecture aux templates workbench | — |
+| Template workbench écriture | Accès en écriture aux templates workbench | — |
+
+En cas d'erreur de permission, vérifiez d'abord que le type d'identité prend en charge l'opération, puis invitez l'utilisateur à activer la permission avancée correspondante dans le Developer Center (contacter l'administrateur de l'organisation si l'accès est impossible).
+
 ## Structure du projet
 
 ```
