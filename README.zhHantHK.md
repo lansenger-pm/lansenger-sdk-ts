@@ -471,7 +471,7 @@ const token = store.loadAppToken(); // 過期則回傳 null
 | `chat list/messages` | N | **Y** | **Y** | 僅限組織級應用 |
 | `group *` (羣組管理 V2) | N | N | **Y** | 需要機械人已在羣內 |
 | `media upload` | **Y** | **Y** | **Y** | 通用上載 |
-| `media upload-app` | N | **Y** | **Y** | 僅限自建應用（非 ISV） |
+| `media upload-app` | **Y** | **Y** | **Y** | 僅限自建應用（非 ISV） |
 | `media download/path` | **Y** | **Y** | **Y** | 通用下載 |
 | `oauth *` | N | **Y** | **Y** | 僅限組織級應用 |
 | `streaming *` | N | **Y** | **Y** | 僅限組織級應用 |
