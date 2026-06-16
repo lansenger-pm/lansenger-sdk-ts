@@ -7,7 +7,7 @@ import { CredentialStore } from "./persistence";
 import { doGet, doPost, FetchFn } from "./http";
 import { buildApiUrl } from "./urlHelpers";
 import { APP_MEDIA_TYPE_IMAGE, APP_MEDIA_TYPE_FILE, APP_TO_MSG_MEDIA_TYPE, MEDIA_TYPE_AUDIO, guessMediaType, guessAppMediaType } from "./constants";
-import { LansengerAPIError, LansengerAuthError, LansengerConfigError, LansengerFileError } from "./exceptions";
+import { LansengerAPIError, LansengerAuthError, LansengerConfigError, LansengerFileError, LansengerNetworkError } from "./exceptions";
 import {
   SendMessageResult, AppCardParams, LinkCardParams, OaCardParams,
   DynamicCardUpdateParams, QueryGroupsResult, UploadMediaResult,
@@ -118,14 +118,80 @@ export class LansengerClient {
     if (this._tokenManager) this._tokenManager.invalidate();
   }
 
-  async getUserToken(): Promise<string> {
+  async getUserToken(staffId: string = ""): Promise<string> {
+    if (!staffId) {
+      await this._ensureInit();
+      return this._userTokenManager!.getToken();
+    }
+
+    if (!this._store) {
+      throw new LansengerAuthError(
+        "CredentialStore is required for multi-user token management. " +
+        "Provide storePath when creating the client."
+      );
+    }
+
     await this._ensureInit();
-    return this._userTokenManager!.getToken();
+    const cached = this._store.loadUserToken(staffId);
+    const userToken = cached.user_token || "";
+    const refreshToken = cached.refresh_token || "";
+    const expiry = cached.user_token_expiry || 0;
+
+    if (userToken && expiry > Math.floor(Date.now() / 1000)) {
+      return userToken;
+    }
+
+    if (!refreshToken) {
+      throw new LansengerAuthError(
+        `No userToken available for staff_id=${staffId} and no refreshToken for auto-refresh. ` +
+        "Run OAuth2 authorize flow: build_authorize_url → exchange_code."
+      );
+    }
+
+    const token = await this._tokenManager!.getToken();
+    const urlObj = new URL(buildApiUrl(this._config, "oauth2", "refresh_token_create", token));
+    urlObj.searchParams.set("grant_type", "refresh_token");
+    urlObj.searchParams.set("refresh_token", refreshToken);
+    const url = urlObj.toString();
+
+    try {
+      const response = await this._fetchFn!(url);
+      if (!response.ok) {
+        throw new LansengerNetworkError(`userToken refresh failed: HTTP ${response.status}`);
+      }
+      const data = await response.json() as Record<string, any>;
+      const errCode = data.errCode ?? -1;
+      if (errCode !== 0) {
+        const msg = data.errMsg || "Unknown refresh error";
+        throw new LansengerAuthError(`userToken refresh error (errCode=${errCode}): ${msg}`, errCode);
+      }
+
+      const tokenData = data.data || {};
+      const newUserToken = tokenData.userToken;
+      const expiresIn = tokenData.expiresIn || 7200;
+      const newRefreshToken = tokenData.refreshToken;
+      const refreshExpiresIn = tokenData.refreshExpiresIn || 0;
+      const newStaffId = tokenData.staffId || staffId;
+
+      if (!newUserToken) {
+        throw new LansengerAuthError("Refresh response missing userToken field");
+      }
+
+      this._store.saveUserToken(newUserToken, newRefreshToken || "", expiresIn, 300, refreshExpiresIn, newStaffId);
+
+      return newUserToken;
+    } catch (e) {
+      if (e instanceof LansengerAuthError || e instanceof LansengerNetworkError) throw e;
+      throw new LansengerNetworkError(`userToken refresh failed: ${e instanceof Error ? e.message : String(e)}`);
+    }
   }
 
-  async setUserTokens(userToken: string, refreshToken: string, expiresIn: number = 7200, staffId: string = ""): Promise<void> {
+  async setUserTokens(userToken: string, refreshToken: string, expiresIn: number = 7200, staffId: string = "", refreshExpiresIn: number = 0): Promise<void> {
     await this._ensureInit();
-    this._userTokenManager!.setTokens(userToken, refreshToken, expiresIn, staffId);
+    if (this._store && staffId) {
+      this._store.saveUserToken(userToken, refreshToken, expiresIn, 300, refreshExpiresIn, staffId);
+    }
+    this._userTokenManager!.setTokens(userToken, refreshToken, expiresIn, staffId, refreshExpiresIn);
   }
 
   async healthCheck(): Promise<boolean> {

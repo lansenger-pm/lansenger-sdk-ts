@@ -289,6 +289,15 @@ export class CredentialStore {
     return Object.keys(state.profiles || {});
   }
 
+  listUserTokens(): string[] {
+    const data = this.getProfileData(this.load());
+    const nested = data.user_tokens;
+    if (nested && typeof nested === "object") {
+      return Object.keys(nested);
+    }
+    return [];
+  }
+
   getActiveProfile(): string {
     const state = this.load();
     return state.active_profile || DEFAULT_PROFILE;

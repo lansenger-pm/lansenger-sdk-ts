@@ -320,4 +320,143 @@ describe("CredentialStore userToken isolation", () => {
     expect(profile.user_token).toBeUndefined();
     expect(profile.staff_id).toBeUndefined();
   });
+
+  test("auto-migration on save triggers flat fields into nested", () => {
+    // Write legacy flat format manually
+    const now = Math.floor(Date.now() / 1000);
+    fs.writeFileSync(filePath, JSON.stringify({
+      profiles: {
+        default: {
+          app_id: "app1",
+          app_secret: "secret1",
+          user_token: "legacy-ut",
+          staff_id: "legacy-staff",
+          user_token_expiry: now + 7200,
+          refresh_token_expiry: now + 2592000,
+        },
+      },
+      active_profile: "default",
+    }, null, 2));
+
+    const store = new CredentialStore(filePath);
+
+    // Flat is readable
+    const got = store.loadUserToken("");
+    expect(got.user_token).toBe("legacy-ut");
+    expect(got.staff_id).toBe("legacy-staff");
+
+    // Save with staff_id for a *different* user — triggers migration
+    store.saveUserToken("nested-ut", "nested-rt", 7200, 300, 2592000, "nested-staff");
+
+    // After migration, flat fields should be gone
+    const raw = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    const profile = raw.profiles.default;
+    expect(profile.user_token).toBeUndefined();
+    expect(profile.staff_id).toBeUndefined();
+
+    // Legacy user accessible via nested
+    const legacy = store.loadUserToken("legacy-staff");
+    expect(legacy.user_token).toBe("legacy-ut");
+
+    // New user accessible via nested
+    const nested = store.loadUserToken("nested-staff");
+    expect(nested.user_token).toBe("nested-ut");
+  });
+
+  test("no staff_id fallback returns first available nested entry", () => {
+    const store = new CredentialStore(filePath);
+    store.saveUserToken("t1", "r1", 7200, 300, 0, "staff1");
+    store.saveUserToken("t2", "r2", 7200, 300, 0, "staff2");
+
+    // No staff_id → falls back to first entry from nested
+    const fallback = store.loadUserToken("");
+    expect(["t1", "t2"]).toContain(fallback.user_token);
+
+    // With exact staff_id, get the specific one
+    expect(store.loadUserToken("staff1").user_token).toBe("t1");
+    expect(store.loadUserToken("staff2").user_token).toBe("t2");
+  });
+
+  test("non-existent staff_id falls back gracefully", () => {
+    const store = new CredentialStore(filePath);
+    store.saveUserToken("t1", "", 7200, 300, 0, "staff1");
+    const got = store.loadUserToken("ghost-staff");
+    // Fallback returns first available user (or empty)
+    expect(["", "t1"]).toContain(got.user_token);
+  });
+});
+
+// ── listUserTokens ──────────────────────────────────────────────
+
+describe("CredentialStore listUserTokens", () => {
+  let filePath: string;
+
+  beforeEach(() => {
+    filePath = tempFilePath();
+  });
+
+  afterEach(() => {
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  });
+
+  test("listUserTokens returns empty array when no users", () => {
+    const store = new CredentialStore(filePath);
+    expect(store.listUserTokens()).toEqual([]);
+  });
+
+  test("listUserTokens returns single staff_id", () => {
+    const store = new CredentialStore(filePath);
+    store.saveUserToken("token1", "rt1", 7200, 300, 0, "staff1");
+    const users = store.listUserTokens();
+    expect(users).toContain("staff1");
+  });
+
+  test("listUserTokens returns multiple staff_ids", () => {
+    const store = new CredentialStore(filePath);
+    store.saveUserToken("token1", "rt1", 7200, 300, 0, "staff1");
+    store.saveUserToken("token2", "rt2", 7200, 300, 0, "staff2");
+    store.saveUserToken("token3", "rt3", 7200, 300, 0, "staff3");
+    const users = store.listUserTokens();
+    expect(users.length).toBe(3);
+    expect(users).toContain("staff1");
+    expect(users).toContain("staff2");
+    expect(users).toContain("staff3");
+  });
+
+  test("listUserTokens profile isolation", () => {
+    const storeAlpha = new CredentialStore(filePath, "alpha");
+    const storeBeta = new CredentialStore(filePath, "beta");
+
+    storeAlpha.saveUserToken("t1", "rt1", 7200, 300, 0, "staff-a");
+    storeBeta.saveUserToken("t2", "rt2", 7200, 300, 0, "staff-b");
+
+    const alphaUsers = storeAlpha.listUserTokens();
+    const betaUsers = storeBeta.listUserTokens();
+
+    expect(alphaUsers).toContain("staff-a");
+    expect(alphaUsers).not.toContain("staff-b");
+    expect(betaUsers).toContain("staff-b");
+    expect(betaUsers).not.toContain("staff-a");
+  });
+
+  test("listUserTokens includes legacy flat user after migration", () => {
+    fs.writeFileSync(filePath, JSON.stringify({
+      profiles: {
+        default: {
+          app_id: "app1",
+          app_secret: "secret1",
+          user_token: "legacy-ut",
+          staff_id: "legacy-staff",
+          user_token_expiry: Math.floor(Date.now() / 1000) + 7200,
+        },
+      },
+      active_profile: "default",
+    }, null, 2));
+
+    const store = new CredentialStore(filePath);
+    store.loadUserToken("");
+
+    const users = store.listUserTokens();
+    expect(users).toContain("legacy-staff");
+  });
 });

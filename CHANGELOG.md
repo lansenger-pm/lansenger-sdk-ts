@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.12] - 2026-06-16
+
+### Added
+
+- **persistence**: `CredentialStore.listUserTokens()` method to list all staffIds with stored user tokens in the current profile.
+- **client**: `getUserToken(staffId="")` now accepts optional `staffId` parameter to retrieve token for a specific user. When `staffId` is provided, loads from CredentialStore and supports auto-refresh. When empty, maintains backward compatibility with single-user mode.
+- **client**: `setUserTokens(..., staffId="", refreshExpiresIn=0)` now saves tokens to CredentialStore when `staffId` is provided.
+- **tests**: Test suite for `listUserTokens` (empty, single user, multiple users, profile isolation, legacy migration).
+- **tests**: Additional boundary tests for multi-user userToken isolation: auto-migration on save triggers flat→nested, no-staffId fallback returns first available nested entry, and non-existent staffId falls back gracefully. Matches Python SDK coverage.
+
 ## [1.3.11] - 2026-06-16
 
 ### Fixed
