@@ -395,16 +395,22 @@ export class BotPrivateMessageData {
   entry_id: string;
   msg_type: string;
   msg_data: AnyDict;
+  msg_id: string;
+  reference_msg: AnyDict | null;
 
-  constructor(init: { from_id?: string; entry_id?: string; msg_type?: string; msg_data?: AnyDict }) {
+  constructor(init: { from_id?: string; entry_id?: string; msg_type?: string; msg_data?: AnyDict; msg_id?: string; reference_msg?: AnyDict | null }) {
     this.from_id = init.from_id ?? "";
     this.entry_id = init.entry_id ?? "";
     this.msg_type = init.msg_type ?? "";
     this.msg_data = init.msg_data ?? {};
+    this.msg_id = init.msg_id ?? "";
+    this.reference_msg = init.reference_msg ?? null;
   }
 
   toDict(): AnyDict {
-    return { from_id: this.from_id, entry_id: this.entry_id, msg_type: this.msg_type, msg_data: this.msg_data };
+    const d: AnyDict = { from_id: this.from_id, entry_id: this.entry_id, msg_type: this.msg_type, msg_data: this.msg_data, msg_id: this.msg_id };
+    if (this.reference_msg !== null) d.reference_msg = this.reference_msg;
+    return d;
   }
 }
 
@@ -421,6 +427,7 @@ export class BotGroupMessageData {
   bot_id: string;
   is_at_me: boolean;
   is_at_all: boolean;
+  reference_msg: AnyDict | null;
 
   constructor(init: {
     from_id?: string;
@@ -435,6 +442,7 @@ export class BotGroupMessageData {
     bot_id?: string;
     is_at_me?: boolean;
     is_at_all?: boolean;
+    reference_msg?: AnyDict | null;
   }) {
     this.from_id = init.from_id ?? "";
     this.entry_id = init.entry_id ?? "";
@@ -448,10 +456,11 @@ export class BotGroupMessageData {
     this.bot_id = init.bot_id ?? "";
     this.is_at_me = init.is_at_me ?? false;
     this.is_at_all = init.is_at_all ?? false;
+    this.reference_msg = init.reference_msg ?? null;
   }
 
   toDict(): AnyDict {
-    return {
+    const d: AnyDict = {
       from_id: this.from_id,
       entry_id: this.entry_id,
       msg_type: this.msg_type,
@@ -465,6 +474,8 @@ export class BotGroupMessageData {
       is_at_me: this.is_at_me,
       is_at_all: this.is_at_all,
     };
+    if (this.reference_msg !== null) d.reference_msg = this.reference_msg;
+    return d;
   }
 }
 
@@ -746,8 +757,8 @@ export const FIELD_MAPS: Record<string, Record<string, string>> = {
   report_location: {},
   user_logout: { staffId: "staff_id", deviceId: "device_id", timestamp: "timestamp" },
   data_scope: { deptIds: "dept_ids", timestamp: "timestamp" },
-  bot_private_message: { from: "from_id", entryId: "entry_id", msgType: "msg_type", msgData: "msg_data" },
-  bot_group_message: { from: "from_id", entryId: "entry_id", msgType: "msg_type", msgData: "msg_data", groupId: "group_id", fromType: "from_type", groupName: "group_name", botCreator: "bot_creator", msgId: "msg_id", botId: "bot_id", isAtMe: "is_at_me", isAtAll: "is_at_all" },
+  bot_private_message: { from: "from_id", entryId: "entry_id", msgType: "msg_type", msgData: "msg_data", msgId: "msg_id", referenceMsg: "reference_msg" },
+  bot_group_message: { from: "from_id", entryId: "entry_id", msgType: "msg_type", msgData: "msg_data", groupId: "group_id", fromType: "from_type", groupName: "group_name", botCreator: "bot_creator", msgId: "msg_id", botId: "bot_id", isAtMe: "is_at_me", isAtAll: "is_at_all", referenceMsg: "reference_msg" },
   wb_visible_config: { entryId: "entry_id", departmentIds: "department_ids", staffIds: "staff_ids", timestamp: "timestamp", isTestModeOn: "is_test_mode_on" },
   group_create_approve: { applyRequestId: "apply_request_id", groupId: "group_id", timestamp: "timestamp" },
   schedule_modify: { primaryScheduleId: "primary_schedule_id", scheduleId: "schedule_id", summary: "summary", description: "description", operationType: "operation_type", currentTime: "current_time", repeatType: "repeat_type", expireDateType: "expire_date_type", allDay: "all_day", rule: "rule", ruleStartTime: "rule_start_time", ruleEndTime: "rule_end_time", startTime: "start_time", endTime: "end_time", operator: "operator", attendees: "attendees", timestamp: "timestamp" },

@@ -209,34 +209,37 @@ export class LansengerClient {
     return buildApiUrl(this._config, "smart_bot", "group_message", token);
   }
 
-  private async _sendPrivate(chatId: string, msgType: string, msgData: AnyDict): Promise<SendMessageResult> {
+  private async _sendPrivate(chatId: string, msgType: string, msgData: AnyDict, opts?: { refMsgId?: string }): Promise<SendMessageResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     const url = this._privateMsgUrl(token);
     const payload: AnyDict = { userIdList: [chatId], msgType, msgData };
+    if (opts?.refMsgId) payload.refMsgId = opts.refMsgId;
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
     if (httpErr) return new SendMessageResult({ success: false, error: httpErr, msg_type: msgType, operation: "private_message" });
     return _parseSendResponse(data!, msgType, "private_message");
   }
 
-  private async _sendGroup(groupId: string, msgType: string, msgData: AnyDict, opts?: { userToken?: string; senderId?: string }): Promise<SendMessageResult> {
+  private async _sendGroup(groupId: string, msgType: string, msgData: AnyDict, opts?: { userToken?: string; senderId?: string; refMsgId?: string }): Promise<SendMessageResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     const url = this._groupMsgUrl(token);
     const payload: AnyDict = { groupId, msgType, msgData };
     if (opts?.userToken) payload.userToken = opts.userToken;
     if (opts?.senderId) payload.senderId = opts.senderId;
+    if (opts?.refMsgId) payload.refMsgId = opts.refMsgId;
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
     if (httpErr) return new SendMessageResult({ success: false, error: httpErr, msg_type: msgType, operation: "group_message", retryable: true });
     return _parseSendResponse(data!, msgType, "group_message");
   }
 
-  async sendText(chatId: string, content: string, opts?: { file_path?: string; media_type?: string; cover_image_path?: string; reminder_all?: boolean; reminder_user_ids?: string[]; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
+  async sendText(chatId: string, content: string, opts?: { file_path?: string; media_type?: string; cover_image_path?: string; reminder_all?: boolean; reminder_user_ids?: string[]; reminder_bot_ids?: string[]; is_group?: boolean; user_token?: string; sender_id?: string; ref_msg_id?: string }): Promise<SendMessageResult> {
     const textObj: AnyDict = { content };
-    if (opts?.reminder_all || opts?.reminder_user_ids) {
+    if (opts?.reminder_all || (opts?.reminder_user_ids && opts.reminder_user_ids.length > 0) || (opts?.reminder_bot_ids && opts.reminder_bot_ids.length > 0)) {
       const reminder: AnyDict = {};
       if (opts?.reminder_all) reminder.all = true;
       if (opts?.reminder_user_ids) reminder.userIds = opts.reminder_user_ids;
+      if (opts?.reminder_bot_ids) reminder.botIds = opts.reminder_bot_ids;
       textObj.reminder = reminder;
     }
     if (opts?.file_path) {
@@ -254,22 +257,23 @@ export class LansengerClient {
     }
     const msgData: AnyDict = { text: textObj };
     const isGroup = opts?.is_group || false;
-    if (isGroup) return this._sendGroup(chatId, "text", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "" });
-    return this._sendPrivate(chatId, "text", msgData);
+    if (isGroup) return this._sendGroup(chatId, "text", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "", refMsgId: opts?.ref_msg_id || "" });
+    return this._sendPrivate(chatId, "text", msgData, { refMsgId: opts?.ref_msg_id || "" });
   }
 
-  async sendMarkdown(chatId: string, content: string, opts?: { reminder_all?: boolean; reminder_user_ids?: string[]; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
+  async sendMarkdown(chatId: string, content: string, opts?: { reminder_all?: boolean; reminder_user_ids?: string[]; reminder_bot_ids?: string[]; is_group?: boolean; user_token?: string; sender_id?: string; ref_msg_id?: string }): Promise<SendMessageResult> {
     const formatTextObj: AnyDict = { formatType: 1, text: content };
-    if (opts?.reminder_all || opts?.reminder_user_ids) {
+    if (opts?.reminder_all || (opts?.reminder_user_ids && opts.reminder_user_ids.length > 0) || (opts?.reminder_bot_ids && opts.reminder_bot_ids.length > 0)) {
       const reminder: AnyDict = {};
       if (opts?.reminder_all) reminder.all = true;
       if (opts?.reminder_user_ids) reminder.userIds = opts.reminder_user_ids;
+      if (opts?.reminder_bot_ids) reminder.botIds = opts.reminder_bot_ids;
       formatTextObj.reminder = reminder;
     }
     const msgData: AnyDict = { formatText: formatTextObj };
     const isGroup = opts?.is_group || false;
-    if (isGroup) return this._sendGroup(chatId, "formatText", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "" });
-    return this._sendPrivate(chatId, "formatText", msgData);
+    if (isGroup) return this._sendGroup(chatId, "formatText", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "", refMsgId: opts?.ref_msg_id || "" });
+    return this._sendPrivate(chatId, "formatText", msgData, { refMsgId: opts?.ref_msg_id || "" });
   }
 
   async sendFile(chatId: string, filePath: string, opts?: { caption?: string; media_type?: string; cover_image_path?: string; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {
@@ -568,13 +572,13 @@ export class LansengerClient {
     return searchStaff(this._config, token, keyword, { user_token: opts?.user_token || "", user_id: opts?.user_id || "", recursive: opts?.recursive, sector_ids: opts?.sector_ids, page: opts?.page, page_size: opts?.page_size, fetchFn: this._fetchFn! });
   }
 
-  async sendBotMessage(msgType: string, msgData: AnyDict, chatIds?: string[], departmentIds?: string[], opts?: { user_token?: string; entry_id?: string; is_group?: boolean }): Promise<BotMessageResult> {
+  async sendBotMessage(msgType: string, msgData: AnyDict, chatIds?: string[], departmentIds?: string[], opts?: { user_token?: string; entry_id?: string; is_group?: boolean; ref_msg_id?: string }): Promise<BotMessageResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     if (opts?.is_group && chatIds && chatIds.length > 0) {
       const results: SendMessageResult[] = [];
       for (const gid of chatIds) {
-        results.push(await sendGroupMessage(this._config, token, gid, msgType, msgData, { user_token: opts?.user_token || "", fetchFn: this._fetchFn! }));
+        results.push(await sendGroupMessage(this._config, token, gid, msgType, msgData, { user_token: opts?.user_token || "", entry_id: opts?.entry_id || "", refMsgId: opts?.ref_msg_id || "", fetchFn: this._fetchFn! }));
       }
       const first = results[0];
       const allSuccess = results.every(r => r.success);
@@ -590,6 +594,7 @@ export class LansengerClient {
     if (chatIds && chatIds.length > 0) payload.userIdList = chatIds;
     if (departmentIds && departmentIds.length > 0) payload.departmentIdList = departmentIds;
     if (opts?.entry_id) payload.entryId = opts.entry_id;
+    if (opts?.ref_msg_id) payload.refMsgId = opts.ref_msg_id;
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
     if (httpErr) return new BotMessageResult({ success: false, error: httpErr });
     const errCode = data!.errCode ?? -1;
@@ -613,10 +618,22 @@ export class LansengerClient {
     return sendUserMessage(this._config, token, opts?.user_token || "", receiverId, msgType, msgData, { common: opts?.common, uuid: opts?.uuid, fetchFn: this._fetchFn! });
   }
 
-  async sendGroupMessage(groupId: string, msgType: string, msgData: AnyDict, opts?: { user_token?: string; sender_id?: string; reminder_all?: boolean; reminder_user_ids?: string[]; outlines?: string; uuid?: string; entry_id?: string }): Promise<SendMessageResult> {
+  async sendGroupMessage(groupId: string, msgType: string, msgData: AnyDict, opts?: { user_token?: string; sender_id?: string; reminder_all?: boolean; reminder_user_ids?: string[]; reminder_bot_ids?: string[]; outlines?: string; uuid?: string; entry_id?: string; ref_msg_id?: string }): Promise<SendMessageResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
-    return sendGroupMessage(this._config, token, groupId, msgType, msgData, { user_token: opts?.user_token || "", sender_id: opts?.sender_id || "", outlines: opts?.outlines || "", uuid: opts?.uuid || "", entry_id: opts?.entry_id || "", fetchFn: this._fetchFn! });
+
+    let finalMsgData = msgData;
+    if (opts?.reminder_all || (opts?.reminder_user_ids && opts.reminder_user_ids.length > 0) || (opts?.reminder_bot_ids && opts.reminder_bot_ids.length > 0)) {
+      const reminder: AnyDict = { all: opts?.reminder_all || false, userIds: opts?.reminder_user_ids || [], botIds: opts?.reminder_bot_ids || [] };
+      finalMsgData = { ...msgData };
+      if (msgType === "text") {
+        finalMsgData.text = { ...(msgData.text || {}), reminder };
+      } else if (msgType === "formatText") {
+        finalMsgData.formatText = { ...(msgData.formatText || {}), reminder };
+      }
+    }
+
+    return sendGroupMessage(this._config, token, groupId, msgType, finalMsgData, { user_token: opts?.user_token || "", sender_id: opts?.sender_id || "", outlines: opts?.outlines || "", uuid: opts?.uuid || "", entry_id: opts?.entry_id || "", refMsgId: opts?.ref_msg_id || "", fetchFn: this._fetchFn! });
   }
 
   async createStreamMessage(receiverId: string, receiverType: string, streamId: string): Promise<StreamMessageResult> {

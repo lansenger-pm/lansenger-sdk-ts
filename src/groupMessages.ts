@@ -9,7 +9,7 @@ export async function sendGroupMessage(
   groupId: string,
   msgType: string,
   msgData: Record<string, any>,
-  opts?: { user_token?: string; sender_id?: string; outlines?: string; uuid?: string; entry_id?: string; fetchFn?: FetchFn },
+  opts?: { user_token?: string; sender_id?: string; outlines?: string; uuid?: string; entry_id?: string; refMsgId?: string; fetchFn?: FetchFn },
 ): Promise<SendMessageResult> {
   if (!msgType) return new SendMessageResult({ success: false, error: "msg_type is required" });
   if (!groupId) return new SendMessageResult({ success: false, error: "group_id is required" });
@@ -21,6 +21,7 @@ export async function sendGroupMessage(
   if (opts?.outlines) payload.outlines = opts.outlines;
   if (opts?.uuid) payload.uuid = opts.uuid;
   if (opts?.entry_id) payload.entryId = opts.entry_id;
+  if (opts?.refMsgId) payload.refMsgId = opts.refMsgId;
   const [data, httpErr] = await doPost(url, payload, opts?.fetchFn);
   if (httpErr) return new SendMessageResult({ success: false, error: httpErr, retryable: true });
   const errCode = data!.errCode ?? -1;

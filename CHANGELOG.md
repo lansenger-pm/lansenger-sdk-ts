@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.13] - 2026-06-17
+
+### Added
+
+- **callbacks**: `BotPrivateMessageData` now includes `msg_id` and `reference_msg` fields; `BotGroupMessageData` now includes `reference_msg` field.
+- **messaging**: `sendText`, `sendMarkdown`, `sendGroupMessage` now support `reminder_bot_ids` parameter for @mentioning bots.
+- **messaging**: `sendText`, `sendMarkdown`, `sendBotMessage`, `sendGroupMessage` now support `ref_msg_id` parameter for replying to messages (prs5.9.0).
+
 ## [1.3.12] - 2026-06-16
 
 ### Added
