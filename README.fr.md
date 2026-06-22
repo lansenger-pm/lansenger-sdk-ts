@@ -469,7 +469,7 @@ La plateforme Lansenger propose trois types d'identité avec différents accès 
 | Domaine de commande | Bot Personnel | App d'organisation (Auto-créée) | App d'org + Bot | Notes |
 |--------|:---:|:---:|:---:|------|
 | `message send-text/markdown/file/...` (DM bot) | **Y** | N | **Y** | Seuls les bots peuvent envoyer des DMs |
-| `message send-text --group` (chat de groupe) | **Y** | N | **Y** | L'API bot personnel le supporte |
+| `message send-text --group` (chat de groupe) | **Y** | N | **Y** | Le robot personnel prend désormais en charge la messagerie de groupe |
 | `message send-group-message` | **Y** | N | **Y** | Idem ci-dessus |
 | `message send-account-message` (compte public) | N | **Y** | **Y** | Nécessite la capacité compte public |
 | `message send-user-message` (utilisateur-à-utilisateur) | N | **Y** | **Y** | Nécessite userToken + OAuth2 |

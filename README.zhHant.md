@@ -469,7 +469,7 @@ const token = store.loadAppToken(); // 過期則為 null
 | 命令域 | 個人機器人 | 組織應用（自建） | 組織應用+機器人 | 備註 |
 |--------|:---:|:---:|:---:|------|
 | `message send-text/markdown/file/...` (機器人私聊) | **Y** | N | **Y** | 只有機器人可以傳送機器人私聊 |
-| `message send-text --group` (群聊) | **Y** | N | **Y** | 個人機器人 API 支援 |
+| `message send-text --group` (群聊) | **Y** | N | **Y** | 個人機器人現已支援群聊 |
 | `message send-group-message` | **Y** | N | **Y** | 同上 |
 | `message send-account-message` (公眾號) | N | **Y** | **Y** | 需要公眾號能力 |
 | `message send-user-message` (人→人) | N | **Y** | **Y** | 需要 userToken + OAuth2 |
