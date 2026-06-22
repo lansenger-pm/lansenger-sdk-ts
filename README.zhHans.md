@@ -469,8 +469,8 @@ const token = store.loadAppToken(); // 过期则为 null
 | 命令域 | 个人机器人 | 组织应用（自建） | 组织应用+机器人 | 备注 |
 |--------|:---:|:---:|:---:|------|
 | `message send-text/markdown/file/...` (机器人私聊) | **Y** | N | **Y** | 只有机器人可以发送机器人私聊 |
-| `message send-text --group` (群聊) | N* | N | **Y** | 个人机器人 API 支持但暂未开放入群功能 |
-| `message send-group-message` | N* | N | **Y** | 同上 |
+| `message send-text --group` (群聊) | **Y** | N | **Y** | 个人机器人 API 支持 |
+| `message send-group-message` | **Y** | N | **Y** | 同上 |
 | `message send-account-message` (公众号) | N | **Y** | **Y** | 需要公众号能力 |
 | `message send-user-message` (人→人) | N | **Y** | **Y** | 需要 userToken + OAuth2 |
 | `message revoke` | **Y** | **Y** | **Y** | 撤回自己发送的消息 |
@@ -487,9 +487,8 @@ const token = store.loadAppToken(); // 过期则为 null
 | `streaming *` | N | **Y** | **Y** | 仅限组织级应用 |
 | `callback *` (事件解析) | N/A | N/A | N/A | 纯数据操作，不需要身份 |
 
-> \* **N\*** = API 能力存在，但入群功能暂未开放。
 
-> **个人机器人**只能收发消息和上传/下载文件。无法访问通讯录、群组、日历或 OAuth2。
+> **个人机器人**只能收发消息和上传/下载文件。无法访问通讯录、日历或 OAuth2。
 >
 > **组织应用 vs 组织应用+机器人**：相同的 appID/appSecret。唯一区别在于消息通道——只有机器人可以发送机器人私聊和群聊消息（因为只有机器人能入群）。其他所有 API（通讯录、日历、待办、聊天、OAuth2、流式）两者完全一样。目前只有自建应用支持机器人能力。
 

@@ -469,8 +469,8 @@ La plateforme Lansenger propose trois types d'identité avec différents accès 
 | Domaine de commande | Bot Personnel | App d'organisation (Auto-créée) | App d'org + Bot | Notes |
 |--------|:---:|:---:|:---:|------|
 | `message send-text/markdown/file/...` (DM bot) | **Y** | N | **Y** | Seuls les bots peuvent envoyer des DMs |
-| `message send-text --group` (chat de groupe) | N* | N | **Y** | L'API bot personnel le supporte mais pas encore de fonction rejoindre-groupe |
-| `message send-group-message` | N* | N | **Y** | Idem ci-dessus |
+| `message send-text --group` (chat de groupe) | **Y** | N | **Y** | L'API bot personnel le supporte |
+| `message send-group-message` | **Y** | N | **Y** | Idem ci-dessus |
 | `message send-account-message` (compte public) | N | **Y** | **Y** | Nécessite la capacité compte public |
 | `message send-user-message` (utilisateur-à-utilisateur) | N | **Y** | **Y** | Nécessite userToken + OAuth2 |
 | `message revoke` | **Y** | **Y** | **Y** | Révoquer ses propres messages |
@@ -487,9 +487,8 @@ La plateforme Lansenger propose trois types d'identité avec différents accès 
 | `streaming *` | N | **Y** | **Y** | Applications niveau organisation uniquement |
 | `callback *` (parsing d'événements) | N/A | N/A | N/A | Opération pure de données, aucune identité requise |
 
-> \* **N\*** = Capacité API existante, mais fonction rejoindre-groupe pas encore disponible.
 
-> **Bot Personnel** peut seulement envoyer/recevoir des messages et uploader/télécharger des fichiers. Ne peut pas accéder aux contacts, groupes, calendriers ou OAuth2.
+> **Bot Personnel** peut seulement envoyer/recevoir des messages et uploader/télécharger des fichiers. Ne peut pas accéder aux contacts, calendriers ou OAuth2.
 >
 > **App d'org vs App d'org + Bot** : Même appID/appSecret. La seule différence réside dans les canaux de messagerie — seuls les bots peuvent envoyer des DMs et des messages de groupe (car seuls les bots peuvent rejoindre les groupes). Toutes les autres API (contacts, calendrier, todo, chat, OAuth2, streaming) fonctionnent de manière identique pour les deux. Actuellement, seules les apps auto-créées supportent la capacité bot.
 

@@ -469,8 +469,8 @@ const token = store.loadAppToken(); // 過期則回傳 null
 | 命令域 | 個人機械人 | 組織應用（自建） | 組織應用+機械人 | 備註 |
 |--------|:---:|:---:|:---:|------|
 | `message send-text/markdown/file/...` (機械人私聊) | **Y** | N | **Y** | 只有機械人可以傳送機械人私聊 |
-| `message send-text --group` (羣聊) | N* | N | **Y** | 個人機械人 API 支援但暫未開放入羣功能 |
-| `message send-group-message` | N* | N | **Y** | 同上 |
+| `message send-text --group` (羣聊) | **Y** | N | **Y** | 個人機械人 API 支援 |
+| `message send-group-message` | **Y** | N | **Y** | 同上 |
 | `message send-account-message` (公眾號) | N | **Y** | **Y** | 需要公眾號能力 |
 | `message send-user-message` (人→人) | N | **Y** | **Y** | 需要 userToken + OAuth2 |
 | `message revoke` | **Y** | **Y** | **Y** | 撤回自己傳送的訊息 |
@@ -487,9 +487,8 @@ const token = store.loadAppToken(); // 過期則回傳 null
 | `streaming *` | N | **Y** | **Y** | 僅限組織級應用 |
 | `callback *` (事件解析) | N/A | N/A | N/A | 純資料操作，不需要身分 |
 
-> \* **N\*** = API 能力存在，但入羣功能暫未開放。
 
-> **個人機械人**只能收發訊息和上載/下載檔案。無法存取通訊錄、羣組、日曆或 OAuth2。
+> **個人機械人**只能收發訊息和上載/下載檔案。無法存取通訊錄、日曆或 OAuth2。
 >
 > **組織應用 vs 組織應用+機械人**：相同的 appID/appSecret。唯一區別在於訊息通道——只有機械人可以傳送機械人私聊和羣聊訊息（因為只有機械人能入羣）。其他所有 API（通訊錄、日曆、待辦、聊天、OAuth2、串流）兩者完全一樣。目前只有自建應用支援機械人能力。
 
