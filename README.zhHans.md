@@ -196,6 +196,16 @@ const result = await client.sendGroupMessage(
 
 // 群聊 @提及
 const result = await client.sendText("group123", "重要！", { is_group: true, reminder_all: true });
+
+// @提及特定机器人
+const result = await client.sendText(
+  "group123", "Bot check!", { is_group: true, reminder_bot_ids: ["bot001"] },
+);
+
+// 回复消息（消息引用）
+const result = await client.sendText(
+  "group123", "Got it!", { is_group: true, ref_msg_id: "524288-xxxx" },
+);
 ```
 
 #### 富卡片

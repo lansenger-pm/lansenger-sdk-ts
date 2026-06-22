@@ -196,6 +196,16 @@ const result = await client.sendGroupMessage(
 
 // @mention dans un groupe
 const result = await client.sendText("group123", "Important !", { is_group: true, reminder_all: true });
+
+// @mention de bots spécifiques
+const result = await client.sendText(
+  "group123", "Bot check!", { is_group: true, reminder_bot_ids: ["bot001"] },
+);
+
+// Répondre à un message (référence)
+const result = await client.sendText(
+  "group123", "Got it!", { is_group: true, ref_msg_id: "524288-xxxx" },
+);
 ```
 
 #### Cartes enrichies

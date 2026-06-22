@@ -199,6 +199,16 @@ const result = await client.sendGroupMessage(
 const result = await client.sendText(
   "group123", "Important!", { is_group: true, reminder_all: true },
 );
+
+// @mention specific bots in group
+const result = await client.sendText(
+  "group123", "Bot check!", { is_group: true, reminder_bot_ids: ["bot001"] },
+);
+
+// Reply to a message (message reference)
+const result = await client.sendText(
+  "group123", "Got it!", { is_group: true, ref_msg_id: "524288-xxxx" },
+);
 ```
 
 #### Rich cards
