@@ -11,6 +11,8 @@ export class LansengerConfig {
   encoding_key: string;
   callback_token: string;
   redirect_uri: string;
+  app_token: string;
+  user_token: string;
 
   constructor(
     app_id: string,
@@ -21,6 +23,8 @@ export class LansengerConfig {
     encoding_key: string = "",
     callback_token: string = "",
     redirect_uri: string = "",
+    app_token: string = "",
+    user_token: string = "",
   ) {
     this.app_id = app_id;
     this.app_secret = app_secret;
@@ -30,6 +34,8 @@ export class LansengerConfig {
     this.encoding_key = encoding_key;
     this.callback_token = callback_token;
     this.redirect_uri = redirect_uri;
+    this.app_token = app_token;
+    this.user_token = user_token;
   }
 
   static create(
@@ -41,6 +47,8 @@ export class LansengerConfig {
     encoding_key?: string,
     callback_token?: string,
     redirect_uri?: string,
+    app_token?: string,
+    user_token?: string,
   ): LansengerConfig {
     const resolved_app_id = app_id || (process.env.LANSENGER_APP_ID || "").trim();
     const resolved_app_secret = app_secret || (process.env.LANSENGER_APP_SECRET || "").trim();
@@ -50,12 +58,16 @@ export class LansengerConfig {
     const resolved_encoding_key = encoding_key || (process.env.LANSENGER_ENCODING_KEY || "").trim();
     const resolved_callback_token = callback_token || (process.env.LANSENGER_CALLBACK_TOKEN || "").trim();
     const resolved_redirect_uri = redirect_uri || (process.env.LANSENGER_REDIRECT_URI || "").trim();
+    const resolved_app_token = app_token || (process.env.LANSENGER_APP_TOKEN || "").trim();
+    const resolved_user_token = user_token || (process.env.LANSENGER_USER_TOKEN || "").trim();
 
-    if (!resolved_app_id || !resolved_app_secret) {
+    // In external mode (app_token provided), app_id/app_secret are optional
+    if (!resolved_app_token && (!resolved_app_id || !resolved_app_secret)) {
       throw new LansengerConfigError(
         "Lansenger credentials not configured. " +
         "Set LANSENGER_APP_ID and LANSENGER_APP_SECRET env vars, " +
-        "or pass app_id/app_secret directly.",
+        "or pass app_id/app_secret directly, " +
+        "or provide LANSENGER_APP_TOKEN for external token mode.",
       );
     }
 
@@ -68,6 +80,8 @@ export class LansengerConfig {
       resolved_encoding_key,
       resolved_callback_token,
       resolved_redirect_uri,
+      resolved_app_token,
+      resolved_user_token,
     );
   }
 
@@ -77,6 +91,10 @@ export class LansengerConfig {
 
   isConfigured(): boolean {
     return Boolean(this.app_id && this.app_secret);
+  }
+
+  isExternalMode(): boolean {
+    return Boolean(this.app_token);
   }
 
   hasPassportUrl(): boolean {

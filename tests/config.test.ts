@@ -92,4 +92,39 @@ describe("LansengerConfig", () => {
     expect(cfg.encoding_key).toBe("");
     expect(cfg.callback_token).toBe("");
   });
+
+  test("external mode: app_token only, no credentials needed", () => {
+    const cfg = LansengerConfig.create(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, "ext_tok");
+    expect(cfg.app_token).toBe("ext_tok");
+    expect(cfg.isExternalMode()).toBe(true);
+    expect(cfg.isConfigured()).toBe(false);
+  });
+
+  test("external mode via LANSENGER_APP_TOKEN env var", () => {
+    process.env.LANSENGER_APP_TOKEN = "env_ext_tok";
+    const cfg = LansengerConfig.create();
+    expect(cfg.app_token).toBe("env_ext_tok");
+    expect(cfg.isExternalMode()).toBe(true);
+  });
+
+  test("external mode with credentials too", () => {
+    const cfg = LansengerConfig.create("app", "sec", undefined, undefined, undefined, undefined, undefined, undefined, "tok");
+    expect(cfg.isExternalMode()).toBe(true);
+    expect(cfg.isConfigured()).toBe(true);
+  });
+
+  test("user_token field", () => {
+    const cfg = LansengerConfig.create("a", "s", undefined, undefined, undefined, undefined, undefined, undefined, undefined, "user_tok");
+    expect(cfg.user_token).toBe("user_tok");
+  });
+
+  test("user_token via LANSENGER_USER_TOKEN env var", () => {
+    process.env.LANSENGER_USER_TOKEN = "env_ut";
+    const cfg = LansengerConfig.create("a", "s");
+    expect(cfg.user_token).toBe("env_ut");
+  });
+
+  test("still requires credentials without app_token", () => {
+    expect(() => LansengerConfig.create()).toThrow(LansengerConfigError);
+  });
 });

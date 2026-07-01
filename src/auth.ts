@@ -24,6 +24,12 @@ export class TokenManager {
     this.fetchFn = fetchFn;
     this.store = store || null;
 
+    // External mode: app_token from config takes precedence over store cache
+    if (this.config.app_token) {
+      this.token = this.config.app_token;
+      return;
+    }
+
     if (this.store) {
       const cached = this.store.loadAppToken();
       if (cached) {
@@ -35,6 +41,11 @@ export class TokenManager {
   }
 
   async getToken(): Promise<string> {
+    // External mode: pass-through, no refresh
+    if (this.config.app_token) {
+      return this.config.app_token;
+    }
+
     const now = Math.floor(Date.now() / 1000);
     if (this.token && now < this.tokenExpiry) {
       return this.token;

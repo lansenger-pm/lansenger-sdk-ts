@@ -132,6 +132,37 @@ describe("TokenManager", () => {
     const tm = new TokenManager(config, fetchFn);
     await expect(tm.getToken()).rejects.toThrow(LansengerNetworkError);
   });
+
+  test("external mode: getToken returns app_token from config directly", async () => {
+    const extConfig = new LansengerConfig("app", "sec", undefined, undefined, undefined, undefined, undefined, undefined, "direct_ext_token");
+    let fetchCalled = false;
+    const fetchFn: FetchFn = async () => {
+      fetchCalled = true;
+      return { ok: true, status: 200, json: async () => ({ errCode: 0, data: { appToken: "api_tok", expiresIn: 7200 } }) } as any;
+    };
+    const tm = new TokenManager(extConfig, fetchFn);
+    const token = await tm.getToken();
+    expect(token).toBe("direct_ext_token");
+    expect(fetchCalled).toBe(false);  // never hits the API
+  });
+
+  test("external mode: getToken bypasses constructor store cache", async () => {
+    const extConfig = new LansengerConfig("app", "sec", undefined, undefined, undefined, undefined, undefined, undefined, "ext_token_override");
+    const { CredentialStore } = await import("../src/persistence");
+    const tmpPath = `/tmp/lansenger_ext_test_${Date.now()}.json`;
+    const store = new CredentialStore(tmpPath);
+    store.saveCredentials("test_app", "test_secret");
+    store.saveAppToken("stored_cached", 7200, 0);
+    const fetchFn: FetchFn = async () => {
+      return { ok: true, status: 200, json: async () => ({ errCode: 0, data: { appToken: "api_tok", expiresIn: 7200 } }) } as any;
+    };
+    const tm = new TokenManager(extConfig, fetchFn, store);
+    const token = await tm.getToken();
+    // External token takes precedence over store cache
+    expect(token).toBe("ext_token_override");
+    const fs = await import("fs");
+    if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+  });
 });
 
 // ── UserTokenManager tests ──────────────────────────────────────────
