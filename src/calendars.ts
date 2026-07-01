@@ -4,7 +4,7 @@ import { doGet, doPost, parseApiResponse, FetchFn } from "./http";
 import {
   CalendarPrimaryResult, ScheduleCreateResult, ScheduleInfoResult,
   ScheduleUpdateResult, ScheduleListResult, ScheduleAttendeesResult,
-  ScheduleAttendeeMetaResult,
+  ScheduleAttendeeMetaResult, ScheduleAttendeesUpdateResult,
 } from "./models";
 
 export async function fetchPrimaryCalendar(
@@ -290,4 +290,53 @@ export async function updateScheduleAttendeeMeta(
   const [ok, apiErr] = parseApiResponse(data!);
   if (!ok) return new ScheduleAttendeeMetaResult({ success: false, error: apiErr });
   return new ScheduleAttendeeMetaResult({ success: true, raw_response: data! });
+}
+
+export async function updateScheduleAttendees(
+  config: LansengerConfig,
+  appToken: string,
+  calendarId: string,
+  scheduleId: string,
+  opts?: {
+    add_attendees?: string[];
+    delete_attendees?: string[];
+    reminder_type?: string;
+    operation_type?: string;
+    current_time?: number;
+    user_token?: string;
+    user_id?: string;
+    fetchFn?: FetchFn;
+  },
+): Promise<ScheduleAttendeesUpdateResult> {
+  if (!calendarId) return new ScheduleAttendeesUpdateResult({ success: false, error: "calendar_id is required" });
+  if (!scheduleId) return new ScheduleAttendeesUpdateResult({ success: false, error: "schedule_id is required" });
+  const addLen = opts?.add_attendees?.length || 0;
+  const delLen = opts?.delete_attendees?.length || 0;
+  if (!addLen && !delLen) return new ScheduleAttendeesUpdateResult({ success: false, error: "at least one of add_attendees or delete_attendees is required" });
+
+  const url = buildApiUrl(config, "calendars", "attendees_update", appToken, {
+    userToken: opts?.user_token || "",
+    userId: opts?.user_id || "",
+    pathVars: { calendar_id: calendarId, schedule_id: scheduleId },
+  });
+
+  const body: Record<string, any> = {};
+  if (opts?.add_attendees) body.addAttendees = opts.add_attendees;
+  if (opts?.delete_attendees) body.deleteAttendees = opts.delete_attendees;
+  if (opts?.reminder_type) body.reminderType = opts.reminder_type;
+  if (opts?.operation_type) body.operationType = opts.operation_type;
+  if (opts?.current_time) body.currentTime = opts.current_time;
+
+  const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
+  if (httpErr) return new ScheduleAttendeesUpdateResult({ success: false, error: httpErr });
+  const [ok, apiErr] = parseApiResponse(data!);
+  if (!ok) return new ScheduleAttendeesUpdateResult({ success: false, error: apiErr });
+
+  const d = data!.data || {};
+  return new ScheduleAttendeesUpdateResult({
+    success: true,
+    schedule_ids: d.scheduleIds ?? null,
+    failed_attendees: d.attendees ?? null,
+    raw_response: data!,
+  });
 }

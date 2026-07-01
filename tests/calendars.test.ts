@@ -6,6 +6,11 @@ import {
 } from "../src/calendars";
 import { LansengerConfig } from "../src/config";
 import { FetchFn } from "../src/http";
+import {
+  CalendarPrimaryResult, ScheduleCreateResult, ScheduleInfoResult,
+  ScheduleUpdateResult, ScheduleListResult, ScheduleAttendeesResult,
+  ScheduleAttendeeMetaResult, ScheduleAttendeesUpdateResult,
+} from "../src/models";
 
 function mockFetchFn(responseData: Record<string, any>): FetchFn {
   return async (url: string | URL, init?: RequestInit) => {

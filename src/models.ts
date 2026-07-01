@@ -587,6 +587,49 @@ export class DynamicCardUpdateParams {
   }
 }
 
+export class ApproveCardParams {
+  chat_id: string = "";
+  body_title: string = "";
+  body_content: string = "";
+  head_title: string = "";
+  head_icon_link: string = "";
+  head_icon_id: string = "";
+  head_status_describe: string = "";
+  head_status_icon: number = 0;
+  head_status_icon_link: string = "";
+  head_status_colour: string = "";
+  body_format_type: number = 1;
+  fields?: Record<string, string>[];
+  reminder_all: boolean = false;
+  reminder_user_ids?: string[];
+  reminder_bot_ids?: string[];
+  card_link: string = "";
+  card_link_for_pc: string = "";
+  card_link_for_pad: string = "";
+  buttons?: Record<string, any>[];
+  expire_time: number = 0;
+  is_group: boolean = false;
+  user_token: string = "";
+  sender_id: string = "";
+
+  constructor(data?: Partial<ApproveCardParams>) {
+    if (data) Object.assign(this, data);
+  }
+}
+
+export class ApproveCardUpdateParams {
+  msg_id: string = "";
+  head_status_describe: string = "";
+  head_status_icon: number = 0;
+  head_status_icon_link: string = "";
+  head_status_colour: string = "";
+  buttons?: Record<string, any>[];
+
+  constructor(data?: Partial<ApproveCardUpdateParams>) {
+    if (data) Object.assign(this, data);
+  }
+}
+
 export class UserTokenResult {
   success: boolean;
   user_token: string | null;
@@ -1488,6 +1531,168 @@ export class ScheduleAttendeeMetaResult {
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class ScheduleAttendeesUpdateResult {
+  success: boolean;
+  schedule_ids: string[] | null;
+  failed_attendees: string[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; schedule_ids?: string[] | null; failed_attendees?: string[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.schedule_ids = init.schedule_ids ?? null;
+    this.failed_attendees = init.failed_attendees ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.schedule_ids !== null) d.schedule_ids = this.schedule_ids;
+    if (this.failed_attendees !== null) d.failed_attendees = this.failed_attendees;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BotCommandResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BotCommandQueryResult {
+  success: boolean;
+  scope_type: number | null;
+  chat_id: string | null;
+  chat_type: string | null;
+  staff_id: string | null;
+  commands: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; scope_type?: number | null; chat_id?: string | null; chat_type?: string | null; staff_id?: string | null; commands?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.scope_type = init.scope_type ?? null;
+    this.chat_id = init.chat_id ?? null;
+    this.chat_type = init.chat_type ?? null;
+    this.staff_id = init.staff_id ?? null;
+    this.commands = init.commands ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.scope_type !== null) d.scope_type = this.scope_type;
+    if (this.chat_id !== null) d.chat_id = this.chat_id;
+    if (this.chat_type !== null) d.chat_type = this.chat_type;
+    if (this.staff_id !== null) d.staff_id = this.staff_id;
+    if (this.commands !== null) d.commands = this.commands;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class PersonalAppCreateResult {
+  success: boolean;
+  app_id: string | null;
+  secret: string | null;
+  apigw_addr: string | null;
+  passport_addr: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; app_id?: string | null; secret?: string | null; apigw_addr?: string | null; passport_addr?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.app_id = init.app_id ?? null;
+    this.secret = init.secret ?? null;
+    this.apigw_addr = init.apigw_addr ?? null;
+    this.passport_addr = init.passport_addr ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.app_id !== null) d.app_id = this.app_id;
+    if (this.secret !== null) d.secret = this.secret;
+    if (this.apigw_addr !== null) d.apigw_addr = this.apigw_addr;
+    if (this.passport_addr !== null) d.passport_addr = this.passport_addr;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class PersonalAppInfoResult {
+  success: boolean;
+  app_id: string | null;
+  name: string | null;
+  avatar_id: string | null;
+  description: string | null;
+  apigw_addr: string | null;
+  passport_addr: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; app_id?: string | null; name?: string | null; avatar_id?: string | null; description?: string | null; apigw_addr?: string | null; passport_addr?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.app_id = init.app_id ?? null;
+    this.name = init.name ?? null;
+    this.avatar_id = init.avatar_id ?? null;
+    this.description = init.description ?? null;
+    this.apigw_addr = init.apigw_addr ?? null;
+    this.passport_addr = init.passport_addr ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.app_id !== null) d.app_id = this.app_id;
+    if (this.name !== null) d.name = this.name;
+    if (this.avatar_id !== null) d.avatar_id = this.avatar_id;
+    if (this.description !== null) d.description = this.description;
+    if (this.apigw_addr !== null) d.apigw_addr = this.apigw_addr;
+    if (this.passport_addr !== null) d.passport_addr = this.passport_addr;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class PersonalAppListResult {
+  success: boolean;
+  app_list: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; app_list?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.app_list = init.app_list ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.app_list !== null) d.app_list = this.app_list;
     if (this.error !== null) d.error = this.error;
     return d;
   }

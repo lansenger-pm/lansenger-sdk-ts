@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.14] - 2026-07-01
+
+### Added
+
+- **config**: `LansengerConfig.app_token` and `LansengerConfig.user_token` fields for **external token mode**.
+- **auth**: `TokenManager` now supports **external mode** — `getToken()` returns externally-provided token directly.
+- **messaging**: `sendApproveCard()` and `updateApproveCard()` for approveCard messages (4.6.4.12/13).
+- **models**: `ApproveCardParams` and `ApproveCardUpdateParams` classes.
+- **calendars**: `updateScheduleAttendees()` for batch add/delete of schedule attendees (4.23.19).
+- **botCommands**: New module with `createBotCommands()`, `fetchBotCommands()`, `deleteBotCommands()` (4.37).
+- **personalApps**: New module with CRUD + List methods for personal apps/bots (4.38).
+- **models**: `ScheduleAttendeesUpdateResult`, `BotCommandResult`, `BotCommandQueryResult`, `PersonalAppCreateResult`, `PersonalAppInfoResult`, `PersonalAppListResult` classes.
+- **cli**: `bot-command` (create/query/delete) and `personal-app` (create/update/info/delete/list) command groups.
+- **cli**: `calendar update-attendees` command.
+- **cli**: `--app-token` and `--user-token` global flags for external token mode.
+- **tests**: Test suites for botCommands, personalApps, and updateScheduleAttendees.
+
+### Changed
+
+- **docs**: READMEs updated to reflect personal bots support group chat.
+- **cli**: `--app-token` now triggers external mode.
+
+### Fixed
+
+- **auth**: `TokenManager` external mode prevents accidental auto-refresh of externally-provided tokens.
+- **config**: `LansengerConfig.create()` no longer requires `app_id`/`app_secret` when `app_token` is provided.
+
 ## [1.3.13] - 2026-06-17
 
 ### Added

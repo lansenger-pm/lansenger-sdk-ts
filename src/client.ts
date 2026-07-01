@@ -10,7 +10,8 @@ import { APP_MEDIA_TYPE_IMAGE, APP_MEDIA_TYPE_FILE, APP_TO_MSG_MEDIA_TYPE, MEDIA
 import { LansengerAPIError, LansengerAuthError, LansengerConfigError, LansengerFileError, LansengerNetworkError } from "./exceptions";
 import {
   SendMessageResult, AppCardParams, LinkCardParams, OaCardParams,
-  DynamicCardUpdateParams, QueryGroupsResult, UploadMediaResult,
+  DynamicCardUpdateParams, ApproveCardParams, ApproveCardUpdateParams,
+  QueryGroupsResult, UploadMediaResult,
   DownloadMediaResult, UserTokenResult, UserInfoResult,
   StaffBasicInfoResult, StaffDetailResult, DepartmentAncestorsResult,
   StaffIdMappingResult, ExtraFieldIdsResult, OrgInfoResult, StaffSearchResult,
@@ -24,7 +25,9 @@ import {
   CalendarPrimaryResult, ScheduleCreateResult, ScheduleInfoResult,
   ScheduleUpdateResult, ScheduleListResult, ScheduleAttendeesResult,
   ScheduleAttendeeMetaResult, ChatListResult, ChatMessagesResult,
-  MediaPathResult,
+  MediaPathResult, ScheduleAttendeesUpdateResult,
+  BotCommandResult, BotCommandQueryResult,
+  PersonalAppCreateResult, PersonalAppInfoResult, PersonalAppListResult,
 } from "./models";
 import { fetchStaffBasicInfo, fetchStaffDetail, fetchDepartmentAncestors, fetchStaffIdMapping, fetchOrgExtraFieldIds, searchStaff, fetchOrgInfo } from "./contacts";
 import { fetchDepartmentDetail, fetchDepartmentChildren, fetchDepartmentStaffs } from "./departments";
@@ -32,7 +35,7 @@ import { createGroup, fetchGroupInfo, fetchGroupMembers, fetchGroupList, checkIs
 import { buildAuthorizeUrl, exchangeCodeForUserToken, refreshUserToken, parseAuthorizeCallback, validateCallbackState } from "./oauth";
 import { fetchUserInfo } from "./users";
 import { createStreamMessage, fetchStreamMessage } from "./streaming";
-import { createSchedule, fetchSchedule, deleteSchedule, updateSchedule, fetchScheduleList, fetchScheduleAttendees, addScheduleAttendees, deleteScheduleAttendees, updateScheduleAttendeeMeta, fetchPrimaryCalendar } from "./calendars";
+import { createSchedule, fetchSchedule, deleteSchedule, updateSchedule, fetchScheduleList, fetchScheduleAttendees, addScheduleAttendees, deleteScheduleAttendees, updateScheduleAttendeeMeta, updateScheduleAttendees, fetchPrimaryCalendar } from "./calendars";
 import { createTodoTask, updateTodoTask, updateTodoTaskStatus, deleteTodoTask, fetchTodoTaskList, fetchTodoTaskBySourceId, fetchTodoTaskById, fetchTodoTaskStatusCounts, updateExecutorStatus, addExecutors, deleteExecutors, fetchExecutorList } from "./todos";
 import { fetchChatList, fetchChatMessages } from "./chats";
 import { sendAccountMessage } from "./accountMessages";
@@ -41,6 +44,8 @@ import { sendGroupMessage } from "./groupMessages";
 import { sendReminder } from "./reminders";
 import { uploadMedia, uploadAppMedia, downloadMedia, downloadMediaToFile, fetchMediaPath } from "./media";
 import { parseCallbackPayload, verifyCallbackSignature, getCallbackEventTypes, CallbackEvent } from "./callbacks";
+import { createBotCommands, fetchBotCommands, deleteBotCommands } from "./botCommands";
+import { createPersonalApp, updatePersonalApp, fetchPersonalApp, deletePersonalApp, fetchPersonalAppList } from "./personalApps";
 
 type AnyDict = Record<string, any>;
 
@@ -71,8 +76,10 @@ export class LansengerClient {
     encodingKey: string = "",
     callbackToken: string = "",
     redirectUri: string = "",
+    appToken: string = "",
+    userToken: string = "",
   ) {
-    this._config = new LansengerConfig(appId, appSecret, apiGatewayUrl, passportUrl, httpTimeout, encodingKey, callbackToken, redirectUri);
+    this._config = new LansengerConfig(appId, appSecret, apiGatewayUrl, passportUrl, httpTimeout, encodingKey, callbackToken, redirectUri, appToken, userToken);
     if (storePath) {
       this._store = new CredentialStore(storePath);
     }
@@ -80,11 +87,11 @@ export class LansengerClient {
 
   static fromEnv(storePath?: string): LansengerClient {
     const config = LansengerConfig.fromEnv();
-    return new LansengerClient(config.app_id, config.app_secret, config.api_gateway_url, config.passport_url, config.http_timeout, storePath, config.encoding_key, config.callback_token, config.redirect_uri);
+    return new LansengerClient(config.app_id, config.app_secret, config.api_gateway_url, config.passport_url, config.http_timeout, storePath, config.encoding_key, config.callback_token, config.redirect_uri, config.app_token, config.user_token);
   }
 
   static fromConfig(config: LansengerConfig, storePath?: string): LansengerClient {
-    return new LansengerClient(config.app_id, config.app_secret, config.api_gateway_url, config.passport_url, config.http_timeout, storePath, config.encoding_key, config.callback_token, config.redirect_uri);
+    return new LansengerClient(config.app_id, config.app_secret, config.api_gateway_url, config.passport_url, config.http_timeout, storePath, config.encoding_key, config.callback_token, config.redirect_uri, config.app_token, config.user_token);
   }
 
   static fromStore(profile: string = "default", filePath?: string): LansengerClient {
@@ -391,6 +398,169 @@ export class LansengerClient {
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
     if (httpErr) return new SendMessageResult({ success: false, error: httpErr, msg_type: "oacard" });
     return _parseSendResponse(data!, "oacard");
+  }
+
+  private _buildApproveCardData(params: ApproveCardParams): AnyDict {
+    const card: AnyDict = {};
+
+    // head
+    const head: AnyDict = {};
+    if (params.head_title) head.title = params.head_title;
+    if (params.head_icon_link) head.iconLink = params.head_icon_link;
+    if (params.head_icon_id) head.iconId = params.head_icon_id;
+    if (params.head_status_describe || params.head_status_icon ||
+        params.head_status_icon_link || params.head_status_colour) {
+      const headStatus: AnyDict = {};
+      if (params.head_status_describe) headStatus.describe = params.head_status_describe;
+      if (params.head_status_icon) headStatus.statusIcon = params.head_status_icon;
+      if (params.head_status_icon_link) headStatus.iconLink = params.head_status_icon_link;
+      if (params.head_status_colour) headStatus.colour = params.head_status_colour;
+      head.headStatus = headStatus;
+    }
+    if (Object.keys(head).length > 0) card.head = head;
+
+    // body
+    const body: AnyDict = {};
+    if (params.body_title) body.title = params.body_title;
+    if (params.body_content) {
+      body.content = { formatType: params.body_format_type, text: params.body_content };
+    }
+    if (params.fields) body.fields = params.fields;
+    if (Object.keys(body).length > 0) card.body = body;
+
+    // reminder
+    const reminder: AnyDict = {};
+    if (params.reminder_all) reminder.all = true;
+    if (params.reminder_user_ids) reminder.userIds = params.reminder_user_ids;
+    if (params.reminder_bot_ids) reminder.botIds = params.reminder_bot_ids;
+    if (Object.keys(reminder).length > 0) card.reminder = reminder;
+
+    // cardLink
+    if (params.card_link) {
+      const cardLink: AnyDict = { cardLink: params.card_link };
+      if (params.card_link_for_pc) cardLink.cardLinkForPc = params.card_link_for_pc;
+      if (params.card_link_for_pad) cardLink.cardLinkForPad = params.card_link_for_pad;
+      card.cardLink = cardLink;
+    }
+
+    // buttons
+    if (params.buttons) card.buttons = params.buttons;
+
+    // expireTime
+    if (params.expire_time) card.expireTime = params.expire_time;
+
+    return { approveCard: card };
+  }
+
+  async sendApproveCardWithParams(params: ApproveCardParams): Promise<SendMessageResult> {
+    if (!params.chat_id) return new SendMessageResult({ success: false, error: "chat_id is required", msg_type: "approveCard" });
+    if (!params.body_title) return new SendMessageResult({ success: false, error: "body_title is required for approveCard", msg_type: "approveCard" });
+    if (!params.body_content) return new SendMessageResult({ success: false, error: "body_content is required for approveCard", msg_type: "approveCard" });
+
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    const msgData = this._buildApproveCardData(params);
+
+    if (params.is_group) {
+      return this._sendGroup(params.chat_id, "approveCard", msgData,
+        { userToken: params.user_token, senderId: params.sender_id });
+    }
+    return this._sendPrivate(params.chat_id, "approveCard", msgData);
+  }
+
+  async sendApproveCard(
+    bodyTitle: string,
+    bodyContent: string,
+    opts?: {
+      chat_id?: string;
+      head_title?: string;
+      head_icon_link?: string;
+      head_icon_id?: string;
+      head_status_describe?: string;
+      head_status_icon?: number;
+      head_status_icon_link?: string;
+      head_status_colour?: string;
+      body_format_type?: number;
+      fields?: Record<string, string>[];
+      reminder_all?: boolean;
+      reminder_user_ids?: string[];
+      reminder_bot_ids?: string[];
+      card_link?: string;
+      card_link_for_pc?: string;
+      card_link_for_pad?: string;
+      buttons?: Record<string, any>[];
+      expire_time?: number;
+      is_group?: boolean;
+      user_token?: string;
+      sender_id?: string;
+    }
+  ): Promise<SendMessageResult> {
+    const params = new ApproveCardParams({
+      chat_id: opts?.chat_id || "",
+      body_title: bodyTitle,
+      body_content: bodyContent,
+      head_title: opts?.head_title || "",
+      head_icon_link: opts?.head_icon_link || "",
+      head_icon_id: opts?.head_icon_id || "",
+      head_status_describe: opts?.head_status_describe || "",
+      head_status_icon: opts?.head_status_icon || 0,
+      head_status_icon_link: opts?.head_status_icon_link || "",
+      head_status_colour: opts?.head_status_colour || "",
+      body_format_type: opts?.body_format_type ?? 1,
+      fields: opts?.fields,
+      reminder_all: opts?.reminder_all || false,
+      reminder_user_ids: opts?.reminder_user_ids,
+      reminder_bot_ids: opts?.reminder_bot_ids,
+      card_link: opts?.card_link || "",
+      card_link_for_pc: opts?.card_link_for_pc || "",
+      card_link_for_pad: opts?.card_link_for_pad || "",
+      buttons: opts?.buttons,
+      expire_time: opts?.expire_time || 0,
+      is_group: opts?.is_group || false,
+      user_token: opts?.user_token || "",
+      sender_id: opts?.sender_id || "",
+    });
+    return this.sendApproveCardWithParams(params);
+  }
+
+  async updateApproveCard(
+    msgId: string,
+    opts?: {
+      head_status_describe?: string;
+      head_status_icon?: number;
+      head_status_icon_link?: string;
+      head_status_colour?: string;
+      buttons?: Record<string, any>[];
+    }
+  ): Promise<SendMessageResult> {
+    await this._ensureInit();
+
+    if (!msgId) return new SendMessageResult({ success: false, error: "msg_id is required" });
+
+    const token = await this._tokenManager!.getToken();
+    const url = buildApiUrl(this._config, "message", "dynamic_update", token);
+
+    const updateData: AnyDict = {};
+    if (opts?.head_status_describe || opts?.head_status_icon ||
+        opts?.head_status_icon_link || opts?.head_status_colour) {
+      const headStatus: AnyDict = {};
+      if (opts?.head_status_describe) headStatus.describe = opts.head_status_describe;
+      if (opts?.head_status_icon) headStatus.statusIcon = opts.head_status_icon;
+      if (opts?.head_status_icon_link) headStatus.iconLink = opts.head_status_icon_link;
+      if (opts?.head_status_colour) headStatus.colour = opts.head_status_colour;
+      updateData.headStatus = headStatus;
+    }
+    if (opts?.buttons) updateData.buttons = opts.buttons;
+
+    const payload: AnyDict = {
+      msgId: msgId,
+      msgType: "approveCard",
+      msgData: { approveCardUpdateMsg: updateData },
+    };
+
+    const [data, httpErr] = await doPost(url, payload, this._fetchFn);
+    if (httpErr) return new SendMessageResult({ success: false, error: httpErr, operation: "approve_card_update" });
+    return _parseSendResponse(data!, "approveCard", "approve_card_update");
   }
 
   async updateDynamicCard(msgId: string, opts?: { head_status_info?: AnyDict; links?: AnyDict[]; is_last_update?: boolean }): Promise<SendMessageResult> {
@@ -844,6 +1014,64 @@ export class LansengerClient {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     return updateScheduleAttendeeMeta(this._config, token, calendarId, scheduleId, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async updateScheduleAttendees(calendarId: string, scheduleId: string, opts?: { add_attendees?: string[]; delete_attendees?: string[]; reminder_type?: string; operation_type?: string; current_time?: number; user_token?: string; user_id?: string }): Promise<ScheduleAttendeesUpdateResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return updateScheduleAttendees(this._config, token, calendarId, scheduleId, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  // ── Bot Commands (4.37) ───────────────────────────────────────────
+
+  async createBotCommands(scopeType: number, commands: AnyDict[], opts?: { chat_id?: string; chat_type?: string; staff_id?: string }): Promise<BotCommandResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return createBotCommands(this._config, token, scopeType, commands, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchBotCommands(scopeType: number, opts?: { chat_id?: string; chat_type?: string; staff_id?: string }): Promise<BotCommandQueryResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchBotCommands(this._config, token, scopeType, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async deleteBotCommands(scopeType: number, opts?: { chat_id?: string; chat_type?: string; staff_id?: string }): Promise<BotCommandResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return deleteBotCommands(this._config, token, scopeType, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  // ── Personal Apps (4.38) ───────────────────────────────────────────
+
+  async createPersonalApp(opts: { user_token: string; name?: string; avatar_id?: string; description?: string }): Promise<PersonalAppCreateResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return createPersonalApp(this._config, token, opts);
+  }
+
+  async updatePersonalApp(appId: string, opts: { user_token: string; name: string; avatar_id?: string; description?: string }): Promise<PersonalAppInfoResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return updatePersonalApp(this._config, token, appId, opts);
+  }
+
+  async fetchPersonalApp(appId: string, opts?: { user_token?: string }): Promise<PersonalAppInfoResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchPersonalApp(this._config, token, appId, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async deletePersonalApp(appId: string, opts?: { user_token?: string }): Promise<PersonalAppInfoResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return deletePersonalApp(this._config, token, appId, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchPersonalAppList(opts?: { user_token?: string }): Promise<PersonalAppListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchPersonalAppList(this._config, token, { ...opts, fetchFn: this._fetchFn! });
   }
 
   async fetchChatList(opts?: { chat_type?: number; keyword?: string; start_time?: number; end_time?: number; user_token?: string }): Promise<ChatListResult> {

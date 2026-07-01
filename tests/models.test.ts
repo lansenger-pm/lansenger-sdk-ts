@@ -16,7 +16,9 @@ import {
   ExtraFieldIdsResult, StaffSearchResult,
   AccountMessageResult, UserMessageResult, BotMessageResult,
   StreamMessageResult, DownloadMediaResult, MediaPathResult,
-  UserInfoResult,
+  UserInfoResult, ScheduleAttendeesUpdateResult,
+  BotCommandResult, BotCommandQueryResult,
+  PersonalAppCreateResult, PersonalAppInfoResult, PersonalAppListResult,
 } from "../src/models";
 
 describe("SendMessageResult", () => {
@@ -553,5 +555,65 @@ describe("ChatMessageInfo", () => {
     const m = new ChatMessageInfo({ send_time: "100", sender: "s1", message_type: "text" });
     const d = m.toDict();
     expect(d).not.toHaveProperty("content");
+  });
+});
+
+describe("ScheduleAttendeesUpdateResult", () => {
+  test("constructor defaults", () => {
+    const r = new ScheduleAttendeesUpdateResult({ success: true });
+    expect(r.schedule_ids).toBeNull();
+    expect(r.failed_attendees).toBeNull();
+  });
+  test("toDict with data", () => {
+    const r = new ScheduleAttendeesUpdateResult({ success: true, schedule_ids: ["s1"], failed_attendees: ["f1"] });
+    expect(r.toDict().schedule_ids).toEqual(["s1"]);
+  });
+});
+
+describe("BotCommandResult", () => {
+  test("constructor defaults", () => {
+    const r = new BotCommandResult({ success: true });
+    expect(r.error).toBeNull();
+  });
+  test("toDict with error", () => {
+    const r = new BotCommandResult({ success: false, error: "bad" });
+    expect(r.toDict().error).toBe("bad");
+  });
+});
+
+describe("BotCommandQueryResult", () => {
+  test("constructor defaults", () => {
+    const r = new BotCommandQueryResult({ success: true });
+    expect(r.scope_type).toBeNull();
+    expect(r.commands).toBeNull();
+  });
+  test("toDict with data", () => {
+    const r = new BotCommandQueryResult({ success: true, scope_type: 7, commands: [{ command: "/add" }] });
+    expect(r.toDict().commands!.length).toBe(1);
+  });
+});
+
+describe("PersonalAppCreateResult", () => {
+  test("constructor defaults", () => {
+    const r = new PersonalAppCreateResult({ success: true });
+    expect(r.app_id).toBeNull();
+  });
+  test("toDict with data", () => {
+    const r = new PersonalAppCreateResult({ success: true, app_id: "a1", secret: "s1" });
+    expect(r.toDict().app_id).toBe("a1");
+  });
+});
+
+describe("PersonalAppInfoResult", () => {
+  test("toDict with data", () => {
+    const r = new PersonalAppInfoResult({ success: true, name: "MyApp" });
+    expect(r.toDict().name).toBe("MyApp");
+  });
+});
+
+describe("PersonalAppListResult", () => {
+  test("toDict with empty list", () => {
+    const r = new PersonalAppListResult({ success: true, app_list: [] });
+    expect(r.toDict().app_list).toEqual([]);
   });
 });
