@@ -588,7 +588,7 @@ describe("BotCommandQueryResult", () => {
     expect(r.commands).toBeNull();
   });
   test("toDict with data", () => {
-    const r = new BotCommandQueryResult({ success: true, scope_type: 7, commands: [{ command: "/add" }] });
+    const r = new BotCommandQueryResult({ success: true, scope_type: 7, commands: [{ command: "add" }] });
     expect(r.toDict().commands!.length).toBe(1);
   });
 });

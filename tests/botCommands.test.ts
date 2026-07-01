@@ -12,7 +12,7 @@ function mockFetchFn(data: Record<string, any>): FetchFn {
 
 describe("createBotCommands", () => {
   test("returns error on invalid scope_type", async () => {
-    const result = await createBotCommands(makeConfig(), "tok", 0, [{ command: "/test" }]);
+    const result = await createBotCommands(makeConfig(), "tok", 0, [{ command: "test" }]);
     expect(result.success).toBe(false);
     expect(result.error).toContain("scope_type");
   });
@@ -24,14 +24,14 @@ describe("createBotCommands", () => {
   });
 
   test("returns success", async () => {
-    const result = await createBotCommands(makeConfig(), "tok", 7, [{ command: "/add" }], {
+    const result = await createBotCommands(makeConfig(), "tok", 7, [{ command: "add" }], {
       fetchFn: mockFetchFn({ errCode: 0, errMsg: "ok" }),
     });
     expect(result.success).toBe(true);
   });
 
   test("returns success with chat params", async () => {
-    const result = await createBotCommands(makeConfig(), "tok", 1, [{ command: "/add" }], {
+    const result = await createBotCommands(makeConfig(), "tok", 1, [{ command: "add" }], {
       chat_id: "524288-xxx", chat_type: "group", staff_id: "524288-yyy",
       fetchFn: mockFetchFn({ errCode: 0, errMsg: "ok" }),
     });
@@ -39,7 +39,7 @@ describe("createBotCommands", () => {
   });
 
   test("returns error on API error", async () => {
-    const result = await createBotCommands(makeConfig(), "tok", 7, [{ command: "/test" }], {
+    const result = await createBotCommands(makeConfig(), "tok", 7, [{ command: "test" }], {
       fetchFn: mockFetchFn({ errCode: 10000, errMsg: "error" }),
     });
     expect(result.success).toBe(false);
@@ -56,7 +56,7 @@ describe("fetchBotCommands", () => {
     const result = await fetchBotCommands(makeConfig(), "tok", 7, {
       fetchFn: mockFetchFn({
         errCode: 0,
-        data: { scopeType: 7, commands: [{ command: "/add", description: "desc" }] },
+        data: { scopeType: 7, commands: [{ command: "add", description: "desc" }] },
       }),
     });
     expect(result.success).toBe(true);
