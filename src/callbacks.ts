@@ -951,17 +951,39 @@ export function decryptCallbackPayload(
   // Base64-decode the encrypted payload, then AES-CBC decrypt the ENTIRE blob
   const encBytes = Buffer.from(encryptedData, "base64");
   const cipherName = `aes-${aesKey.length * 8}-cbc`;
+
+  // Use setAutoPadding(false) + manual PKCS7 unpad to match Python/Go behavior
   const decipher = crypto.createDecipheriv(cipherName, aesKey, iv);
+  decipher.setAutoPadding(false);
   const decrypted = Buffer.concat([decipher.update(encBytes), decipher.final()]);
 
-  // Remove PKCS7 padding
+  // Remove PKCS7 padding manually
   const raw = _pkcs7Unpad(decrypted);
 
+  // Try JSON format first: some platforms return a JSON object instead of binary structure
+  try {
+    const jsonStr = raw.toString("utf8");
+    const parsed = JSON.parse(jsonStr);
+    if (parsed && typeof parsed === "object" && "events" in parsed) {
+      let eventsData = parsed.events;
+      if (!Array.isArray(eventsData)) eventsData = [eventsData];
+      return {
+        random: parsed.random || "",
+        orgId: parsed.orgId || parsed.org_id || "",
+        appId: parsed.appId || parsed.app_id || "",
+        events: eventsData,
+        length: parsed.length || parsed.len || 0,
+      };
+    }
+  } catch {
+    // Not JSON, fall through to binary format
+  }
+
+  // Binary format: random(16B) + eventsLen(4B big-endian) + orgId + appId + events JSON
   if (raw.length < 20) {
     throw new Error(`Decrypted data too short: ${raw.length} bytes (need >= 20)`);
   }
 
-  // Structure: random(16B) + eventsLen(4B big-endian) + orgId + appId + events JSON
   const randomBuf = raw.slice(0, 16);
   const eventsLen = raw.readUInt32BE(16);
   const totalAfterHeader = raw.length - 20;
