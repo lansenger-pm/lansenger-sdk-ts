@@ -128,6 +128,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.1] — Skipped (missing rebuilt dist)
 
+## [1.3.16] - 2026-06-10
+
+### Fixed
+
+- 修复 `decryptCallbackPayload` 解密流程：密钥长度校验改为接受 16/24/32 字节，对整个密文做 AES-CBC 解密后 PKCS7 unpadding，匹配 Python/Go SDK
+
 ## [1.3.0] - 2026-06-10
 
 ### Fixed

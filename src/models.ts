@@ -1787,6 +1787,552 @@ export class ChatMessageInfo {
   }
 }
 
+export class OvertimeConfigResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class OvertimeTypeListResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class OvertimeGroupListResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class OvertimeDurationResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class OvertimeUploadURLResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class OvertimeSubmitResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class OvertimeApplyListResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class LeaveConfigResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class LeaveTypeListResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class LeaveGroupListResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class LeaveBalanceResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class LeaveTimesResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class LeaveUploadURLResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class LeaveSubmitResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class LeaveApplyListResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomGenericResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomBooleanResult {
+  success: boolean;
+  data: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; data?: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.data = init.data ?? false;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, data: this.data };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomListResult {
+  success: boolean;
+  total: number;
+  data: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; total?: number; data?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.total = init.total ?? 0;
+    this.data = init.data ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, total: this.total };
+    if (this.data !== null) d.data = this.data;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomScheduleResult {
+  success: boolean;
+  data: AnyDict | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; data?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.data = init.data ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.data !== null) d.data = this.data;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomDetailResult {
+  success: boolean;
+  data: AnyDict | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; data?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.data = init.data ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.data !== null) d.data = this.data;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomReserveResult {
+  success: boolean;
+  data: AnyDict | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; data?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.data = init.data ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.data !== null) d.data = this.data;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomReserveDetailResult {
+  success: boolean;
+  data: AnyDict | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; data?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.data = init.data ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.data !== null) d.data = this.data;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomGradingResult {
+  success: boolean;
+  data: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; data?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.data = init.data ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.data !== null) d.data = this.data;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomBatchApproveResult {
+  success: boolean;
+  data: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; data?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.data = init.data ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.data !== null) d.data = this.data;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomAreaOfficeResult {
+  success: boolean;
+  data: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; data?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.data = init.data ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.data !== null) d.data = this.data;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomApproveDetailResult {
+  success: boolean;
+  data: AnyDict | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; data?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.data = init.data ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.data !== null) d.data = this.data;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class AttendanceGenericResult {
+  success: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class AttendanceAssociateResult {
+  success: boolean;
+  total: number;
+  pageNo: number;
+  pageSize: number;
+  hasNextPage: boolean;
+  result: AnyDict | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; total?: number; pageNo?: number; pageSize?: number; hasNextPage?: boolean; result?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.total = init.total ?? 0;
+    this.pageNo = init.pageNo ?? 0;
+    this.pageSize = init.pageSize ?? 0;
+    this.hasNextPage = init.hasNextPage ?? false;
+    this.result = init.result ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, total: this.total, pageNo: this.pageNo, pageSize: this.pageSize, hasNextPage: this.hasNextPage };
+    if (this.result !== null) d.result = this.result;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
 export class ChatMessagesResult {
   success: boolean;
   has_more: boolean;
