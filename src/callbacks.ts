@@ -924,24 +924,25 @@ export function decryptCallbackPayload(
   encodingKey: string,
   knownAppId: string = "",
 ): AnyDict {
-  const keyBytes = _decodeAesKey(encodingKey);
-  const aesKey = keyBytes.slice(0, 32);
-  const iv = keyBytes.length >= 48 ? keyBytes.slice(32, 48) : keyBytes.slice(0, 16);
+  // Decode AES key from Base64 encoding_key
+  const aesKey = _decodeAesKey(encodingKey);
+  const iv = aesKey.slice(0, 16);
 
+  // Base64-decode the encrypted payload, then AES-CBC decrypt the ENTIRE blob
   const encBytes = Buffer.from(encryptedData, "base64");
-  const randomPrefixLen = encBytes.readUInt32BE(0);
-  const offset = 4 + randomPrefixLen + 32;
-  const aesPayload = encBytes.slice(offset);
+  const cipherName = `aes-${aesKey.length * 8}-cbc`;
+  const decipher = crypto.createDecipheriv(cipherName, aesKey, iv);
+  const decrypted = Buffer.concat([decipher.update(encBytes), decipher.final()]);
 
-  const decipher = crypto.createDecipheriv("aes-256-cbc", aesKey, iv);
-  const decrypted = Buffer.concat([decipher.update(aesPayload), decipher.final()]);
+  // Remove PKCS7 padding
   const raw = _pkcs7Unpad(decrypted);
 
   if (raw.length < 20) {
     throw new Error(`Decrypted data too short: ${raw.length} bytes (need >= 20)`);
   }
 
-  const randomStr = raw.slice(0, 16).toString("utf8");
+  // Structure: random(16B) + eventsLen(4B big-endian) + orgId + appId + events JSON
+  const randomBuf = raw.slice(0, 16);
   const eventsLen = raw.readUInt32BE(16);
   const totalAfterHeader = raw.length - 20;
   if (totalAfterHeader < eventsLen) {
@@ -958,7 +959,7 @@ export function decryptCallbackPayload(
   const [orgId, appId] = _splitOrgAppId(middleStr, knownAppId);
 
   return {
-    random: randomStr,
+    random: randomBuf.toString("utf8"),
     orgId,
     appId,
     events: eventsData,
@@ -967,13 +968,11 @@ export function decryptCallbackPayload(
 }
 
 function _decodeAesKey(encodingKey: string): Buffer {
-  if (encodingKey.length % 4 === 1) {
-    throw new Error(`Invalid Base64 key length (${encodingKey.length}): length mod 4 = 1 is not valid Base64`);
-  }
+  // Pad Base64 string if necessary, then decode
   const padded = encodingKey + "=".repeat((4 - encodingKey.length % 4) % 4);
   const keyBytes = Buffer.from(padded, "base64");
-  if (keyBytes.length < 32) {
-    throw new Error(`Invalid AES key length: ${keyBytes.length} bytes (need >= 32)`);
+  if (![16, 24, 32].includes(keyBytes.length)) {
+    throw new Error(`Invalid AES key length: ${keyBytes.length} bytes (expected 16, 24, or 32)`);
   }
   return keyBytes;
 }

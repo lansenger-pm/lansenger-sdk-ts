@@ -6,7 +6,7 @@ import { TokenManager, UserTokenManager } from "./auth";
 import { CredentialStore } from "./persistence";
 import { doGet, doPost, FetchFn } from "./http";
 import { buildApiUrl } from "./urlHelpers";
-import { APP_MEDIA_TYPE_IMAGE, APP_MEDIA_TYPE_FILE, APP_TO_MSG_MEDIA_TYPE, MEDIA_TYPE_AUDIO, guessMediaType, guessAppMediaType } from "./constants";
+import { APP_MEDIA_TYPE_IMAGE, APP_MEDIA_TYPE_FILE, APP_MEDIA_TYPE_VIDEO, APP_TO_MSG_MEDIA_TYPE, MEDIA_TYPE_AUDIO, guessMediaType, guessAppMediaType } from "./constants";
 import { LansengerAPIError, LansengerAuthError, LansengerConfigError, LansengerFileError, LansengerNetworkError } from "./exceptions";
 import {
   SendMessageResult, AppCardParams, LinkCardParams, OaCardParams,
@@ -256,7 +256,7 @@ export class LansengerClient {
       if (!mediaResult.success) return new SendMessageResult({ success: false, error: mediaResult.error });
       textObj.mediaType = APP_TO_MSG_MEDIA_TYPE[mt] || MEDIA_TYPE_AUDIO;
       textObj.mediaIds = [mediaResult.media_id];
-      if (opts.cover_image_path) {
+      if (opts.cover_image_path && mt === APP_MEDIA_TYPE_VIDEO) {
         const coverResult = await uploadAppMedia(this._config, this._tokenManager!, this._fetchFn!, opts.cover_image_path, APP_MEDIA_TYPE_IMAGE);
         if (!coverResult.success) return new SendMessageResult({ success: false, error: coverResult.error });
         textObj.coverMediaIds = [coverResult.media_id];
@@ -270,7 +270,8 @@ export class LansengerClient {
 
   async sendMarkdown(chatId: string, content: string, opts?: { reminder_all?: boolean; reminder_user_ids?: string[]; reminder_bot_ids?: string[]; is_group?: boolean; user_token?: string; sender_id?: string; ref_msg_id?: string }): Promise<SendMessageResult> {
     const formatTextObj: AnyDict = { formatType: 1, text: content };
-    if (opts?.reminder_all || (opts?.reminder_user_ids && opts.reminder_user_ids.length > 0) || (opts?.reminder_bot_ids && opts.reminder_bot_ids.length > 0)) {
+    const hasReminder = opts?.reminder_all || (opts?.reminder_user_ids && opts.reminder_user_ids.length > 0) || (opts?.reminder_bot_ids && opts.reminder_bot_ids.length > 0);
+    if (hasReminder) {
       const reminder: AnyDict = {};
       if (opts?.reminder_all) reminder.all = true;
       if (opts?.reminder_user_ids) reminder.userIds = opts.reminder_user_ids;
@@ -279,8 +280,20 @@ export class LansengerClient {
     }
     const msgData: AnyDict = { formatText: formatTextObj };
     const isGroup = opts?.is_group || false;
-    if (isGroup) return this._sendGroup(chatId, "formatText", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "", refMsgId: opts?.ref_msg_id || "" });
-    return this._sendPrivate(chatId, "formatText", msgData, { refMsgId: opts?.ref_msg_id || "" });
+    if (isGroup) {
+      const result = await this._sendGroup(chatId, "formatText", msgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "", refMsgId: opts?.ref_msg_id || "" });
+      if (!result.success && hasReminder) {
+        const cleanMsgData: AnyDict = { formatText: { formatType: 1, text: content } };
+        return this._sendGroup(chatId, "formatText", cleanMsgData, { userToken: opts?.user_token || "", senderId: opts?.sender_id || "", refMsgId: opts?.ref_msg_id || "" });
+      }
+      return result;
+    }
+    const result = await this._sendPrivate(chatId, "formatText", msgData, { refMsgId: opts?.ref_msg_id || "" });
+    if (!result.success && hasReminder) {
+      const cleanMsgData: AnyDict = { formatText: { formatType: 1, text: content } };
+      return this._sendPrivate(chatId, "formatText", cleanMsgData, { refMsgId: opts?.ref_msg_id || "" });
+    }
+    return result;
   }
 
   async sendFile(chatId: string, filePath: string, opts?: { caption?: string; media_type?: string; cover_image_path?: string; is_group?: boolean; user_token?: string; sender_id?: string }): Promise<SendMessageResult> {

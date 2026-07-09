@@ -204,4 +204,4 @@ export function guessAppMediaType(filePath: string): string {
   return APP_MEDIA_TYPE_FILE;
 }
 
-export const VERSION = "1.3.10";
+export const VERSION = "1.3.17";
