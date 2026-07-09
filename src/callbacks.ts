@@ -427,6 +427,9 @@ export class BotGroupMessageData {
   bot_id: string;
   is_at_me: boolean;
   is_at_all: boolean;
+  bots: AnyDict[];
+  staffs: AnyDict[];
+  magic: string;
   reference_msg: AnyDict | null;
 
   constructor(init: {
@@ -442,6 +445,9 @@ export class BotGroupMessageData {
     bot_id?: string;
     is_at_me?: boolean;
     is_at_all?: boolean;
+    bots?: AnyDict[];
+    staffs?: AnyDict[];
+    magic?: string;
     reference_msg?: AnyDict | null;
   }) {
     this.from_id = init.from_id ?? "";
@@ -456,6 +462,9 @@ export class BotGroupMessageData {
     this.bot_id = init.bot_id ?? "";
     this.is_at_me = init.is_at_me ?? false;
     this.is_at_all = init.is_at_all ?? false;
+    this.bots = init.bots ?? [];
+    this.staffs = init.staffs ?? [];
+    this.magic = init.magic ?? "";
     this.reference_msg = init.reference_msg ?? null;
   }
 
@@ -473,7 +482,10 @@ export class BotGroupMessageData {
       bot_id: this.bot_id,
       is_at_me: this.is_at_me,
       is_at_all: this.is_at_all,
+      bots: this.bots,
+      staffs: this.staffs,
     };
+    if (this.magic) d.magic = this.magic;
     if (this.reference_msg !== null) d.reference_msg = this.reference_msg;
     return d;
   }
@@ -758,7 +770,7 @@ export const FIELD_MAPS: Record<string, Record<string, string>> = {
   user_logout: { staffId: "staff_id", deviceId: "device_id", timestamp: "timestamp" },
   data_scope: { deptIds: "dept_ids", timestamp: "timestamp" },
   bot_private_message: { from: "from_id", entryId: "entry_id", msgType: "msg_type", msgData: "msg_data", msgId: "msg_id", referenceMsg: "reference_msg" },
-  bot_group_message: { from: "from_id", entryId: "entry_id", msgType: "msg_type", msgData: "msg_data", groupId: "group_id", fromType: "from_type", groupName: "group_name", botCreator: "bot_creator", msgId: "msg_id", botId: "bot_id", isAtMe: "is_at_me", isAtAll: "is_at_all", referenceMsg: "reference_msg" },
+  bot_group_message: { from: "from_id", entryId: "entry_id", msgType: "msg_type", msgData: "msg_data", groupId: "group_id", fromType: "from_type", groupName: "group_name", botCreator: "bot_creator", msgId: "msg_id", botId: "bot_id", referenceMsg: "reference_msg", magic: "magic" },
   wb_visible_config: { entryId: "entry_id", departmentIds: "department_ids", staffIds: "staff_ids", timestamp: "timestamp", isTestModeOn: "is_test_mode_on" },
   group_create_approve: { applyRequestId: "apply_request_id", groupId: "group_id", timestamp: "timestamp" },
   schedule_modify: { primaryScheduleId: "primary_schedule_id", scheduleId: "schedule_id", summary: "summary", description: "description", operationType: "operation_type", currentTime: "current_time", repeatType: "repeat_type", expireDateType: "expire_date_type", allDay: "all_day", rule: "rule", ruleStartTime: "rule_start_time", ruleEndTime: "rule_end_time", startTime: "start_time", endTime: "end_time", operator: "operator", attendees: "attendees", timestamp: "timestamp" },
@@ -797,6 +809,14 @@ function _parseEventData(eventType: string, rawData: AnyDict): AnyDict | Callbac
 
   if (eventType === "report_location") {
     kwargs.location_info = rawData.locationInfo || {};
+  }
+
+  if (eventType === "bot_group_message") {
+    const reminder = (typeof rawData.reminder === "object" && rawData.reminder) || {};
+    kwargs.is_at_me = reminder.isAtMe || false;
+    kwargs.is_at_all = reminder.isAtAll || false;
+    if (Array.isArray(reminder.bots)) kwargs.bots = reminder.bots;
+    if (Array.isArray(reminder.staffs)) kwargs.staffs = reminder.staffs;
   }
 
   return new parserCls(kwargs);

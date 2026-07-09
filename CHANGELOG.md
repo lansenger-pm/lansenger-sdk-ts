@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.17] - 2026-07-09
+
+### Fixed
+
+- **callbacks**: `bot_group_message` events now correctly extract `isAtMe`, `isAtAll`, `bots`, and `staffs` from the nested `reminder` object (was incorrectly reading from top-level, per OpenAPI 4.10.1.3 update).
+- **callbacks**: `bot_group_message` parsing now maps the `magic` field.
+- **callbacks**: `BotGroupMessageData` class now includes `bots`, `staffs`, and `magic` properties.
+- **callbacks**: `decryptCallbackPayload` AES-CBC decrypt flow rewritten — encrypt entire blob (not partial offset), key validation supports 16/24/32 byte keys, matching Python/Go SDKs.
+- **messaging**: `sendFile` cover image now only attaches for video media type (not all types).
+- **messaging**: `sendMarkdown` now retries without reminder object on failure (markdown fallback).
+
 ## [1.3.14] - 2026-07-01
 
 ### Added

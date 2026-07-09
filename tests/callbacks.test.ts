@@ -105,7 +105,11 @@ describe("parseCallbackPayload", () => {
       events: [
         {
           eventType: "bot_group_message",
-          data: { from: "s1", groupId: "g1", msgId: "m1", botId: "b1", isAtMe: true, isAtAll: false },
+          data: {
+            from: "s1", groupId: "g1", msgId: "m1", botId: "b1",
+            reminder: { isAtMe: true, isAtAll: false, bots: [{ botId: "b1", botName: "BotA" }], staffs: [{ staffId: "s2", staffName: "张三" }] },
+            magic: "11",
+          },
         },
       ],
     });
@@ -113,6 +117,10 @@ describe("parseCallbackPayload", () => {
     expect(events).toHaveLength(1);
     expect((events[0].data as any).group_id).toBe("g1");
     expect((events[0].data as any).is_at_me).toBe(true);
+    expect((events[0].data as any).is_at_all).toBe(false);
+    expect((events[0].data as any).magic).toBe("11");
+    expect((events[0].data as any).bots).toEqual([{ botId: "b1", botName: "BotA" }]);
+    expect((events[0].data as any).staffs).toEqual([{ staffId: "s2", staffName: "张三" }]);
   });
 
   test("throws on encrypted payload without encodingKey", () => {
