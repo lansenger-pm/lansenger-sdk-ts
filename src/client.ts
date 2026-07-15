@@ -49,6 +49,12 @@ import { createPersonalApp, updatePersonalApp, fetchPersonalApp, deletePersonalA
 
 type AnyDict = Record<string, any>;
 
+import { isSDKDebug } from "./debug";
+
+const _logger = {
+  debug: (...args: any[]) => { if (isSDKDebug()) console.error(`[${new Date().toISOString().slice(11,19)}] [DEBUG]`, ...args); },
+};
+
 function _parseSendResponse(data: AnyDict, msgType: string = "", operation: string = ""): SendMessageResult {
   const errCode = data.errCode ?? -1;
   if (errCode !== 0) {
@@ -69,7 +75,7 @@ export class LansengerClient {
   constructor(
     appId: string,
     appSecret: string,
-    apiGatewayUrl: string = "https://open.e.lanxin.cn/open/apigw",
+    apiGatewayUrl: string = "",
     passportUrl: string = "",
     httpTimeout: number = 30,
     storePath?: string,
@@ -222,9 +228,15 @@ export class LansengerClient {
     const url = this._privateMsgUrl(token);
     const payload: AnyDict = { userIdList: [chatId], msgType, msgData };
     if (opts?.refMsgId) payload.refMsgId = opts.refMsgId;
+    _logger.debug("Sending", msgType, "to", chatId);
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
-    if (httpErr) return new SendMessageResult({ success: false, error: httpErr, msg_type: msgType, operation: "private_message" });
-    return _parseSendResponse(data!, msgType, "private_message");
+    if (httpErr) {
+      _logger.debug("Send", msgType, "to", chatId, "FAILED:", httpErr);
+      return new SendMessageResult({ success: false, error: httpErr, msg_type: msgType, operation: "private_message" });
+    }
+    const result = _parseSendResponse(data!, msgType, "private_message");
+    _logger.debug("Send", msgType, "to", chatId, result.success ? "OK" : "FAILED");
+    return result;
   }
 
   private async _sendGroup(groupId: string, msgType: string, msgData: AnyDict, opts?: { userToken?: string; senderId?: string; refMsgId?: string }): Promise<SendMessageResult> {
@@ -235,9 +247,15 @@ export class LansengerClient {
     if (opts?.userToken) payload.userToken = opts.userToken;
     if (opts?.senderId) payload.senderId = opts.senderId;
     if (opts?.refMsgId) payload.refMsgId = opts.refMsgId;
+    _logger.debug("Sending", msgType, "to group", groupId);
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
-    if (httpErr) return new SendMessageResult({ success: false, error: httpErr, msg_type: msgType, operation: "group_message", retryable: true });
-    return _parseSendResponse(data!, msgType, "group_message");
+    if (httpErr) {
+      _logger.debug("Send", msgType, "to group", groupId, "FAILED:", httpErr);
+      return new SendMessageResult({ success: false, error: httpErr, msg_type: msgType, operation: "group_message", retryable: true });
+    }
+    const result = _parseSendResponse(data!, msgType, "group_message");
+    _logger.debug("Send", msgType, "to group", groupId, result.success ? "OK" : "FAILED");
+    return result;
   }
 
   async sendText(chatId: string, content: string, opts?: { file_path?: string; media_type?: string; cover_image_path?: string; reminder_all?: boolean; reminder_user_ids?: string[]; reminder_bot_ids?: string[]; is_group?: boolean; user_token?: string; sender_id?: string; ref_msg_id?: string }): Promise<SendMessageResult> {

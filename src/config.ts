@@ -1,6 +1,6 @@
 import { LansengerConfigError } from "./exceptions";
 
-const DEFAULT_API_GATEWAY_URL = "https://open.e.lanxin.cn/open/apigw";
+const DEFAULT_API_GATEWAY_URL = "";
 
 export class LansengerConfig {
   app_id: string;

@@ -1,3 +1,4 @@
+export { setSDKDebug } from "./debug";
 export { LansengerClient } from "./client";
 export { LansengerConfig } from "./config";
 export { TokenManager, UserTokenManager } from "./auth";

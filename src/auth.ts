@@ -8,6 +8,12 @@ import { buildApiUrl } from "./urlHelpers";
 const TOKEN_REFRESH_MARGIN = 300;
 const USER_TOKEN_REFRESH_MARGIN = 300;
 
+import { isSDKDebug } from "./debug";
+
+const _logger = {
+  debug: (...args: any[]) => { if (isSDKDebug()) console.error(`[${new Date().toISOString().slice(11,19)}] [DEBUG]`, ...args); },
+};
+
 export class TokenManager {
   private config: LansengerConfig;
   private fetchFn: FetchFn;
@@ -48,8 +54,11 @@ export class TokenManager {
 
     const now = Math.floor(Date.now() / 1000);
     if (this.token && now < this.tokenExpiry) {
+      _logger.debug("Using cached appToken");
       return this.token;
     }
+
+    _logger.debug("Refreshing appToken");
 
     const url = `${this.config.api_gateway_url}${API_ENDPOINTS.app_token.create}`;
     const params = new URLSearchParams({
