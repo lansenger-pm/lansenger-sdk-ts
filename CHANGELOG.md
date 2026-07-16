@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.20] - 2026-07-16
+
+### Changed
+
+- **calendars**: `createSchedule` now auto-fills attendees with `[{staffId: userId, attendeeFlag: "required"}]` when attendees is empty and userId is provided.
+
+## [1.3.19] - 2026-07-16
+
+### Added
+
+- **logging**: Shared debug module (`src/debug.ts`) with `setSDKDebug`/`isSDKDebug`. Client and auth debug output gated behind flag.
+- **config**: Removed hardcoded `DEFAULT_API_GATEWAY_URL`. `apiGatewayUrl` must be explicitly provided.
+
 ## [1.3.18] - 2026-07-09
 
 ### Fixed
