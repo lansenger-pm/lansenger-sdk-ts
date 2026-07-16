@@ -996,6 +996,11 @@ export class LansengerClient {
   async createSchedule(calendarId: string, summary: string, startTime: AnyDict, endTime: AnyDict, attendees: AnyDict[], opts?: { description?: string; all_day?: string; repeat_type?: string; rule?: string; expire_date_type?: string; reminder_type?: string; attendee_permissions?: string; user_token?: string; user_id?: string }): Promise<ScheduleCreateResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
+    const userId = opts?.user_id || "";
+    if (!attendees || !attendees.length) {
+      if (!userId) throw new Error("attendees is required (or provide user_id to auto-fill creator)");
+      attendees = [{ staffId: userId, attendeeFlag: "required" }];
+    }
     return createSchedule(this._config, token, calendarId, summary, startTime, endTime, attendees, { ...opts, fetchFn: this._fetchFn! });
   }
 

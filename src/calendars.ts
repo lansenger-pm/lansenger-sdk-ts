@@ -46,9 +46,12 @@ export async function createSchedule(
   if (!summary) return new ScheduleCreateResult({ success: false, error: "summary is required" });
   if (!startTime) return new ScheduleCreateResult({ success: false, error: "start_time is required" });
   if (!endTime) return new ScheduleCreateResult({ success: false, error: "end_time is required" });
-  if (!attendees || !attendees.length) return new ScheduleCreateResult({ success: false, error: "attendees is required" });
   const userToken = opts?.user_token || "";
   const userId = opts?.user_id || "";
+  if (!attendees || !attendees.length) {
+    if (!userId) return new ScheduleCreateResult({ success: false, error: "attendees is required (or provide user_id to auto-fill creator)" });
+    attendees = [{ staffId: userId, attendeeFlag: "required" }];
+  }
   const url = buildApiUrl(config, "calendars", "schedule_create", appToken, { userToken, userId, pathVars: { calendar_id: calendarId } });
   const body: Record<string, any> = { summary, startTime, endTime, attendees };
   if (opts?.description) body.description = opts.description;
