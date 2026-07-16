@@ -92,9 +92,17 @@ describe("createSchedule", () => {
     expect(result.success).toBe(false);
   });
 
-  test("returns error on empty attendees", async () => {
+  test("returns error on empty attendees without user_id", async () => {
     const result = await createSchedule(config, appToken, "cal1", "M", startTime, endTime, []);
     expect(result.success).toBe(false);
+    expect(result.error).toContain("attendees is required");
+  });
+
+  test("auto-fills attendees from user_id when empty attendees array", async () => {
+    const fetchFn = mockFetchFn({ errCode: 0, data: { scheduleId: "sch_auto" } });
+    const result = await createSchedule(config, appToken, "cal1", "Meeting", startTime, endTime, [], { user_id: "u1", fetchFn });
+    expect(result.success).toBe(true);
+    expect(result.schedule_id).toBe("sch_auto");
   });
 });
 
