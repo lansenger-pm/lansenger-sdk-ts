@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.21] - 2026-07-17
+
+### Added
+
+- **auth**: `UserTokenManager` now supports **external mode** — when `config.user_token` is set, `getToken()` returns the provided token directly without expiry checks or auto-refresh.
+
+### Changed
+
+- **client**: `queryGroups()` now delegates to `fetchGroupList()` internally (deprecated).
+
+### Fixed
+
+- **constants**: `VERSION` constant updated from `1.3.17` to `1.3.21` to match `package.json`.
+- **docs**: README `api_gateway_url` default removed (now required, no default).
+
 ## [1.3.20] - 2026-07-16
 
 ### Changed

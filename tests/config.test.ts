@@ -16,7 +16,7 @@ describe("LansengerConfig", () => {
     const cfg = LansengerConfig.create("app123", "secret456");
     expect(cfg.app_id).toBe("app123");
     expect(cfg.app_secret).toBe("secret456");
-    expect(cfg.api_gateway_url).toBe("https://open.e.lanxin.cn/open/apigw");
+    expect(cfg.api_gateway_url).toBe("");
     expect(cfg.http_timeout).toBe(30.0);
   });
 
@@ -86,7 +86,7 @@ describe("LansengerConfig", () => {
 
   test("constructor defaults", () => {
     const cfg = new LansengerConfig("a", "s");
-    expect(cfg.api_gateway_url).toBe("https://open.e.lanxin.cn/open/apigw");
+    expect(cfg.api_gateway_url).toBe("");
     expect(cfg.passport_url).toBe("");
     expect(cfg.http_timeout).toBe(30.0);
     expect(cfg.encoding_key).toBe("");

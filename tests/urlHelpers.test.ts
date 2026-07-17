@@ -1,12 +1,12 @@
 import { buildApiUrl } from "../src/urlHelpers";
 import { LansengerConfig } from "../src/config";
 
-const config = new LansengerConfig("app1", "sec1");
+const config = new LansengerConfig("app1", "sec1", "https://your-gateway.example.com");
 
 describe("buildApiUrl", () => {
   test("basic URL with app token", () => {
     const url = buildApiUrl(config, "app_token", "create", "tok123");
-    expect(url).toBe("https://open.e.lanxin.cn/open/apigw/v1/apptoken/create?app_token=tok123");
+    expect(url).toBe("https://your-gateway.example.com/v1/apptoken/create?app_token=tok123");
   });
 
   test("URL with path vars", () => {

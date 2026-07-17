@@ -128,6 +128,12 @@ export class UserTokenManager {
     this.appTokenManager = appTokenManager;
     this.store = store || null;
 
+    // External mode: user_token from config takes precedence over store cache
+    if (this.config.user_token) {
+      this.userToken = this.config.user_token;
+      return;
+    }
+
     if (this.store) {
       const cached = this.store.loadUserToken();
       const ut = cached.user_token || "";
@@ -159,6 +165,11 @@ export class UserTokenManager {
   }
 
   async getToken(): Promise<string> {
+    // External mode: pass-through, no refresh
+    if (this.config.user_token) {
+      return this.config.user_token;
+    }
+
     const now = Math.floor(Date.now() / 1000);
     if (this.userToken && now < this.userTokenExpiry) {
       return this.userToken;

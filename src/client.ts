@@ -626,25 +626,23 @@ export class LansengerClient {
     return _parseSendResponse(data!, "", "revoke_message");
   }
 
+  /**
+   * @deprecated Use {@link fetchGroupList} from "groups" module instead.
+   */
   async queryGroups(opts?: { page_offset?: number; page_size?: number }): Promise<QueryGroupsResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     const pageOffset = opts?.page_offset ?? 0;
     const pageSize = opts?.page_size || 100;
-    const url = buildApiUrl(this._config, "groups", "groups_fetch", token, { 
-      queryParams: { page_offset: pageOffset, page_size: pageSize }
+    const result = await fetchGroupList(this._config, token, {
+      page_offset: pageOffset, page_size: pageSize, fetchFn: this._fetchFn,
     });
-    const [data, httpErr] = await doGet(url, this._fetchFn);
-    if (httpErr) return new QueryGroupsResult({ success: false, error: httpErr });
-    const errCode = data!.errCode ?? -1;
-    if (errCode !== 0) {
-      const msg = data!.errMsg || "Unknown error";
-      return new QueryGroupsResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` });
-    }
-    const d = data!.data || {};
     return new QueryGroupsResult({
-      success: true, total_group_ids: d.totalGroupIds || 0,
-      group_ids: d.groupIds || [], raw_response: data!,
+      success: result.success,
+      total_group_ids: result.total_group_ids,
+      group_ids: result.group_ids || [],
+      error: result.error,
+      raw_response: result.raw_response,
     });
   }
 

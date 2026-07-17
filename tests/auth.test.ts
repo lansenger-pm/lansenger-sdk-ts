@@ -25,7 +25,7 @@ function mockErrorFetchFn(status: number, body: Record<string, any>): FetchFn {
   };
 }
 
-const config = new LansengerConfig("test_app", "test_secret");
+const config = new LansengerConfig("test_app", "test_secret", "https://your-gateway.example.com");
 
 describe("TokenManager", () => {
   test("getToken returns token on success", async () => {
@@ -169,7 +169,7 @@ describe("TokenManager", () => {
 
 import { UserTokenManager } from "../src/auth";
 
-const utConfig = new LansengerConfig("test_app", "test_secret");
+const utConfig = new LansengerConfig("test_app", "test_secret", "https://your-gateway.example.com");
 
 function makeAppTokenManager(): TokenManager {
   const fetchFn = mockFetchFn({

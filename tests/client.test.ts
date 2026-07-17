@@ -37,7 +37,7 @@ describe("LansengerClient", () => {
     const client = new LansengerClient("app1", "sec1");
     expect(client.config.app_id).toBe("app1");
     expect(client.config.app_secret).toBe("sec1");
-    expect(client.config.api_gateway_url).toBe("https://open.e.lanxin.cn/open/apigw");
+    expect(client.config.api_gateway_url).toBe("");
   });
 
   test("constructor with custom gateway", () => {
