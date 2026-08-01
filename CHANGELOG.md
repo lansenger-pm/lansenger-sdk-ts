@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+---
+
+## [1.4.0] - 2026-07-29
+
+### Added
+
+- **media**: `uploadAppMediaV2()` — 4.5.5 V2 app media upload with required `userToken`, coexists with V1 (`/v2/app/medias/create`).
+- **media**: `downloadMediaByShareId()` — 4.5.6 download media by share ID (`/v1/media/share/{shareId}/fetch`).
+- **media**: Unit tests for both new APIs (10 tests).
+
 ## [1.3.21] - 2026-07-17
 
 ### Added

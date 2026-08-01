@@ -167,7 +167,9 @@ export { sendReminder } from "./reminders";
 export {
   uploadMedia,
   uploadAppMedia,
+  uploadAppMediaV2,
   downloadMedia,
+  downloadMediaByShareId,
   downloadMediaToFile,
   fetchMediaPath,
 } from "./media";

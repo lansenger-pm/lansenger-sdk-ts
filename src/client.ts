@@ -42,7 +42,7 @@ import { sendAccountMessage } from "./accountMessages";
 import { sendUserMessage } from "./userMessages";
 import { sendGroupMessage } from "./groupMessages";
 import { sendReminder } from "./reminders";
-import { uploadMedia, uploadAppMedia, downloadMedia, downloadMediaToFile, fetchMediaPath } from "./media";
+import { uploadMedia, uploadAppMedia, uploadAppMediaV2, downloadMedia, downloadMediaByShareId, downloadMediaToFile, fetchMediaPath } from "./media";
 import { parseCallbackPayload, verifyCallbackSignature, getCallbackEventTypes, CallbackEvent } from "./callbacks";
 import { createBotCommands, fetchBotCommands, deleteBotCommands } from "./botCommands";
 import { createPersonalApp, updatePersonalApp, fetchPersonalApp, deletePersonalApp, fetchPersonalAppList } from "./personalApps";
@@ -668,9 +668,21 @@ export class LansengerClient {
     return new SendMessageResult({ success: true, message_id: result.media_id, operation: "upload_app_media", raw_response: result.raw_response });
   }
 
+  async uploadAppMediaFileV2(filePath: string, userToken: string, opts?: { media_type?: string; width?: number; height?: number; duration?: number }): Promise<SendMessageResult> {
+    await this._ensureInit();
+    const result = await uploadAppMediaV2(this._config, this._tokenManager!, this._fetchFn!, filePath, userToken, opts?.media_type || guessAppMediaType(filePath), { width: opts?.width, height: opts?.height, duration: opts?.duration });
+    if (!result.success) return new SendMessageResult({ success: false, error: result.error });
+    return new SendMessageResult({ success: true, message_id: result.media_id, operation: "upload_app_media_v2", raw_response: result.raw_response });
+  }
+
   async downloadMediaFile(mediaId: string): Promise<DownloadMediaResult> {
     await this._ensureInit();
     return downloadMedia(this._config, this._tokenManager!, this._fetchFn!, mediaId);
+  }
+
+  async downloadMediaFileByShareId(shareId: string, opts?: { user_token?: string }): Promise<DownloadMediaResult> {
+    await this._ensureInit();
+    return downloadMediaByShareId(this._config, this._tokenManager!, this._fetchFn!, shareId, { userToken: opts?.user_token || "" });
   }
 
   async downloadMediaToFile(mediaId: string, opts?: { target_path?: string; media_type?: string }): Promise<string> {
