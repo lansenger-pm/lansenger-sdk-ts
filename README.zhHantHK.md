@@ -121,6 +121,48 @@ const client = LansengerClient.fromConfig(config);
 const client = LansengerClient.fromStore();
 ```
 
+### External 模式（直接注入 Token）
+
+對於需要自行管理 token 的場景（如 CI/CD 管線、自訂認證系統），可以直接傳入 `app_token` 和 `user_token`，完全繞過憑證儲存：
+
+```typescript
+// External 模式 — 直接傳入 token，無需憑證檔案
+const client = new LansengerClient(
+    "", 
+    "",
+    "https://your-gateway.example.com",
+    "",
+    30,
+    undefined,
+    "",
+    "",
+    "",
+    "your-app-token",
+    "your-user-token"
+);
+
+// 或者使用 LansengerConfig
+const config = new LansengerConfig(
+    "", 
+    "",
+    "https://your-gateway.example.com",
+    "",
+    30,
+    "",
+    "",
+    "",
+    "your-app-token",
+    "your-user-token"
+);
+const client = LansengerClient.fromConfig(config);
+```
+
+**External 模式行為：**
+- `app_token` 直接使用，不呼叫 token 刷新 API
+- `user_token` 直接使用，不經過 OAuth2 流程或刷新
+- 不持久化憑證 — token 僅保存在記憶體中
+- 您需要自行保持 token 有效
+
 ## 2. 組織與部門
 
 ```typescript

@@ -121,6 +121,48 @@ const client = LansengerClient.fromConfig(config);
 const client = LansengerClient.fromStore();
 ```
 
+### Mode externe (Injection directe de jetons)
+
+Pour les scénarios où vous gérez les jetons externement (par exemple, pipelines CI/CD, votre propre système d'authentification), vous pouvez contourner complètement le stockage des identifiants en fournissant directement `app_token` et `user_token` :
+
+```typescript
+// Mode externe — fournir les jetons directement, pas de fichier d'identifiants nécessaire
+const client = new LansengerClient(
+    "", 
+    "",
+    "https://your-gateway.example.com",
+    "",
+    30,
+    undefined,
+    "",
+    "",
+    "",
+    "your-app-token",
+    "your-user-token"
+);
+
+// Ou utiliser LansengerConfig
+const config = new LansengerConfig(
+    "", 
+    "",
+    "https://your-gateway.example.com",
+    "",
+    30,
+    "",
+    "",
+    "",
+    "your-app-token",
+    "your-user-token"
+);
+const client = LansengerClient.fromConfig(config);
+```
+
+**Comportement en mode externe :**
+- `app_token` est utilisé directement sans appeler l'API de rafraîchissement de jeton
+- `user_token` est utilisé directement sans passer par le flux OAuth2 ou le rafraîchissement
+- Aucune persistance des identifiants — les jetons sont uniquement conservés en mémoire
+- Vous êtes responsable de maintenir les jetons valides
+
 ## 2. Organisation & Départements
 
 ```typescript

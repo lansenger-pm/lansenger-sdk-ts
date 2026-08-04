@@ -73,8 +73,8 @@ export class LansengerClient {
   private _store: CredentialStore | null = null;
 
   constructor(
-    appId: string,
-    appSecret: string,
+    appId: string = "",
+    appSecret: string = "",
     apiGatewayUrl: string = "",
     passportUrl: string = "",
     httpTimeout: number = 30,

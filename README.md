@@ -121,6 +121,48 @@ const client = LansengerClient.fromConfig(config);
 const client = LansengerClient.fromStore();
 ```
 
+### External Mode (Direct Token Injection)
+
+For scenarios where you manage tokens externally (e.g., CI/CD pipelines, your own auth system), you can bypass the credential store entirely by providing `app_token` and `user_token` directly:
+
+```typescript
+// External mode — provide tokens directly, no credential file needed
+const client = new LansengerClient(
+    "", 
+    "",
+    "https://your-gateway.example.com",
+    "",
+    30,
+    undefined,
+    "",
+    "",
+    "",
+    "your-app-token",
+    "your-user-token"
+);
+
+// Or using LansengerConfig
+const config = new LansengerConfig(
+    "", 
+    "",
+    "https://your-gateway.example.com",
+    "",
+    30,
+    "",
+    "",
+    "",
+    "your-app-token",
+    "your-user-token"
+);
+const client = LansengerClient.fromConfig(config);
+```
+
+**Behavior in external mode:**
+- `app_token` is used directly without calling the token refresh API
+- `user_token` is used directly without OAuth2 flow or refresh
+- No credential persistence — tokens are kept in memory only
+- You are responsible for keeping tokens valid
+
 ## 2. Organization & Departments
 
 ```typescript
