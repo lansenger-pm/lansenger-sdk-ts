@@ -9,3 +9,7 @@ dist/
 .claude/
 .cursor/
 .codex/
+
+# Agent local files
+AGENTS.md
+CLAUDE.md
