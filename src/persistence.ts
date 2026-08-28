@@ -6,6 +6,8 @@ const DEFAULT_STATE_DIR = path.join(os.homedir(), ".lansenger");
 const DEFAULT_STATE_FILE = "sdk_state.json";
 const DEFAULT_PROFILE = "default";
 
+export const VALID_IDENTITY_TYPES: readonly string[] = ["personal-bot", "org-app", "org-bot"];
+
 const LEGACY_KEYS = new Set([
   "app_id", "app_secret", "api_gateway_url", "passport_url",
   "encoding_key", "callback_token", "redirect_uri",
@@ -117,6 +119,7 @@ export class CredentialStore {
       encoding_key: data.encoding_key || "",
       callback_token: data.callback_token || "",
       redirect_uri: data.redirect_uri || "",
+      identity_type: data.identity_type || "",
     };
   }
 
@@ -146,6 +149,28 @@ export class CredentialStore {
     const data = this.getProfileData(state);
     data.encoding_key = encodingKey;
     data.callback_token = callbackToken;
+    this.save(this.setProfileData(state, data));
+  }
+
+  loadIdentityType(): string {
+    const data = this.getProfileData(this.load());
+    return data.identity_type || "";
+  }
+
+  saveIdentityType(identityType: string): void {
+    const trimmed = (identityType || "").trim();
+    if (trimmed && !VALID_IDENTITY_TYPES.includes(trimmed)) {
+      throw new Error(
+        `Invalid identity_type '${trimmed}'. Valid values: ${VALID_IDENTITY_TYPES.join(", ")}`
+      );
+    }
+    const state = this.load();
+    const data = this.getProfileData(state);
+    if (trimmed) {
+      data.identity_type = trimmed;
+    } else {
+      delete data.identity_type;
+    }
     this.save(this.setProfileData(state, data));
   }
 

@@ -2,7 +2,7 @@ export { setSDKDebug } from "./debug";
 export { LansengerClient } from "./client";
 export { LansengerConfig } from "./config";
 export { TokenManager, UserTokenManager } from "./auth";
-export { CredentialStore } from "./persistence";
+export { CredentialStore, VALID_IDENTITY_TYPES } from "./persistence";
 export { FetchFn, doGet, doPost, doPostMultipart, parseApiResponse } from "./http";
 export { buildApiUrl } from "./urlHelpers";
 export {

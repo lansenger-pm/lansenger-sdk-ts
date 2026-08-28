@@ -1,4 +1,4 @@
-import { CredentialStore } from "../src/persistence";
+import { CredentialStore, VALID_IDENTITY_TYPES } from "../src/persistence";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
@@ -458,5 +458,75 @@ describe("CredentialStore listUserTokens", () => {
 
     const users = store.listUserTokens();
     expect(users).toContain("legacy-staff");
+  });
+});
+// ── identity_type ──────────────────────────────────────
+
+describe("CredentialStore identity_type", () => {
+  let filePath: string;
+  let store: CredentialStore;
+
+  beforeEach(() => {
+    filePath = tempFilePath();
+    store = new CredentialStore(filePath);
+  });
+
+  afterEach(() => {
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  });
+
+  test("VALID_IDENTITY_TYPES exports expected values", () => {
+    expect(VALID_IDENTITY_TYPES).toEqual(["personal-bot", "org-app", "org-bot"]);
+  });
+
+  test("loadIdentityType returns empty string when not set", () => {
+    expect(store.loadIdentityType()).toBe("");
+  });
+
+  test("saveIdentityType and loadIdentityType round-trip", () => {
+    store.saveIdentityType("org-bot");
+    expect(store.loadIdentityType()).toBe("org-bot");
+  });
+
+  test("saveIdentityType accepts all valid values", () => {
+    for (const t of VALID_IDENTITY_TYPES) {
+      store.saveIdentityType(t);
+      expect(store.loadIdentityType()).toBe(t);
+    }
+  });
+
+  test("saveIdentityType trims whitespace", () => {
+    store.saveIdentityType("  personal-bot  ");
+    expect(store.loadIdentityType()).toBe("personal-bot");
+  });
+
+  test("saveIdentityType rejects invalid value", () => {
+    expect(() => store.saveIdentityType("bot-personal")).toThrow(
+      "Invalid identity_type 'bot-personal'. Valid values: personal-bot, org-app, org-bot"
+    );
+    expect(() => store.saveIdentityType("org-bot")).not.toThrow();
+  });
+
+  test("saveIdentityType with empty string deletes the field", () => {
+    store.saveIdentityType("org-app");
+    store.saveIdentityType("");
+    expect(store.loadIdentityType()).toBe("");
+    const raw = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    expect(raw.profiles.default.identity_type).toBeUndefined();
+  });
+
+  test("loadCredentials includes identity_type key", () => {
+    store.saveCredentials("app1", "sec1");
+    store.saveIdentityType("personal-bot");
+    const creds = store.loadCredentials();
+    expect(creds.identity_type).toBe("personal-bot");
+  });
+
+  test("identity_type is isolated per profile", () => {
+    store.saveIdentityType("org-app");
+    const other = new CredentialStore(filePath, "prod");
+    other.saveIdentityType("org-bot");
+    expect(store.loadIdentityType()).toBe("org-app");
+    expect(other.loadIdentityType()).toBe("org-bot");
   });
 });

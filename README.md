@@ -503,6 +503,7 @@ const client = LansengerClient.fromEnv("~/.lansenger/sdk_state.json");
 // Manual store operations
 const store = new CredentialStore("~/.lansenger/sdk_state.json");
 store.saveCredentials("app_id", "app_secret", "https://open.e.lanxin.cn/open/apigw");
+store.saveIdentityType("personal-bot");  // optional: credential identity type — personal-bot / org-app / org-bot
 store.saveUserToken("user_token", "refresh_token");
 const token = store.loadAppToken(); // null if expired
 ```

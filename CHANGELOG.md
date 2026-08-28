@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.4] - 2026-08-28
+
+### Added
+
+- **persistence**: `CredentialStore` now supports `identity_type` credential identity persistence — new `loadIdentityType()` / `saveIdentityType()` methods and exported `VALID_IDENTITY_TYPES` constant (`personal-bot` / `org-app` / `org-bot`); empty string clears the field, invalid values throw. `loadCredentials()` now includes `identity_type`.
+
 ## [1.4.0] - 2026-07-29
 
 ### Added

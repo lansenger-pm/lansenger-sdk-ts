@@ -500,6 +500,7 @@ const client = LansengerClient.fromEnv("~/.lansenger/sdk_state.json");
 // 手動 Store 操作
 const store = new CredentialStore("~/.lansenger/sdk_state.json");
 store.saveCredentials("app_id", "app_secret", "https://open.e.lanxin.cn/open/apigw");
+store.saveIdentityType("personal-bot");  // 可選：憑證身份類型 — personal-bot（個人機器人）/ org-app（組織應用）/ org-bot（組織機器人）
 store.saveUserToken("user_token", "refresh_token");
 const token = store.loadAppToken(); // 過期則為 null
 ```
