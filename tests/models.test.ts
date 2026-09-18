@@ -20,6 +20,8 @@ import {
   BotCommandResult, BotCommandQueryResult,
   PersonalAppCreateResult, PersonalAppInfoResult, PersonalAppListResult,
   NoticeSendResult, NoticeAccountListResult,
+  QuestionnaireSaveResult, QuestionnaireOpResult, QuestionnaireDetailResult,
+  QuestionnairePageResult, QuestionnaireAnswerDetailResult, QuestionnaireRecordResult,
 } from "../src/models";
 
 describe("SendMessageResult", () => {
@@ -646,5 +648,33 @@ describe("NoticeAccountListResult", () => {
   test("toDict", () => {
     const r = new NoticeAccountListResult({ success: true, total: 1, accounts: [{ code: "A" }] });
     expect(r.toDict().accounts).toEqual([{ code: "A" }]);
+  });
+});
+
+describe("QuestionnaireSaveResult", () => {
+  test("toDict omits nulls", () => {
+    const r = new QuestionnaireSaveResult({ success: true, questionnaire_code: "QN1" });
+    const d = r.toDict();
+    expect(d.questionnaire_code).toBe("QN1");
+    expect("raw_response" in d).toBe(false);
+  });
+});
+
+describe("QuestionnairePageResult", () => {
+  test("defaults and toDict", () => {
+    const r = new QuestionnairePageResult({ success: true, total: 3 });
+    const d = r.toDict();
+    expect(d.total).toBe(3);
+    expect(d.has_more).toBe(false);
+    expect("items" in d).toBe(false);
+  });
+});
+
+describe("QuestionnaireRecordResult", () => {
+  test("toDict omits nulls", () => {
+    const r = new QuestionnaireRecordResult({ success: true, record_code: "AR1", stats_status: 1 });
+    const d = r.toDict();
+    expect(d.record_code).toBe("AR1");
+    expect("answer_user_id" in d).toBe(false);
   });
 });

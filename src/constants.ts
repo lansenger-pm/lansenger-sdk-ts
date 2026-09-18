@@ -94,6 +94,30 @@ export const API_ENDPOINTS: Record<string, Record<string, string>> = {
     send: "/xtra/notice/server/openapi/v1/send",
     accounts_fetch: "/xtra/notice/server/openapi/v1/notice/account",
   },
+  questionnaires: {
+    save: "/xtra/questionnaire/server/openapi/v1/saveQuestionnaire",
+    questions_save: "/xtra/questionnaire/server/openapi/v1/saveQuestionList",
+    question_delete: "/xtra/questionnaire/server/openapi/v1/deleteQuestion",
+    publish: "/xtra/questionnaire/server/openapi/v1/publish",
+    withdraw: "/xtra/questionnaire/server/openapi/v1/withdraw",
+    finish: "/xtra/questionnaire/server/openapi/v1/finish",
+    delete: "/xtra/questionnaire/server/openapi/v1/delete",
+    detail: "/xtra/questionnaire/server/openapi/v1/detail",
+    answer_url: "/xtra/questionnaire/server/openapi/v1/getAnswerUrl",
+    copy: "/xtra/questionnaire/server/openapi/v1/copy",
+    detail_no_auth: "/xtra/questionnaire/server/openapi/v1/detailWithoutAuth",
+    query_list: "/xtra/questionnaire/server/openapi/v1/queryList",
+    user_accounts: "/xtra/questionnaire/server/openapi/v1/userOfficeAccountList",
+    create_list: "/xtra/questionnaire/server/openapi/v1/createList",
+    my_create_list: "/xtra/questionnaire/server/openapi/v1/myCreateList",
+    participation_list: "/xtra/questionnaire/server/openapi/v1/participationList",
+    answer_list: "/xtra/questionnaire/server/openapi/v1/answerList",
+    answer_detail: "/xtra/questionnaire/server/openapi/v1/answerDetail",
+    last_answer_detail: "/xtra/questionnaire/server/openapi/v1/lastAnswerDetail",
+    answer_data: "/xtra/questionnaire/server/openapi/v1/answerData",
+    last_answer_record: "/xtra/questionnaire/server/openapi/v1/lastAnswerRecord",
+    upload_url: "/xtra/questionnaire/server/openapi/v1/upload",
+  },
   bot_commands: {
     create: "/v1/bot/commands/create",
     fetch: "/v1/bot/commands/fetch",
@@ -177,6 +201,21 @@ export const NOTICE_OPEN_RANGE_MAX = 200;   // releaseRangeList / ccRangeList st
 export const NOTICE_REMIND_AFTER_TYPES = ["never", "unOperate", "count"];
 export const NOTICE_REMIND_RANGE_TYPES = ["all", "receiver", "partialRemind", "notReminder"];
 
+export const QUESTIONNAIRE_STATUS_DRAFT = 1;
+export const QUESTIONNAIRE_STATUS_ONGOING = 2;
+export const QUESTIONNAIRE_STATUS_WITHDRAWN = 3;
+export const QUESTIONNAIRE_STATUS_FINISHED = 4;
+export const QUESTIONNAIRE_STATUS_READY_TO_PUBLISH = 5;
+export const QUESTIONNAIRE_SCOPE_INTERNAL = 1;
+export const QUESTIONNAIRE_SCOPE_PUBLIC = 2;
+export const QUESTIONNAIRE_ANSWER_LIMIT_ONCE = 1;
+export const QUESTIONNAIRE_ANSWER_LIMIT_UNLIMITED = -1;
+export const QUESTIONNAIRE_QUESTION_TYPES = [
+  "radio", "checkbox", "picturesVote", "fillblank", "name", "phone",
+  "email", "sex", "age", "date", "dateTime", "address", "multiScore",
+  "remark", "picturesUpload", "filesUpload",
+];
+
 export const CALLBACK_EVENT_TYPES: Record<string, string> = {
   account_message: "public_account",
   account_subscribe: "public_account",
@@ -221,4 +260,4 @@ export function guessAppMediaType(filePath: string): string {
   return APP_MEDIA_TYPE_FILE;
 }
 
-export const VERSION = "1.5.0";
+export const VERSION = "1.6.0";

@@ -64,6 +64,7 @@ npm test
 每個 SDK 方法都需要 `appToken`。客戶端使用 `app_id` + `app_secret` 自動取得並刷新 appToken，透過 `GET /v1/apptoken/create` 端點。你無需手動管理 appToken — `TokenManager` 負責整個生命週期：
 
 1. **首次呼叫** → 使用 app_id + app_secret 請求 `GET /v1/apptoken/create` → 回傳 `appToken`（有效期 2 小時）
+- **問卷系統** — 建立/更新/發布/撤回/結束/刪除問卷，批次管理題目，官方帳號與我建立/我參與的列表（分頁），答卷記錄與匯出，預簽名上傳地址
 2. **後續呼叫** → 重用緩衝的 appToken 直到過期
 3. **令牌過期** → 自動透過同一端點刷新
 
@@ -598,6 +599,7 @@ lansenger-sdk-ts/
 │   ├── groups.ts             # 群組 API（含解散 4.28.6）
 │   ├── todos.ts              # 統一待辦
 │   ├── notices.ts           # 通知系統
+│   ├── questionnaires.ts    # 問卷系統
 │   ├── calendars.ts          # 日曆與日程
 │   ├── reminders.ts          # 加急提醒 (4.6.14)
 │   ├── chats.ts              # 聊天讀取 (4.24 MCP)

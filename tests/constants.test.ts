@@ -160,6 +160,16 @@ describe("Other constants", () => {
     expect(CALLBACK_EVENT_TYPES.staff_modify).toBe("staff");
   });
 
+  describe("questionnaires", () => {
+    test("save path", () => {
+      expect(API_ENDPOINTS.questionnaires.save).toBe("/xtra/questionnaire/server/openapi/v1/saveQuestionnaire");
+    });
+
+    test("upload_url path", () => {
+      expect(API_ENDPOINTS.questionnaires.upload_url).toBe("/xtra/questionnaire/server/openapi/v1/upload");
+    });
+  });
+
   describe("notices", () => {
     test("send path", () => {
       expect(API_ENDPOINTS.notices.send).toBe("/xtra/notice/server/openapi/v1/send");
@@ -171,6 +181,6 @@ describe("Other constants", () => {
   });
 
   test("VERSION", () => {
-    expect(VERSION).toBe("1.5.0");
+    expect(VERSION).toBe("1.6.0");
   });
 });

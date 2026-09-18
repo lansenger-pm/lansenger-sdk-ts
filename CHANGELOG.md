@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.0] - 2026-09-18
+
+### Added
+
+- **questionnaires**: 问卷系统 `/xtra/questionnaire/server/openapi/v1/` 全部 22 个端点 — 问卷管理（创建/更新、批量存题、删题、发布、撤回、结束、删除）、详情查询、官方账号与分页列表、答卷分析（records/detail/lastDetail/data/lastRecord）、预签名上传地址（PUT + Content-MD5 两步上传）。
+- **client**: 全部 22 个薄包装方法；`models` 新增 13 个 `Questionnaire*` 结果类（分页五端点共用 `QuestionnairePageResult`）。
+- **notes**: 创建/发布/答卷类接口需有效 `accountCode`（缺失报 3104）；题目结构为深嵌套 JSON，透传原始 dict。
+
+---
+
 ## [1.5.0] - 2026-09-17
 
 ### Added

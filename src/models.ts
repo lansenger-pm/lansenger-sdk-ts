@@ -1887,3 +1887,340 @@ export class NoticeAccountListResult {
     return d;
   }
 }
+
+export class QuestionnaireSaveResult {
+  success: boolean;
+  questionnaire_code: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; questionnaire_code?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.questionnaire_code = init.questionnaire_code ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.questionnaire_code !== null) d.questionnaire_code = this.questionnaire_code;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class QuestionnaireQuestionSaveResult {
+  success: boolean;
+  saved_count: number;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; saved_count?: number; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.saved_count = init.saved_count ?? 0;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, saved_count: this.saved_count };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class QuestionnaireQuestionDeleteResult {
+  success: boolean;
+  deleted: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; deleted?: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.deleted = init.deleted ?? false;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, deleted: this.deleted };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class QuestionnaireOpResult {
+  success: boolean;
+  done: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; done?: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.done = init.done ?? false;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, done: this.done };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+const QN_DETAIL_KEYS = ["questionnaire_id", "code", "title", "status", "account_type", "account_code", "answer_user_count", "answer_user_times", "question_count", "questions", "publish_time", "publish_user_name", "create_user_name", "create_time"] as const;
+
+export class QuestionnaireDetailResult {
+  success: boolean;
+  questionnaire_id: number | null;
+  code: string | null;
+  title: string | null;
+  status: number | null;
+  account_type: number | null;
+  account_code: string | null;
+  answer_user_count: number | null;
+  answer_user_times: number | null;
+  question_count: number | null;
+  questions: AnyDict[] | null;
+  publish_time: number | null;
+  publish_user_name: string | null;
+  create_user_name: string | null;
+  create_time: number | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; questionnaire_id?: number | null; code?: string | null; title?: string | null; status?: number | null; account_type?: number | null; account_code?: string | null; answer_user_count?: number | null; answer_user_times?: number | null; question_count?: number | null; questions?: AnyDict[] | null; publish_time?: number | null; publish_user_name?: string | null; create_user_name?: string | null; create_time?: number | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.questionnaire_id = init.questionnaire_id ?? null;
+    this.code = init.code ?? null;
+    this.title = init.title ?? null;
+    this.status = init.status ?? null;
+    this.account_type = init.account_type ?? null;
+    this.account_code = init.account_code ?? null;
+    this.answer_user_count = init.answer_user_count ?? null;
+    this.answer_user_times = init.answer_user_times ?? null;
+    this.question_count = init.question_count ?? null;
+    this.questions = init.questions ?? null;
+    this.publish_time = init.publish_time ?? null;
+    this.publish_user_name = init.publish_user_name ?? null;
+    this.create_user_name = init.create_user_name ?? null;
+    this.create_time = init.create_time ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    for (const k of QN_DETAIL_KEYS) {
+      const v = (this as any)[k];
+      if (v !== null) d[k] = v;
+    }
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class QuestionnaireAnswerUrlResult {
+  success: boolean;
+  url: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; url?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.url = init.url ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.url !== null) d.url = this.url;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class QuestionnaireCopyResult {
+  success: boolean;
+  new_code: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; new_code?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.new_code = init.new_code ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.new_code !== null) d.new_code = this.new_code;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class QuestionnaireQueryListResult {
+  success: boolean;
+  total: number;
+  items: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; total?: number; items?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.total = init.total ?? 0;
+    this.items = init.items ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, total: this.total };
+    if (this.items !== null) d.items = this.items;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class QuestionnaireAccountListResult {
+  success: boolean;
+  total: number;
+  accounts: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; total?: number; accounts?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.total = init.total ?? 0;
+    this.accounts = init.accounts ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, total: this.total };
+    if (this.accounts !== null) d.accounts = this.accounts;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class QuestionnairePageResult {
+  success: boolean;
+  page_no: number;
+  page_size: number;
+  pages: number;
+  total: number;
+  has_more: boolean;
+  items: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; page_no?: number; page_size?: number; pages?: number; total?: number; has_more?: boolean; items?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.page_no = init.page_no ?? 0;
+    this.page_size = init.page_size ?? 0;
+    this.pages = init.pages ?? 0;
+    this.total = init.total ?? 0;
+    this.has_more = init.has_more ?? false;
+    this.items = init.items ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, page_no: this.page_no, page_size: this.page_size, pages: this.pages, total: this.total, has_more: this.has_more };
+    if (this.items !== null) d.items = this.items;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+const QN_ANSWER_KEYS = ["answer_code", "answer_user_id", "answer_user_name", "answer_status", "answer_type", "answer_use_time", "answer_question_count", "answer_commit_time", "questionnaire", "questions", "answers"] as const;
+
+export class QuestionnaireAnswerDetailResult {
+  success: boolean;
+  answer_code: string | null;
+  answer_user_id: string | null;
+  answer_user_name: string | null;
+  answer_status: number | null;
+  answer_type: number | null;
+  answer_use_time: number | null;
+  answer_question_count: number | null;
+  answer_commit_time: number | null;
+  questionnaire: AnyDict | null;
+  questions: AnyDict[] | null;
+  answers: AnyDict | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; answer_code?: string | null; answer_user_id?: string | null; answer_user_name?: string | null; answer_status?: number | null; answer_type?: number | null; answer_use_time?: number | null; answer_question_count?: number | null; answer_commit_time?: number | null; questionnaire?: AnyDict | null; questions?: AnyDict[] | null; answers?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.answer_code = init.answer_code ?? null;
+    this.answer_user_id = init.answer_user_id ?? null;
+    this.answer_user_name = init.answer_user_name ?? null;
+    this.answer_status = init.answer_status ?? null;
+    this.answer_type = init.answer_type ?? null;
+    this.answer_use_time = init.answer_use_time ?? null;
+    this.answer_question_count = init.answer_question_count ?? null;
+    this.answer_commit_time = init.answer_commit_time ?? null;
+    this.questionnaire = init.questionnaire ?? null;
+    this.questions = init.questions ?? null;
+    this.answers = init.answers ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    for (const k of QN_ANSWER_KEYS) {
+      const v = (this as any)[k];
+      if (v !== null) d[k] = v;
+    }
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+const QN_RECORD_KEYS = ["record_id", "record_code", "answer_user_id", "answer_user_name", "answer_status", "answer_type", "answer_use_time", "answer_question_count", "answer_commit_time", "stats_status"] as const;
+
+export class QuestionnaireRecordResult {
+  success: boolean;
+  record_id: number | null;
+  record_code: string | null;
+  answer_user_id: string | null;
+  answer_user_name: string | null;
+  answer_status: number | null;
+  answer_type: number | null;
+  answer_use_time: number | null;
+  answer_question_count: number | null;
+  answer_commit_time: number | null;
+  stats_status: number | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; record_id?: number | null; record_code?: string | null; answer_user_id?: string | null; answer_user_name?: string | null; answer_status?: number | null; answer_type?: number | null; answer_use_time?: number | null; answer_question_count?: number | null; answer_commit_time?: number | null; stats_status?: number | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.record_id = init.record_id ?? null;
+    this.record_code = init.record_code ?? null;
+    this.answer_user_id = init.answer_user_id ?? null;
+    this.answer_user_name = init.answer_user_name ?? null;
+    this.answer_status = init.answer_status ?? null;
+    this.answer_type = init.answer_type ?? null;
+    this.answer_use_time = init.answer_use_time ?? null;
+    this.answer_question_count = init.answer_question_count ?? null;
+    this.answer_commit_time = init.answer_commit_time ?? null;
+    this.stats_status = init.stats_status ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    for (const k of QN_RECORD_KEYS) {
+      const v = (this as any)[k];
+      if (v !== null) d[k] = v;
+    }
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class QuestionnaireUploadUrlResult {
+  success: boolean;
+  url: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; url?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.url = init.url ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.url !== null) d.url = this.url;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}

@@ -64,6 +64,7 @@ npm test
 Chaque méthode du SDK requiert `appToken`. Le client l'obtient et le refresh automatiquement à partir de votre `app_id` + `app_secret` via `GET /v1/apptoken/create`. Vous n'avez jamais besoin de gérer appToken manuellement — le `TokenManager` gère le cycle de vie :
 
 1. **Premier appel** → `GET /v1/apptoken/create` avec app_id + app_secret → renvoie `appToken` (valide 2 heures)
+- **Questionnaires (问卷系统)** — créer/mettre à jour/publier/retirer/terminer/supprimer des questionnaires, gestion groupée des questions, listes paginées, enregistrements et export des réponses, URL de téléversement pré-signée
 2. **Appels suivants** → réutilise le appToken en cache jusqu'à expiration
 3. **Token expiré** → refresh automatique via le même endpoint
 
@@ -598,6 +599,7 @@ lansenger-sdk-ts/
 │   ├── groups.ts             # API Groups (incluant dissoudre 4.28.6)
 │   ├── todos.ts              # Todo unifié
 │   ├── notices.ts           # Notifications (通知系统)
+│   ├── questionnaires.ts    # Questionnaires (问卷系统)
 │   ├── calendars.ts          # Calendrier & Schedule
 │   ├── reminders.ts          # Rappels urgents (4.6.14)
 │   ├── chats.ts              # Lecture de chats (4.24 MCP)

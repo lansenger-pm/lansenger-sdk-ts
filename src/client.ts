@@ -29,6 +29,11 @@ import {
   BotCommandResult, BotCommandQueryResult,
   PersonalAppCreateResult, PersonalAppInfoResult, PersonalAppListResult,
   NoticeSendResult, NoticeAccountListResult,
+  QuestionnaireSaveResult, QuestionnaireQuestionSaveResult, QuestionnaireQuestionDeleteResult,
+  QuestionnaireOpResult, QuestionnaireDetailResult, QuestionnaireAnswerUrlResult,
+  QuestionnaireCopyResult, QuestionnaireQueryListResult, QuestionnaireAccountListResult,
+  QuestionnairePageResult, QuestionnaireAnswerDetailResult, QuestionnaireRecordResult,
+  QuestionnaireUploadUrlResult,
 } from "./models";
 import { fetchStaffBasicInfo, fetchStaffDetail, fetchDepartmentAncestors, fetchStaffIdMapping, fetchOrgExtraFieldIds, searchStaff, fetchOrgInfo } from "./contacts";
 import { fetchDepartmentDetail, fetchDepartmentChildren, fetchDepartmentStaffs } from "./departments";
@@ -48,6 +53,15 @@ import { parseCallbackPayload, verifyCallbackSignature, getCallbackEventTypes, C
 import { createBotCommands, fetchBotCommands, deleteBotCommands } from "./botCommands";
 import { createPersonalApp, updatePersonalApp, fetchPersonalApp, deletePersonalApp, fetchPersonalAppList } from "./personalApps";
 import { sendNotice, fetchNoticeAccounts } from "./notices";
+import {
+  saveQuestionnaire, saveQuestionnaireQuestions, deleteQuestionnaireQuestion,
+  publishQuestionnaire, withdrawQuestionnaire, finishQuestionnaire, deleteQuestionnaire,
+  fetchQuestionnaireDetail, fetchQuestionnaireBrief, fetchQuestionnaireAnswerUrl,
+  copyQuestionnaire, fetchQuestionnairesByCodes, fetchQuestionnaireOfficeAccounts,
+  fetchCreatedQuestionnaires, fetchMyCreatedQuestionnaires, fetchParticipatedQuestionnaires,
+  fetchAnswerRecords, fetchQuestionnaireAnswerDetail, fetchQuestionnaireLastAnswerDetail,
+  fetchAnswerData, fetchQuestionnaireLastAnswerRecord, fetchQuestionnaireUploadUrl,
+} from "./questionnaires";
 
 type AnyDict = Record<string, any>;
 
@@ -1088,6 +1102,139 @@ export class LansengerClient {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     return deleteBotCommands(this._config, token, scopeType, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  // ── Questionnaire (问卷系统) ────────────────────────────────────────
+  async saveQuestionnaire(params: { title: string; account_code: string; code?: string; welcome_speech?: string; bye_speech?: string; cover_resource_id?: string; resource_ids?: string; app_id?: string; user_type?: number; create_mobile?: string; create_user_id?: string; user_token?: string }): Promise<QuestionnaireSaveResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return saveQuestionnaire(this._config, token, params as any);
+  }
+
+  async saveQuestionnaireQuestions(questionnaireCode: string, questionList: AnyDict[], opts: { create_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireQuestionSaveResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return saveQuestionnaireQuestions(this._config, token, questionnaireCode, questionList, opts as any);
+  }
+
+  async deleteQuestionnaireQuestion(questionCode: string, opts: { create_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireQuestionDeleteResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return deleteQuestionnaireQuestion(this._config, token, questionCode, opts as any);
+  }
+
+  async publishQuestionnaire(questionnaireCode: string, opts: { scope_type?: number; staff_ids?: string[]; phones?: string[]; answer_limit?: number; message_flag?: number; page_flag?: number; share_flag?: number; view_stats_flag?: number; anonym_flag?: number; publish_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return publishQuestionnaire(this._config, token, questionnaireCode, opts as any);
+  }
+
+  async withdrawQuestionnaire(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return withdrawQuestionnaire(this._config, token, questionnaireCode, opts as any);
+  }
+
+  async finishQuestionnaire(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return finishQuestionnaire(this._config, token, questionnaireCode, opts as any);
+  }
+
+  async deleteQuestionnaire(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return deleteQuestionnaire(this._config, token, questionnaireCode, opts as any);
+  }
+
+  async fetchQuestionnaireDetail(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireDetailResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchQuestionnaireDetail(this._config, token, questionnaireCode, opts as any);
+  }
+
+  async fetchQuestionnaireBrief(questionnaireCode: string, opts: { user_token?: string } = {}): Promise<QuestionnaireDetailResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchQuestionnaireBrief(this._config, token, questionnaireCode, opts as any);
+  }
+
+  async fetchQuestionnaireAnswerUrl(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireAnswerUrlResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchQuestionnaireAnswerUrl(this._config, token, questionnaireCode, opts as any);
+  }
+
+  async copyQuestionnaire(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireCopyResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return copyQuestionnaire(this._config, token, questionnaireCode, opts as any);
+  }
+
+  async fetchQuestionnairesByCodes(codeList: string[], opts: { include_deleted?: number; user_token?: string } = {}): Promise<QuestionnaireQueryListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchQuestionnairesByCodes(this._config, token, codeList, opts as any);
+  }
+
+  async fetchQuestionnaireOfficeAccounts(opts: { user_id?: string; user_token?: string } = {}): Promise<QuestionnaireAccountListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchQuestionnaireOfficeAccounts(this._config, token, opts as any);
+  }
+
+  async fetchCreatedQuestionnaires(accountCode: string, opts: { page_no?: number; page_size?: number; status?: number; user_id?: string; user_token?: string } = {}): Promise<QuestionnairePageResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchCreatedQuestionnaires(this._config, token, accountCode, opts as any);
+  }
+
+  async fetchMyCreatedQuestionnaires(orgId: string, opts: { page_no?: number; page_size?: number; title?: string; status?: number; user_id?: string; user_token?: string } = {}): Promise<QuestionnairePageResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchMyCreatedQuestionnaires(this._config, token, orgId, opts as any);
+  }
+
+  async fetchParticipatedQuestionnaires(orgId: string, opts: { page_no?: number; page_size?: number; status?: number; user_id?: string; user_token?: string } = {}): Promise<QuestionnairePageResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchParticipatedQuestionnaires(this._config, token, orgId, opts as any);
+  }
+
+  async fetchAnswerRecords(accountCode: string, questionnaireCode: string, opts: { page_no?: number; page_size?: number; user_id?: string; user_token?: string } = {}): Promise<QuestionnairePageResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchAnswerRecords(this._config, token, accountCode, questionnaireCode, opts as any);
+  }
+
+  async fetchQuestionnaireAnswerDetail(accountCode: string, answerCode: string, opts: { user_id?: string; user_token?: string } = {}): Promise<QuestionnaireAnswerDetailResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchQuestionnaireAnswerDetail(this._config, token, accountCode, answerCode, opts as any);
+  }
+
+  async fetchQuestionnaireLastAnswerDetail(questionnaireCode: string, opts: { answer_record_code?: string; user_id?: string; user_token?: string } = {}): Promise<QuestionnaireAnswerDetailResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchQuestionnaireLastAnswerDetail(this._config, token, questionnaireCode, opts as any);
+  }
+
+  async fetchAnswerData(accountCode: string, questionnaireCode: string, opts: { page_no?: number; page_size?: number; user_id?: string; user_token?: string } = {}): Promise<QuestionnairePageResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchAnswerData(this._config, token, accountCode, questionnaireCode, opts as any);
+  }
+
+  async fetchQuestionnaireLastAnswerRecord(questionnaireCode: string, opts: { answer_record_code?: string; user_id?: string; user_token?: string } = {}): Promise<QuestionnaireRecordResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchQuestionnaireLastAnswerRecord(this._config, token, questionnaireCode, opts as any);
+  }
+
+  async fetchQuestionnaireUploadUrl(fileName: string, md5: string, size: number, opts: { user_token?: string } = {}): Promise<QuestionnaireUploadUrlResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchQuestionnaireUploadUrl(this._config, token, fileName, md5, size, opts as any);
   }
 
   // ── Notice (通知系统) ──────────────────────────────────────────────
