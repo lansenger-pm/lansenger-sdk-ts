@@ -35,6 +35,7 @@ Les trois types de robots utilisent le même mécanisme d'authentification : `ap
 - **Groups** — créer, infos, membres, liste, vérification de membership, mise à jour des paramètres & membres, dissoudre
 - **Calendrier & Schedule** — calendrier principal, CRUD de schedule + mise à jour, gestion des participants + métadonnées participants, update_schedule_attendees()
 - **Todo unifié** — créer, mettre à jour, supprimer, interroger, gestion d'exécuteur, comptes de statut
+- **Notices (通知系统)** — envoyer des notifications via un compte officiel (texte/lien, ciblage téléphone/staff, confirmation/rappels, pièces jointes), lister les comptes officiels
 - **Commandes de bot** — créer/gérer les entrées de commande de bot
 - **Applications personnelles** — gérer les bots personnels
 - **Événements de callback** — 25 types d'événements, parsing structuré, décryptage AES (spec 4.10.1.4), vérification de signature SHA1
@@ -596,6 +597,7 @@ lansenger-sdk-ts/
 │   ├── callbacks.ts          # Événements de callback — 25 types, décryptage AES, vérification SHA1
 │   ├── groups.ts             # API Groups (incluant dissoudre 4.28.6)
 │   ├── todos.ts              # Todo unifié
+│   ├── notices.ts           # Notifications (通知系统)
 │   ├── calendars.ts          # Calendrier & Schedule
 │   ├── reminders.ts          # Rappels urgents (4.6.14)
 │   ├── chats.ts              # Lecture de chats (4.24 MCP)

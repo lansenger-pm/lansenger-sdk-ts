@@ -37,6 +37,18 @@ export {
   VERSION,
 } from "./constants";
 export {
+  NOTICE_CONTENT_TYPE_TEXT,
+  NOTICE_CONTENT_TYPE_LINK,
+  NOTICE_USER_TYPE_PHONE,
+  NOTICE_USER_TYPE_OPENID,
+  NOTICE_RANGE_OBJ_TYPE_STAFF,
+  NOTICE_RANGE_OBJ_TYPE_DEPARTMENT,
+  NOTICE_PHONE_RANGE_MAX,
+  NOTICE_OPEN_RANGE_MAX,
+  NOTICE_REMIND_AFTER_TYPES,
+  NOTICE_REMIND_RANGE_TYPES,
+} from "./constants";
+export {
   LansengerError,
   LansengerAuthError,
   LansengerConfigError,
@@ -57,6 +69,8 @@ export {
   UploadMediaResult,
   DownloadMediaResult,
   MediaPathResult,
+  NoticeSendResult,
+  NoticeAccountListResult,
   AppCardParams,
   LinkCardParams,
   OaCardParams,
@@ -163,6 +177,7 @@ export {
   deleteExecutors,
   fetchExecutorList,
 } from "./todos";
+export { sendNotice, fetchNoticeAccounts } from "./notices";
 export { sendReminder } from "./reminders";
 export {
   uploadMedia,

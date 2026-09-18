@@ -1817,3 +1817,73 @@ export class ChatMessagesResult {
     return d;
   }
 }
+
+export class NoticeSendResult {
+  success: boolean;
+  notice_code: string | null;
+  notice_id: number | null;
+  title: string | null;
+  notice_type: number | null;
+  content_type: number | null;
+  content_abstract: string | null;
+  notice_link: string | null;
+  notice_status: number | null;
+  confirm_status: number | null;
+  publish_time: number | null;
+  publish_user_id: string | null;
+  publish_user_name: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; notice_code?: string | null; notice_id?: number | null; title?: string | null; notice_type?: number | null; content_type?: number | null; content_abstract?: string | null; notice_link?: string | null; notice_status?: number | null; confirm_status?: number | null; publish_time?: number | null; publish_user_id?: string | null; publish_user_name?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.notice_code = init.notice_code ?? null;
+    this.notice_id = init.notice_id ?? null;
+    this.title = init.title ?? null;
+    this.notice_type = init.notice_type ?? null;
+    this.content_type = init.content_type ?? null;
+    this.content_abstract = init.content_abstract ?? null;
+    this.notice_link = init.notice_link ?? null;
+    this.notice_status = init.notice_status ?? null;
+    this.confirm_status = init.confirm_status ?? null;
+    this.publish_time = init.publish_time ?? null;
+    this.publish_user_id = init.publish_user_id ?? null;
+    this.publish_user_name = init.publish_user_name ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    const keys = ["notice_code", "notice_id", "title", "notice_type", "content_type", "content_abstract", "notice_link", "notice_status", "confirm_status", "publish_time", "publish_user_id", "publish_user_name"] as const;
+    for (const k of keys) {
+      const v = (this as any)[k];
+      if (v !== null) d[k] = v;
+    }
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class NoticeAccountListResult {
+  success: boolean;
+  total: number;
+  accounts: Record<string, any>[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; total?: number; accounts?: Record<string, any>[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.total = init.total ?? 0;
+    this.accounts = init.accounts ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, total: this.total };
+    if (this.accounts !== null) d.accounts = this.accounts;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}

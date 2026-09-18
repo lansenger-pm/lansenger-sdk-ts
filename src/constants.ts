@@ -90,6 +90,10 @@ export const API_ENDPOINTS: Record<string, Record<string, string>> = {
     attendees_update: "/v1/calendars/{calendar_id}/schedules/{schedule_id}/members/update",
     attendees_meta_update: "/v1/calendars/{calendar_id}/schedules/{schedule_id}/members/meta/update",
   },
+  notices: {
+    send: "/xtra/notice/server/openapi/v1/send",
+    accounts_fetch: "/xtra/notice/server/openapi/v1/notice/account",
+  },
   bot_commands: {
     create: "/v1/bot/commands/create",
     fetch: "/v1/bot/commands/fetch",
@@ -162,6 +166,17 @@ export const REMINDER_TYPE_POPUP = 1;
 export const REMINDER_TYPE_SMS = 2;
 export const REMINDER_TYPE_PHONE = 3;
 
+export const NOTICE_CONTENT_TYPE_TEXT = 1;
+export const NOTICE_CONTENT_TYPE_LINK = 2;
+export const NOTICE_USER_TYPE_PHONE = 1;   // target users by mobile number (phoneUserRange)
+export const NOTICE_USER_TYPE_OPENID = 2;  // target users by staffId/department (openUserRange)
+export const NOTICE_RANGE_OBJ_TYPE_STAFF = 1;
+export const NOTICE_RANGE_OBJ_TYPE_DEPARTMENT = 2;
+export const NOTICE_PHONE_RANGE_MAX = 10;   // releaseRangeList / ccRangeList phone limit
+export const NOTICE_OPEN_RANGE_MAX = 200;   // releaseRangeList / ccRangeList staff limit
+export const NOTICE_REMIND_AFTER_TYPES = ["never", "unOperate", "count"];
+export const NOTICE_REMIND_RANGE_TYPES = ["all", "receiver", "partialRemind", "notReminder"];
+
 export const CALLBACK_EVENT_TYPES: Record<string, string> = {
   account_message: "public_account",
   account_subscribe: "public_account",
@@ -206,4 +221,4 @@ export function guessAppMediaType(filePath: string): string {
   return APP_MEDIA_TYPE_FILE;
 }
 
-export const VERSION = "1.4.3";
+export const VERSION = "1.5.0";

@@ -35,6 +35,7 @@ All three bot types use the same auth mechanism: `appToken` is required for ever
 - **Groups** — create, info, members, list, membership check, update settings & members, dismiss
 - **Calendar & schedule** — primary calendar, schedule CRUD + update, attendee management + attendee metadata, update_schedule_attendees()
 - **Unified todo** — create, update, delete, query, executor management, status counts
+- **Notices (通知系统)** — send official-account notices (text/link content, phone/staff targeting, confirm/forward/reply flags, reminder policies, attachments), query org official accounts
 - **Bot slash commands** (4.37) — create/query/delete Command entries for bot interaction menus
 - **Personal apps** (4.38) — create/update/query/delete/list personal bots with user token
 - **Callback events** — 25 event types, structured parsing, AES decryption (per 4.10.1.4), SHA1 signature verification
@@ -599,6 +600,7 @@ lansenger-sdk-ts/
 │   ├── callbacks.ts          # Callback events — 25 event types, AES decryption, SHA1 verification
 │   ├── groups.ts             # Group APIs (including dismiss 4.28.6)
 │   ├── todos.ts              # Unified Todo
+│   ├── notices.ts           # Notice (通知系统)
 │   ├── calendars.ts          # Calendar & Schedule
 │   ├── reminders.ts          # Urgent message reminders (4.6.14)
 │   ├── chats.ts              # Chat reading (4.24 MCP)

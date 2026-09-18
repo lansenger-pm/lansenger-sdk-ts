@@ -1,6 +1,6 @@
 {
   "name": "lansenger-sdk-ts",
-  "version": "1.4.4",
+  "version": "1.5.0",
   "description": "Lansenger SDK — TypeScript SDK for Lansenger Smart Bot API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

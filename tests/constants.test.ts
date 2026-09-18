@@ -160,7 +160,17 @@ describe("Other constants", () => {
     expect(CALLBACK_EVENT_TYPES.staff_modify).toBe("staff");
   });
 
+  describe("notices", () => {
+    test("send path", () => {
+      expect(API_ENDPOINTS.notices.send).toBe("/xtra/notice/server/openapi/v1/send");
+    });
+
+    test("accounts_fetch path", () => {
+      expect(API_ENDPOINTS.notices.accounts_fetch).toBe("/xtra/notice/server/openapi/v1/notice/account");
+    });
+  });
+
   test("VERSION", () => {
-    expect(VERSION).toBe("1.4.3");
+    expect(VERSION).toBe("1.5.0");
   });
 });

@@ -28,6 +28,7 @@ import {
   MediaPathResult, ScheduleAttendeesUpdateResult,
   BotCommandResult, BotCommandQueryResult,
   PersonalAppCreateResult, PersonalAppInfoResult, PersonalAppListResult,
+  NoticeSendResult, NoticeAccountListResult,
 } from "./models";
 import { fetchStaffBasicInfo, fetchStaffDetail, fetchDepartmentAncestors, fetchStaffIdMapping, fetchOrgExtraFieldIds, searchStaff, fetchOrgInfo } from "./contacts";
 import { fetchDepartmentDetail, fetchDepartmentChildren, fetchDepartmentStaffs } from "./departments";
@@ -46,6 +47,7 @@ import { uploadMedia, uploadAppMedia, uploadAppMediaV2, downloadMedia, downloadM
 import { parseCallbackPayload, verifyCallbackSignature, getCallbackEventTypes, CallbackEvent } from "./callbacks";
 import { createBotCommands, fetchBotCommands, deleteBotCommands } from "./botCommands";
 import { createPersonalApp, updatePersonalApp, fetchPersonalApp, deletePersonalApp, fetchPersonalAppList } from "./personalApps";
+import { sendNotice, fetchNoticeAccounts } from "./notices";
 
 type AnyDict = Record<string, any>;
 
@@ -1086,6 +1088,32 @@ export class LansengerClient {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     return deleteBotCommands(this._config, token, scopeType, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  // ── Notice (通知系统) ──────────────────────────────────────────────
+  async sendNotice(params: {
+    title: string; content_type: number; account_code: string; user_type: number;
+    content?: string; notice_link?: string; notice_location?: string;
+    latitude?: number; longitude?: number;
+    release_phones?: string[]; cc_phones?: string[];
+    release_range?: AnyDict[]; cc_staff_ids?: string[];
+    create_mobile?: string; create_user_id?: string;
+    resource_list?: AnyDict[]; extend_id?: string;
+    confirm_flag?: number; forward_flag?: number; reply_flag?: number; anonymous_flag?: number;
+    remind_status?: number; remind_msg_type?: string; at_once_flag?: number;
+    remind_after_type?: string; remind_max_count?: number; remind_interval_time?: number;
+    remind_interval_time_duration?: string; remind_range_type?: string; remind_range_staff_ids?: string[];
+    user_token?: string;
+  }): Promise<NoticeSendResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return sendNotice(this._config, token, params as any);
+  }
+
+  async fetchNoticeAccounts(opts: { org_id?: string; user_token?: string } = {}): Promise<NoticeAccountListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchNoticeAccounts(this._config, token, opts as any);
   }
 
   // ── Personal Apps (4.38) ───────────────────────────────────────────

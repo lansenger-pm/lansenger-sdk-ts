@@ -19,6 +19,7 @@ import {
   UserInfoResult, ScheduleAttendeesUpdateResult,
   BotCommandResult, BotCommandQueryResult,
   PersonalAppCreateResult, PersonalAppInfoResult, PersonalAppListResult,
+  NoticeSendResult, NoticeAccountListResult,
 } from "../src/models";
 
 describe("SendMessageResult", () => {
@@ -615,5 +616,35 @@ describe("PersonalAppListResult", () => {
   test("toDict with empty list", () => {
     const r = new PersonalAppListResult({ success: true, app_list: [] });
     expect(r.toDict().app_list).toEqual([]);
+  });
+});
+
+describe("NoticeSendResult", () => {
+  test("defaults", () => {
+    const r = new NoticeSendResult({ success: true });
+    expect(r.success).toBe(true);
+    expect(r.notice_code).toBeNull();
+    expect(r.error).toBeNull();
+  });
+
+  test("toDict omits nulls", () => {
+    const r = new NoticeSendResult({ success: true, notice_code: "NTC1", notice_status: 2 });
+    const d = r.toDict();
+    expect(d.notice_code).toBe("NTC1");
+    expect("title" in d).toBe(false);
+    expect("raw_response" in d).toBe(false);
+  });
+});
+
+describe("NoticeAccountListResult", () => {
+  test("defaults", () => {
+    const r = new NoticeAccountListResult({ success: true });
+    expect(r.total).toBe(0);
+    expect(r.accounts).toBeNull();
+  });
+
+  test("toDict", () => {
+    const r = new NoticeAccountListResult({ success: true, total: 1, accounts: [{ code: "A" }] });
+    expect(r.toDict().accounts).toEqual([{ code: "A" }]);
   });
 });
