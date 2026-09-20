@@ -46,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **notices**: `sendNotice()` — 通知系统 `/xtra/notice/server/openapi/v1/send`，通过官方账号发送通知。支持文本/链接内容类型、手机号（≤10）/staffId+部门（≤200）两种投放范围、确认/转发/回复标志与提醒策略。传入 `user_token` 时 `create_mobile` / `create_user_id` 可省略。
+- **notices**: `sendNotice()` — 通知系统 `/xtra/notice/server/openapi/v1/send`，通过官方账号发送通知。支持文本/链接内容类型、手机号（≤10）/staffId+部门（≤200）两种投放范围、确认/转发/回复标志与提醒策略。服务端要求 `create_mobile` / `create_user_id` 至少填一个；`user_token` 不替代创建人字段。
 - **notices**: `fetchNoticeAccounts()` — 查询组织官方账号列表（`code` 字段即发送所需的 accountCode）。
 - **client**: `LansengerClient.sendNotice()` / `fetchNoticeAccounts()` 薄包装；`models` 新增 `NoticeSendResult` / `NoticeAccountListResult`。
 
