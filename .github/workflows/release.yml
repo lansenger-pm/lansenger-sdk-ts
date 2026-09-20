@@ -3,6 +3,12 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without leading v"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -23,7 +29,10 @@ jobs:
       - id: check
         run: |
           set -euo pipefail
-          TAG="${GITHUB_REF#refs/tags/v}"
+          TAG="${{ inputs.version }}"
+          if [ -z "$TAG" ]; then
+            TAG="${GITHUB_REF#refs/tags/v}"
+          fi
           PKG=$(node -p "require('./package.json').version")
           CONST=$(grep -m1 'export const VERSION' src/constants.ts | sed 's/.*"\(.*\)".*/\1/')
           TEST=$(grep -m1 'expect(VERSION).toBe' tests/constants.test.ts | sed 's/.*"\(.*\)".*/\1/')
