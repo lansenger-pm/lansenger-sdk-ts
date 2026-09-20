@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.9.0] - 2026-09-20
+
+### Added
+
+- **personal_todos**: 个人待办 `/xtra/tdtask/server/openapi/...` 6 个端点 — 创建、按字段编辑、用户待办分页，以及资源上传、下载 URL、预签名上传 URL。
+- **client**: 6 个薄包装方法；`models` 新增 `PersonalTodoSaveResult` / `PersonalTodoListResult` / `PersonalTodoResourceResult` / `PersonalTodoUrlResult`。
+- **constants**: 个人待办类型、状态、优先级、平台来源和 9MB 资源限制。
+
+### Notes
+
+- 个人待办与应用身份统一待办完全分离；`orgId` 必须显式传入，编辑接口的 `orgId` 位于请求体顶层。
+- 服务端当前不提供个人待办完成/删除能力；成功码兼容 `0` 和旧环境写接口的 `200`。
+
+---
+
 ## [1.8.0] - 2026-09-18
 
 ### Added

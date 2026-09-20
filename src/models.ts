@@ -2455,3 +2455,126 @@ export class BoardroomAreaListResult {
     return d;
   }
 }
+
+const PERSONAL_TODO_RESOURCE_KEYS = [
+  "file_name", "mime_type", "suffix", "size", "md5", "extension_info",
+  "resource_id", "download_url", "image_thumbnail_list",
+] as const;
+
+export class PersonalTodoSaveResult {
+  success: boolean;
+  todo_code: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; todo_code?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.todo_code = init.todo_code ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.todo_code !== null) d.todo_code = this.todo_code;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class PersonalTodoListResult {
+  success: boolean;
+  page_no: number;
+  page_size: number;
+  pages: number;
+  total: number;
+  has_more: boolean;
+  items: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: {
+    success: boolean; page_no?: number; page_size?: number; pages?: number;
+    total?: number; has_more?: boolean; items?: AnyDict[] | null;
+    error?: string | null; raw_response?: AnyDict | null;
+  }) {
+    this.success = init.success;
+    this.page_no = init.page_no ?? 0;
+    this.page_size = init.page_size ?? 0;
+    this.pages = init.pages ?? 0;
+    this.total = init.total ?? 0;
+    this.has_more = init.has_more ?? false;
+    this.items = init.items ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = {
+      success: this.success, page_no: this.page_no, page_size: this.page_size,
+      pages: this.pages, total: this.total, has_more: this.has_more,
+    };
+    if (this.items !== null) d.items = this.items;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class PersonalTodoResourceResult {
+  success: boolean;
+  file_name: string | null;
+  mime_type: string | null;
+  suffix: string | null;
+  size: number | null;
+  md5: string | null;
+  extension_info: string | null;
+  resource_id: string | null;
+  download_url: string | null;
+  image_thumbnail_list: AnyDict | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: {
+    success: boolean; file_name?: string | null; mime_type?: string | null;
+    suffix?: string | null; size?: number | null; md5?: string | null;
+    extension_info?: string | null; resource_id?: string | null;
+    download_url?: string | null; image_thumbnail_list?: AnyDict | null;
+    error?: string | null; raw_response?: AnyDict | null;
+  }) {
+    this.success = init.success;
+    this.file_name = init.file_name ?? null;
+    this.mime_type = init.mime_type ?? null;
+    this.suffix = init.suffix ?? null;
+    this.size = init.size ?? null;
+    this.md5 = init.md5 ?? null;
+    this.extension_info = init.extension_info ?? null;
+    this.resource_id = init.resource_id ?? null;
+    this.download_url = init.download_url ?? null;
+    this.image_thumbnail_list = init.image_thumbnail_list ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    for (const key of PERSONAL_TODO_RESOURCE_KEYS) {
+      const v = (this as any)[key];
+      if (v !== null) d[key] = v;
+    }
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class PersonalTodoUrlResult {
+  success: boolean;
+  url: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; url?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.url = init.url ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.url !== null) d.url = this.url;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}

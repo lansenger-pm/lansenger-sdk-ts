@@ -42,6 +42,10 @@ import {
   BoardroomReserveDetailResult,
   BoardroomReserveResult,
   BoardroomScheduleResult,
+  PersonalTodoListResult,
+  PersonalTodoResourceResult,
+  PersonalTodoSaveResult,
+  PersonalTodoUrlResult,
 } from "./models";
 import { fetchStaffBasicInfo, fetchStaffDetail, fetchDepartmentAncestors, fetchStaffIdMapping, fetchOrgExtraFieldIds, searchStaff, fetchOrgInfo } from "./contacts";
 import { fetchDepartmentDetail, fetchDepartmentChildren, fetchDepartmentStaffs } from "./departments";
@@ -76,6 +80,11 @@ import {
   cancelBoardroomReserve, confirmBoardroomSign, fetchMyBoardroomReserves,
   fetchBoardroomGradings, fetchBoardroomAreaOffices,
 } from "./boardrooms";
+import {
+  savePersonalTodo, updatePersonalTodo, fetchPersonalTodoList,
+  uploadPersonalTodoResource, fetchPersonalTodoResourceDownloadUrl,
+  fetchPersonalTodoResourceUploadUrl,
+} from "./personalTodos";
 
 type AnyDict = Record<string, any>;
 
@@ -1316,6 +1325,43 @@ export class LansengerClient {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     return fetchBoardroomAreaOffices(this._config, token, gradingId, opts as any);
+  }
+
+  // ── Personal Todo (个人待办) ────────────────────────────────────────
+  async savePersonalTodo(subject: string, startTime: number, dueTime: number, priority: number, createUserId: string, orgId: string, appid: string, opts: AnyDict = {}): Promise<PersonalTodoSaveResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return savePersonalTodo(this._config, token, subject, startTime, dueTime, priority, createUserId, orgId, appid, opts as any);
+  }
+
+  async updatePersonalTodo(todoCode: string, orgId: string, updateFields: string[], opts: AnyDict = {}): Promise<PersonalTodoSaveResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return updatePersonalTodo(this._config, token, todoCode, orgId, updateFields, opts as any);
+  }
+
+  async fetchPersonalTodoList(orgId: string, staffId: string, opts: AnyDict = {}): Promise<PersonalTodoListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchPersonalTodoList(this._config, token, orgId, staffId, opts as any);
+  }
+
+  async uploadPersonalTodoResource(appId: string, size: number, fileName: string, contentType: string, fileData: string, orgId: string, opts: AnyDict = {}): Promise<PersonalTodoResourceResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return uploadPersonalTodoResource(this._config, token, appId, size, fileName, contentType, fileData, orgId, opts as any);
+  }
+
+  async fetchPersonalTodoResourceDownloadUrl(resourceId: string, orgId: string, opts: AnyDict = {}): Promise<PersonalTodoUrlResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchPersonalTodoResourceDownloadUrl(this._config, token, resourceId, orgId, opts as any);
+  }
+
+  async fetchPersonalTodoResourceUploadUrl(fileName: string, md5: string, size: number, orgId: string, opts: AnyDict = {}): Promise<PersonalTodoUrlResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchPersonalTodoResourceUploadUrl(this._config, token, fileName, md5, size, orgId, opts as any);
   }
 
   // ── Notice (通知系统) ──────────────────────────────────────────────

@@ -131,6 +131,14 @@ export const API_ENDPOINTS: Record<string, Record<string, string>> = {
     grading_list: "/xtra/boardroom/server/openapi/v2/gradingList",
     area_office_list: "/xtra/boardroom/server/openapi/v2/areaOfficeList",
   },
+  personal_todos: {
+    save: "/xtra/tdtask/server/openapi/v3/taskopt/savePersonalTask",
+    update: "/xtra/tdtask/server/openapi/v3/taskopt/updatePersonalTask",
+    user_list: "/xtra/tdtask/server/openapi/v3/user/list",
+    resource_update: "/xtra/tdtask/server/openapi/resource/update",
+    resource_download: "/xtra/tdtask/server/openapi/resource/getResourceDownload",
+    resource_upload_url: "/xtra/tdtask/server/openapi/resource/getUploadUrl",
+  },
   bot_commands: {
     create: "/v1/bot/commands/create",
     fetch: "/v1/bot/commands/fetch",
@@ -244,6 +252,18 @@ export const BOARDROOM_CANCEL_TYPE_CURRENT = "1";
 export const BOARDROOM_CANCEL_TYPE_CURRENT_AND_AFTER = "2";
 export const BOARDROOM_CANCEL_TYPE_ALL_UNFINISHED = "3";
 
+export const PERSONAL_TODO_TYPE_PERSONAL = 1;
+export const PERSONAL_TODO_STATUS_UNFINISHED = 0;
+export const PERSONAL_TODO_STATUS_FINISHED = 1;
+export const PERSONAL_TODO_PRIORITY_LOW = 0;
+export const PERSONAL_TODO_PRIORITY_NORMAL = 1;
+export const PERSONAL_TODO_PRIORITY_URGENT = 2;
+export const PERSONAL_TODO_PRIORITY_VERY_URGENT = 3;
+export const PERSONAL_TODO_PLATFORM_APP = 1;
+export const PERSONAL_TODO_PLATFORM_WEB = 2;
+export const PERSONAL_TODO_PLATFORM_API = 3;
+export const PERSONAL_TODO_RESOURCE_MAX_SIZE = 9 * 1024 * 1024;
+
 export const CALLBACK_EVENT_TYPES: Record<string, string> = {
   account_message: "public_account",
   account_subscribe: "public_account",
@@ -288,4 +308,4 @@ export function guessAppMediaType(filePath: string): string {
   return APP_MEDIA_TYPE_FILE;
 }
 
-export const VERSION = "1.8.0";
+export const VERSION = "1.9.0";

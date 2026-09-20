@@ -66,6 +66,7 @@ Chaque méthode du SDK requiert `appToken`. Le client l'obtient et le refresh au
 1. **Premier appel** → `GET /v1/apptoken/create` avec app_id + app_secret → renvoie `appToken` (valide 2 heures)
 - **Questionnaires (问卷系统)** — créer/mettre à jour/publier/retirer/terminer/supprimer des questionnaires, gestion groupée des questions, listes paginées, enregistrements et export des réponses, URL de téléversement pré-signée
 - **Boardroom (会议室预定 V2)** — recherche de salles, détails et planning journalier, réservation/modification, annulation, confirmation par scan, mes réservations, listes de gradings et zones
+- **Todos personnels (个人待办)** — créer/modifier/lister les todos personnels et gérer les pièces jointes
 2. **Appels suivants** → réutilise le appToken en cache jusqu'à expiration
 3. **Token expiré** → refresh automatique via le même endpoint
 
@@ -602,6 +603,7 @@ lansenger-sdk-ts/
 │   ├── notices.ts           # Notifications (通知系统)
 │   ├── questionnaires.ts    # Questionnaires (问卷系统)
 │   ├── boardrooms.ts        # Boardroom (会议室预定 V2)
+│   ├── personalTodos.ts     # Personal Todo (个人待办)
 │   ├── calendars.ts          # Calendrier & Schedule
 │   ├── reminders.ts          # Rappels urgents (4.6.14)
 │   ├── chats.ts              # Lecture de chats (4.24 MCP)

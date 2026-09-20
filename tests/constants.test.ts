@@ -198,7 +198,20 @@ describe("Other constants", () => {
     });
   });
 
+  describe("personal todos", () => {
+    test("endpoint paths", () => {
+      expect(API_ENDPOINTS.personal_todos).toEqual({
+        save: "/xtra/tdtask/server/openapi/v3/taskopt/savePersonalTask",
+        update: "/xtra/tdtask/server/openapi/v3/taskopt/updatePersonalTask",
+        user_list: "/xtra/tdtask/server/openapi/v3/user/list",
+        resource_update: "/xtra/tdtask/server/openapi/resource/update",
+        resource_download: "/xtra/tdtask/server/openapi/resource/getResourceDownload",
+        resource_upload_url: "/xtra/tdtask/server/openapi/resource/getUploadUrl",
+      });
+    });
+  });
+
   test("VERSION", () => {
-    expect(VERSION).toBe("1.8.0");
+    expect(VERSION).toBe("1.9.0");
   });
 });

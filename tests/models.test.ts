@@ -25,6 +25,8 @@ import {
   BoardroomListResult, BoardroomDetailResult, BoardroomScheduleResult,
   BoardroomReserveDetailResult, BoardroomReserveResult, BoardroomOpResult,
   BoardroomGradingListResult, BoardroomAreaListResult,
+  PersonalTodoListResult, PersonalTodoResourceResult,
+  PersonalTodoSaveResult, PersonalTodoUrlResult,
 } from "../src/models";
 
 describe("SendMessageResult", () => {
@@ -756,5 +758,38 @@ describe("BoardroomAreaListResult", () => {
       success: true, total: 1, areas: [{ id: "area1" }],
     });
     expect(r.toDict().areas).toEqual([{ id: "area1" }]);
+  });
+});
+
+describe("PersonalTodoSaveResult", () => {
+  test("includes todo code and omits nulls", () => {
+    const r = new PersonalTodoSaveResult({ success: true, todo_code: "TASK1" });
+    expect(r.toDict()).toEqual({ success: true, todo_code: "TASK1" });
+  });
+});
+
+describe("PersonalTodoListResult", () => {
+  test("includes page metadata", () => {
+    const r = new PersonalTodoListResult({ success: true, total: 2, has_more: true });
+    const d = r.toDict();
+    expect(d.total).toBe(2);
+    expect(d.has_more).toBe(true);
+    expect("items" in d).toBe(false);
+  });
+});
+
+describe("PersonalTodoResourceResult", () => {
+  test("includes resource fields", () => {
+    const r = new PersonalTodoResourceResult({ success: true, resource_id: "res1", size: 10 });
+    const d = r.toDict();
+    expect(d.resource_id).toBe("res1");
+    expect(d.size).toBe(10);
+  });
+});
+
+describe("PersonalTodoUrlResult", () => {
+  test("includes URL", () => {
+    const r = new PersonalTodoUrlResult({ success: true, url: "https://example.com" });
+    expect(r.toDict().url).toBe("https://example.com");
   });
 });
