@@ -180,6 +180,24 @@ describe("Other constants", () => {
     });
   });
 
+  describe("boardrooms", () => {
+    test("endpoint paths", () => {
+      expect(API_ENDPOINTS.boardrooms).toEqual({
+        room_list: "/xtra/boardroom/server/openapi/v2/roomList",
+        room_detail: "/xtra/boardroom/server/openapi/v2/roomDetail",
+        room_schedule: "/xtra/boardroom/server/openapi/v2/roomSchedule",
+        reserve_detail: "/xtra/boardroom/server/openapi/v2/reserveDetail",
+        reserve_room: "/xtra/boardroom/server/openapi/v2/reserveRoom",
+        edit_reserve: "/xtra/boardroom/server/openapi/v2/editReserve",
+        reserve_cancel: "/xtra/boardroom/server/openapi/v2/reserveCancel",
+        confirm_sign: "/xtra/boardroom/server/openapi/v2/confirmSign",
+        my_reserve_list: "/xtra/boardroom/server/openapi/v2/myReserveList",
+        grading_list: "/xtra/boardroom/server/openapi/v2/gradingList",
+        area_office_list: "/xtra/boardroom/server/openapi/v2/areaOfficeList",
+      });
+    });
+  });
+
   test("VERSION", () => {
     expect(VERSION).toBe("1.8.0");
   });

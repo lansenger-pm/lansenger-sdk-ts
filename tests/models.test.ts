@@ -22,6 +22,9 @@ import {
   NoticeSendResult, NoticeAccountListResult,
   QuestionnaireSaveResult, QuestionnaireOpResult, QuestionnaireDetailResult,
   QuestionnairePageResult, QuestionnaireAnswerDetailResult, QuestionnaireRecordResult,
+  BoardroomListResult, BoardroomDetailResult, BoardroomScheduleResult,
+  BoardroomReserveDetailResult, BoardroomReserveResult, BoardroomOpResult,
+  BoardroomGradingListResult, BoardroomAreaListResult,
 } from "../src/models";
 
 describe("SendMessageResult", () => {
@@ -676,5 +679,82 @@ describe("QuestionnaireRecordResult", () => {
     const d = r.toDict();
     expect(d.record_code).toBe("AR1");
     expect("answer_user_id" in d).toBe(false);
+  });
+});
+
+describe("BoardroomListResult", () => {
+  test("defaults and toDict", () => {
+    const r = new BoardroomListResult({ success: true, count: 2, items: [{ id: "room1" }] });
+    const d = r.toDict();
+    expect(d.count).toBe(2);
+    expect(d.items).toEqual([{ id: "room1" }]);
+    expect("raw_response" in d).toBe(false);
+  });
+});
+
+describe("BoardroomDetailResult", () => {
+  test("omits nulls", () => {
+    const r = new BoardroomDetailResult({ success: true, room_id: "room1", name: "第一会议室" });
+    const d = r.toDict();
+    expect(d.room_id).toBe("room1");
+    expect("address" in d).toBe(false);
+  });
+});
+
+describe("BoardroomScheduleResult", () => {
+  test("includes reserve arrays", () => {
+    const r = new BoardroomScheduleResult({
+      success: true, room_id: "room1", reserves: [{ id: "r1" }], deactivations: [],
+    });
+    const d = r.toDict();
+    expect(d.reserves).toEqual([{ id: "r1" }]);
+    expect(d.deactivations).toEqual([]);
+  });
+});
+
+describe("BoardroomReserveDetailResult", () => {
+  test("includes reservation fields", () => {
+    const r = new BoardroomReserveDetailResult({
+      success: true, reserve_id: "res1", meeting_name: "周会", people_number: "10",
+    });
+    const d = r.toDict();
+    expect(d.reserve_id).toBe("res1");
+    expect(d.people_number).toBe("10");
+  });
+});
+
+describe("BoardroomReserveResult", () => {
+  test("includes reserve code and omits nulls", () => {
+    const r = new BoardroomReserveResult({
+      success: true, reserve_id: "res1", reserve_code: "BR001", meeting_name: "周会",
+    });
+    const d = r.toDict();
+    expect(d.reserve_code).toBe("BR001");
+    expect("address" in d).toBe(false);
+  });
+});
+
+describe("BoardroomOpResult", () => {
+  test("includes done", () => {
+    const r = new BoardroomOpResult({ success: true, done: true });
+    expect(r.toDict()).toEqual({ success: true, done: true });
+  });
+});
+
+describe("BoardroomGradingListResult", () => {
+  test("includes gradings", () => {
+    const r = new BoardroomGradingListResult({
+      success: true, total: 1, gradings: [{ id: "g1" }],
+    });
+    expect(r.toDict().gradings).toEqual([{ id: "g1" }]);
+  });
+});
+
+describe("BoardroomAreaListResult", () => {
+  test("includes areas", () => {
+    const r = new BoardroomAreaListResult({
+      success: true, total: 1, areas: [{ id: "area1" }],
+    });
+    expect(r.toDict().areas).toEqual([{ id: "area1" }]);
   });
 });
