@@ -52,9 +52,9 @@ describe("sendNotice", () => {
     expect(r.error).toContain("release_phones allows at most 10");
   });
 
-  test("returns error when create_mobile missing without user_token", async () => {
+  test("returns error when phone creator identity is missing", async () => {
     const r = await sendNotice(config, appToken, { title: "t", content_type: 1, account_code: "ACC001", user_type: 1, content: "c", release_phones: ["13800138000"], create_mobile: "" });
-    expect(r.error).toContain("create_mobile is required");
+    expect(r.error).toContain("create_mobile or create_user_id is required");
   });
 
   test("returns error when openid targeting without release_range", async () => {
@@ -62,9 +62,9 @@ describe("sendNotice", () => {
     expect(r.error).toContain("release_range is required");
   });
 
-  test("returns error when create_user_id missing without user_token", async () => {
+  test("returns error when openid creator identity is missing", async () => {
     const r = await sendNotice(config, appToken, { title: "t", content_type: 1, account_code: "ACC001", user_type: 2, content: "c", release_range: [{ objId: "s1", objName: "张三", objType: 1 }], create_user_id: "" });
-    expect(r.error).toContain("create_user_id is required");
+    expect(r.error).toContain("create_mobile or create_user_id is required");
   });
 
   test("returns success with notice fields (phone targeting)", async () => {

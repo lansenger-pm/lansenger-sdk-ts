@@ -5,7 +5,7 @@
 // - POST /xtra/notice/server/openapi/v1/notice/account — list official accounts of an organization
 //
 // Paths carry a /server segment (production stage; dev/test environments omit it).
-// When user_token is provided, create_mobile / create_user_id may be omitted.
+// One of create_mobile / create_user_id is always required.
 // The module has no revoke/delete interface.
 
 import { LansengerConfig } from "./config";
@@ -84,8 +84,8 @@ export async function sendNotice(
       return new NoticeSendResult({ success: false, error: `release_phones allows at most ${NOTICE_PHONE_RANGE_MAX} numbers` });
     if (params.cc_phones && params.cc_phones.length > NOTICE_PHONE_RANGE_MAX)
       return new NoticeSendResult({ success: false, error: `cc_phones allows at most ${NOTICE_PHONE_RANGE_MAX} numbers` });
-    if (!params.create_mobile && !params.user_token)
-      return new NoticeSendResult({ success: false, error: "create_mobile is required when user_type is 1 (phone) and user_token is not provided" });
+    if (!params.create_mobile && !params.create_user_id)
+      return new NoticeSendResult({ success: false, error: "create_mobile or create_user_id is required when user_type is 1 (phone)" });
   }
   if (params.user_type === NOTICE_USER_TYPE_OPENID) {
     if (!params.release_range || params.release_range.length === 0)
@@ -94,8 +94,8 @@ export async function sendNotice(
       return new NoticeSendResult({ success: false, error: `release_range allows at most ${NOTICE_OPEN_RANGE_MAX} items` });
     if (params.cc_staff_ids && params.cc_staff_ids.length > NOTICE_OPEN_RANGE_MAX)
       return new NoticeSendResult({ success: false, error: `cc_staff_ids allows at most ${NOTICE_OPEN_RANGE_MAX} items` });
-    if (!params.create_user_id && !params.user_token)
-      return new NoticeSendResult({ success: false, error: "create_user_id is required when user_type is 2 (openid) and user_token is not provided" });
+    if (!params.create_user_id && !params.create_mobile)
+      return new NoticeSendResult({ success: false, error: "create_mobile or create_user_id is required when user_type is 2 (openid)" });
   }
 
   if (params.remind_after_type && !NOTICE_REMIND_AFTER_TYPES.includes(params.remind_after_type))
