@@ -100,7 +100,7 @@ export async function savePersonalTodo(
 
   const url = buildApiUrl(config, "personal_todos", "save", appToken, { userToken: opts.user_token });
   const body: AnyDict = {
-    subject, startTime, dueTime, finishTime: opts.finish_time ?? null,
+    subject, startTime, dueTime, finishTime: opts.finish_time ?? 0,
     priority, type: PERSONAL_TODO_TYPE_PERSONAL, createUserId, orgId, appid,
   };
   for (const [key, value] of Object.entries({

@@ -20,8 +20,9 @@ function mockFetchFn(responseData: Record<string, any>): FetchFn {
   } as any);
 }
 
-function capturingFetch(capture: { body?: Record<string, any> }, responseData: Record<string, any>): FetchFn {
-  return async (_url, init) => {
+function capturingFetch(capture: { body?: Record<string, any>; url?: string }, responseData: Record<string, any>): FetchFn {
+  return async (url, init) => {
+    capture.url = String(url);
     capture.body = JSON.parse((init?.body as string) || "{}");
     return {
       ok: true, status: 200, statusText: "OK",
@@ -46,11 +47,12 @@ describe("savePersonalTodo", () => {
   });
 
   test("sends documented body", async () => {
-    const cap: { body?: Record<string, any> } = {};
+    const cap: { body?: Record<string, any>; url?: string } = {};
     const r = await savePersonalTodo(
       config, appToken, "完成方案", 100, 200, 1, "u1", "org1", "app1",
       {
         description: "desc",
+        user_token: "ut1",
         executors: [{ staffId: "u1", opt: 1 }],
         resources: [{ fileName: "a.pdf", resourceId: "r1" }],
         fetchFn: capturingFetch(cap, { errCode: 0, data: "TASK1" }),
@@ -59,9 +61,11 @@ describe("savePersonalTodo", () => {
     expect(r.success).toBe(true);
     expect(r.todo_code).toBe("TASK1");
     expect(cap.body).toMatchObject({
-      subject: "完成方案", startTime: 100, dueTime: 200, finishTime: null,
+      subject: "完成方案", startTime: 100, dueTime: 200, finishTime: 0,
       priority: 1, type: 1, createUserId: "u1", orgId: "org1", appid: "app1",
     });
+    expect(cap.url).toContain("app_token=test_token");
+    expect(cap.url).toContain("user_token=ut1");
   });
 
   test("returns API error", async () => {
