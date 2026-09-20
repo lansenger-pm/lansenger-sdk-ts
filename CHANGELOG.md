@@ -7,53 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.9.0] - 2026-09-20
+## [1.4.5] - 2026-09-20
 
 ### Added
 
-- **personal_todos**: 个人待办 `/xtra/tdtask/server/openapi/...` 6 个端点 — 创建、按字段编辑、用户待办分页，以及资源上传、下载 URL、预签名上传 URL。
-- **client**: 6 个薄包装方法；`models` 新增 `PersonalTodoSaveResult` / `PersonalTodoListResult` / `PersonalTodoResourceResult` / `PersonalTodoUrlResult`。
-- **constants**: 个人待办类型、状态、优先级、平台来源和 9MB 资源限制。
-
-### Notes
-
-- 个人待办与应用身份统一待办完全分离；`orgId` 必须显式传入，编辑接口的 `orgId` 位于请求体顶层。
-- 服务端当前不提供个人待办完成/删除能力；成功码兼容 `0` 和旧环境写接口的 `200`。
-- 创建接口 `finishTime` 默认发送 `0`，与 stage 实测可调用请求一致，不使用 `null`。
-
----
-
-## [1.8.0] - 2026-09-18
-
-### Added
-
-- **boardrooms**: 会议室预定 V2 `/xtra/boardroom/server/openapi/v2/` 全部 11 个端点 — 会议室检索（办公区/楼层/设备/时段筛选）、详情、当日预订与停用信息、预订详情、预订与修改（单次/重复）、取消与扫码确认、我的预订分页、分级与办公区列表。
-- **notes**: 多数接口需 `gradingId`（缺失报错或静默空结果）；`user_token` 传入时 body 身份字段被服务端忽略；`Fooler` 为 `Floor` 历史拼写。
-
----
-
-## [1.6.0] - 2026-09-18
-
-### Added
-
-- **questionnaires**: 问卷系统 `/xtra/questionnaire/server/openapi/v1/` 全部 22 个端点 — 问卷管理（创建/更新、批量存题、删题、发布、撤回、结束、删除）、详情查询、官方账号与分页列表、答卷分析（records/detail/lastDetail/data/lastRecord）、预签名上传地址（PUT + Content-MD5 两步上传）。
-- **client**: 全部 22 个薄包装方法；`models` 新增 13 个 `Questionnaire*` 结果类（分页五端点共用 `QuestionnairePageResult`）。
-- **notes**: 创建/发布/答卷类接口需有效 `accountCode`（缺失报 3104）；题目结构为深嵌套 JSON，透传原始 dict。
-
----
-
-## [1.5.0] - 2026-09-17
-
-### Added
-
-- **notices**: `sendNotice()` — 通知系统 `/xtra/notice/server/openapi/v1/send`，通过官方账号发送通知。支持文本/链接内容类型、手机号（≤10）/staffId+部门（≤200）两种投放范围、确认/转发/回复标志与提醒策略。服务端要求 `create_mobile` / `create_user_id` 至少填一个；`user_token` 不替代创建人字段。
-- **notices**: `fetchNoticeAccounts()` — 查询组织官方账号列表（`code` 字段即发送所需的 accountCode）。
-- **client**: `LansengerClient.sendNotice()` / `fetchNoticeAccounts()` 薄包装；`models` 新增 `NoticeSendResult` / `NoticeAccountListResult`。
+- **notices**: 新增通知发送、官方账号查询及结果模型。
+- **questionnaires**: 新增问卷系统 22 个接口，覆盖创建、题目、发布生命周期、分页查询、答卷分析与上传地址。
+- **boardrooms**: 新增会议室预定 V2 全部 11 个接口和完整测试。
+- **personal_todos**: 新增个人待办 6 个接口、模型、常量和导出。
 
 ### Fixed
 
-- **notices**: 实测（stage 2026-09-17）服务端对缺失 `remindStatus`、以及 range 对象内缺失/为 null 的 `ccRangeList` 均无空值保护（报 `errCode=-1 unknown exception`），SDK 自动兜底：`remindStatus=0`、`ccRangeList=[]` 强制下发。
-- **version**: 修正版本漂移 — `src/constants.ts` 的 `VERSION` 与 `tests/constants.test.ts` 断言停留在 1.4.3 而 `package.json` 已是 1.4.4（导致 v1.4.4 tag 无法通过 release 门禁）。三者统一到 1.5.0。
+- 修正通知 `remindStatus` / `ccRangeList` 服务端 NPE 兜底，并要求创建人字段。
+- 修正个人待办 `finishTime` 和更新身份字段。
+- 统一 `package.json`、`constants.ts` 和测试中的版本号。
+
+### Notes
+
+- 问卷依赖有效 `accountCode`，会议室多数接口依赖 `gradingId`。
+- 个人待办与应用身份待办完全分离。
 
 ---
 
