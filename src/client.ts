@@ -1,39 +1,122 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import { LansengerConfig } from "./config";
-import { TokenManager, UserTokenManager } from "./auth";
-import { CredentialStore } from "./persistence";
-import { doGet, doPost, FetchFn } from "./http";
-import { buildApiUrl } from "./urlHelpers";
-import { APP_MEDIA_TYPE_IMAGE, APP_MEDIA_TYPE_FILE, APP_MEDIA_TYPE_VIDEO, APP_TO_MSG_MEDIA_TYPE, MEDIA_TYPE_AUDIO, guessMediaType, guessAppMediaType } from "./constants";
-import { LansengerAPIError, LansengerAuthError, LansengerConfigError, LansengerFileError, LansengerNetworkError } from "./exceptions";
 import {
-  SendMessageResult, AppCardParams, LinkCardParams, OaCardParams,
-  DynamicCardUpdateParams, ApproveCardParams, ApproveCardUpdateParams,
-  QueryGroupsResult, UploadMediaResult,
-  DownloadMediaResult, UserTokenResult, UserInfoResult,
-  StaffBasicInfoResult, StaffDetailResult, DepartmentAncestorsResult,
-  StaffIdMappingResult, ExtraFieldIdsResult, OrgInfoResult, StaffSearchResult,
-  BotMessageResult, AccountMessageResult, UserMessageResult,
-  StreamMessageResult, CreateGroupResult, GroupInfoResult,
-  GroupMemberResult, GroupListResult, IsInGroupResult,
-  UpdateGroupResult, UpdateGroupMembersResult, DepartmentDetailResult,
-  DepartmentChildrenResult, DepartmentStaffsResult,
-  TodoTaskCreateResult, TodoTaskInfoResult, TodoTaskListResult,
-  TodoTaskStatusCountResult, TodoTaskExecutorListResult,
-  CalendarPrimaryResult, ScheduleCreateResult, ScheduleInfoResult,
-  ScheduleUpdateResult, ScheduleListResult, ScheduleAttendeesResult,
-  ScheduleAttendeeMetaResult, ChatListResult, ChatMessagesResult,
-  MediaPathResult, ScheduleAttendeesUpdateResult,
-  BotCommandResult, BotCommandQueryResult,
-  PersonalAppCreateResult, PersonalAppInfoResult, PersonalAppListResult,
-  NoticeSendResult, NoticeAccountListResult,
-  QuestionnaireSaveResult, QuestionnaireQuestionSaveResult, QuestionnaireQuestionDeleteResult,
-  QuestionnaireOpResult, QuestionnaireDetailResult, QuestionnaireAnswerUrlResult,
-  QuestionnaireCopyResult, QuestionnaireQueryListResult, QuestionnaireAccountListResult,
-  QuestionnairePageResult, QuestionnaireAnswerDetailResult, QuestionnaireRecordResult,
-  QuestionnaireUploadUrlResult,
+  sendAccountMessage,
+} from "./accountMessages";
+import {
+  TokenManager,
+  UserTokenManager,
+} from "./auth";
+import {
+  cancelBoardroomReserve,
+  confirmBoardroomSign,
+  editBoardroomReserve,
+  fetchBoardroomAreaOffices,
+  fetchBoardroomDetail,
+  fetchBoardroomGradings,
+  fetchBoardroomList,
+  fetchBoardroomReserveDetail,
+  fetchBoardroomSchedule,
+  fetchMyBoardroomReserves,
+  reserveBoardroom,
+} from "./boardrooms";
+import {
+  createBotCommands,
+  deleteBotCommands,
+  fetchBotCommands,
+} from "./botCommands";
+import {
+  addScheduleAttendees,
+  createSchedule,
+  deleteSchedule,
+  deleteScheduleAttendees,
+  fetchPrimaryCalendar,
+  fetchSchedule,
+  fetchScheduleAttendees,
+  fetchScheduleList,
+  updateSchedule,
+  updateScheduleAttendeeMeta,
+  updateScheduleAttendees,
+} from "./calendars";
+import {
+  CallbackEvent,
+  getCallbackEventTypes,
+  parseCallbackPayload,
+  verifyCallbackSignature,
+} from "./callbacks";
+import {
+  fetchChatList,
+  fetchChatMessages,
+} from "./chats";
+import {
+  LansengerConfig,
+} from "./config";
+import {
+  APP_MEDIA_TYPE_FILE,
+  APP_MEDIA_TYPE_IMAGE,
+  APP_MEDIA_TYPE_VIDEO,
+  APP_TO_MSG_MEDIA_TYPE,
+  MEDIA_TYPE_AUDIO,
+  guessAppMediaType,
+  guessMediaType,
+} from "./constants";
+import {
+  fetchDepartmentAncestors,
+  fetchOrgExtraFieldIds,
+  fetchOrgInfo,
+  fetchStaffBasicInfo,
+  fetchStaffDetail,
+  fetchStaffIdMapping,
+  searchStaff,
+} from "./contacts";
+import {
+  isSDKDebug,
+} from "./debug";
+import {
+  fetchDepartmentChildren,
+  fetchDepartmentDetail,
+  fetchDepartmentStaffs,
+} from "./departments";
+import {
+  LansengerAPIError,
+  LansengerAuthError,
+  LansengerConfigError,
+  LansengerFileError,
+  LansengerNetworkError,
+} from "./exceptions";
+import {
+  sendGroupMessage,
+} from "./groupMessages";
+import {
+  checkIsInGroup,
+  createGroup,
+  dismissGroup,
+  fetchGroupInfo,
+  fetchGroupList,
+  fetchGroupMembers,
+  updateGroupInfo,
+  updateGroupMembers,
+} from "./groups";
+import {
+  FetchFn,
+  doGet,
+  doPost,
+} from "./http";
+import {
+  downloadMedia,
+  downloadMediaByShareId,
+  downloadMediaToFile,
+  fetchMediaPath,
+  uploadAppMedia,
+  uploadAppMediaV2,
+  uploadMedia,
+} from "./media";
+import {
+  AccountMessageResult,
+  AppCardParams,
+  ApproveCardParams,
+  ApproveCardUpdateParams,
   BoardroomAreaListResult,
   BoardroomDetailResult,
   BoardroomGradingListResult,
@@ -42,53 +125,190 @@ import {
   BoardroomReserveDetailResult,
   BoardroomReserveResult,
   BoardroomScheduleResult,
+  BotCommandQueryResult,
+  BotCommandResult,
+  BotMessageResult,
+  CalendarPrimaryResult,
+  ChatListResult,
+  ChatMessagesResult,
+  CreateGroupResult,
+  DepartmentAncestorsResult,
+  DepartmentChildrenResult,
+  DepartmentDetailResult,
+  DepartmentStaffsResult,
+  DownloadMediaResult,
+  DynamicCardUpdateParams,
+  ExtraFieldIdsResult,
+  GroupInfoResult,
+  GroupListResult,
+  GroupMemberResult,
+  IsInGroupResult,
+  LinkCardParams,
+  MediaPathResult,
+  NoticeAccountListResult,
+  NoticeSendResult,
+  OaCardParams,
+  OrgInfoResult,
+  PersonalAppCreateResult,
+  PersonalAppInfoResult,
+  PersonalAppListResult,
   PersonalTodoListResult,
   PersonalTodoResourceResult,
   PersonalTodoSaveResult,
   PersonalTodoUrlResult,
+  QueryGroupsResult,
+  QuestionnaireAccountListResult,
+  QuestionnaireAnswerDetailResult,
+  QuestionnaireAnswerUrlResult,
+  QuestionnaireCopyResult,
+  QuestionnaireDetailResult,
+  QuestionnaireOpResult,
+  QuestionnairePageResult,
+  QuestionnaireQueryListResult,
+  QuestionnaireQuestionDeleteResult,
+  QuestionnaireQuestionSaveResult,
+  QuestionnaireRecordResult,
+  QuestionnaireSaveResult,
+  QuestionnaireUploadUrlResult,
+  ScheduleAttendeeMetaResult,
+  ScheduleAttendeesResult,
+  ScheduleAttendeesUpdateResult,
+  ScheduleCreateResult,
+  ScheduleInfoResult,
+  ScheduleListResult,
+  ScheduleUpdateResult,
+  SendMessageResult,
+  StaffBasicInfoResult,
+  StaffDetailResult,
+  StaffIdMappingResult,
+  StaffSearchResult,
+  StreamMessageResult,
+  TodoTaskCreateResult,
+  TodoTaskExecutorListResult,
+  TodoTaskInfoResult,
+  TodoTaskListResult,
+  TodoTaskStatusCountResult,
+  UpdateGroupMembersResult,
+  UpdateGroupResult,
+  UploadMediaResult,
+  UserInfoResult,
+  UserMessageResult,
+  UserTokenResult,
+  VideoconferenceConfResult,
+  VideoconferenceDetailResult,
+  VideoconferenceListResult,
+  VideoconferenceOpResult,
+  VideoconferenceParamResult,
+  VideoconferenceStatusListResult,
+  VideoconferenceVodListResult,
+  VideoconferenceVodUrlResult,
 } from "./models";
-import { fetchStaffBasicInfo, fetchStaffDetail, fetchDepartmentAncestors, fetchStaffIdMapping, fetchOrgExtraFieldIds, searchStaff, fetchOrgInfo } from "./contacts";
-import { fetchDepartmentDetail, fetchDepartmentChildren, fetchDepartmentStaffs } from "./departments";
-import { createGroup, fetchGroupInfo, fetchGroupMembers, fetchGroupList, checkIsInGroup, updateGroupInfo, updateGroupMembers, dismissGroup } from "./groups";
-import { buildAuthorizeUrl, exchangeCodeForUserToken, refreshUserToken, parseAuthorizeCallback, validateCallbackState } from "./oauth";
-import { fetchUserInfo } from "./users";
-import { createStreamMessage, fetchStreamMessage } from "./streaming";
-import { createSchedule, fetchSchedule, deleteSchedule, updateSchedule, fetchScheduleList, fetchScheduleAttendees, addScheduleAttendees, deleteScheduleAttendees, updateScheduleAttendeeMeta, updateScheduleAttendees, fetchPrimaryCalendar } from "./calendars";
-import { createTodoTask, updateTodoTask, updateTodoTaskStatus, deleteTodoTask, fetchTodoTaskList, fetchTodoTaskBySourceId, fetchTodoTaskById, fetchTodoTaskStatusCounts, updateExecutorStatus, addExecutors, deleteExecutors, fetchExecutorList } from "./todos";
-import { fetchChatList, fetchChatMessages } from "./chats";
-import { sendAccountMessage } from "./accountMessages";
-import { sendUserMessage } from "./userMessages";
-import { sendGroupMessage } from "./groupMessages";
-import { sendReminder } from "./reminders";
-import { uploadMedia, uploadAppMedia, uploadAppMediaV2, downloadMedia, downloadMediaByShareId, downloadMediaToFile, fetchMediaPath } from "./media";
-import { parseCallbackPayload, verifyCallbackSignature, getCallbackEventTypes, CallbackEvent } from "./callbacks";
-import { createBotCommands, fetchBotCommands, deleteBotCommands } from "./botCommands";
-import { createPersonalApp, updatePersonalApp, fetchPersonalApp, deletePersonalApp, fetchPersonalAppList } from "./personalApps";
-import { sendNotice, fetchNoticeAccounts } from "./notices";
 import {
-  saveQuestionnaire, saveQuestionnaireQuestions, deleteQuestionnaireQuestion,
-  publishQuestionnaire, withdrawQuestionnaire, finishQuestionnaire, deleteQuestionnaire,
-  fetchQuestionnaireDetail, fetchQuestionnaireBrief, fetchQuestionnaireAnswerUrl,
-  copyQuestionnaire, fetchQuestionnairesByCodes, fetchQuestionnaireOfficeAccounts,
-  fetchCreatedQuestionnaires, fetchMyCreatedQuestionnaires, fetchParticipatedQuestionnaires,
-  fetchAnswerRecords, fetchQuestionnaireAnswerDetail, fetchQuestionnaireLastAnswerDetail,
-  fetchAnswerData, fetchQuestionnaireLastAnswerRecord, fetchQuestionnaireUploadUrl,
+  fetchNoticeAccounts,
+  sendNotice,
+} from "./notices";
+import {
+  buildAuthorizeUrl,
+  exchangeCodeForUserToken,
+  parseAuthorizeCallback,
+  refreshUserToken,
+  validateCallbackState,
+} from "./oauth";
+import {
+  CredentialStore,
+} from "./persistence";
+import {
+  createPersonalApp,
+  deletePersonalApp,
+  fetchPersonalApp,
+  fetchPersonalAppList,
+  updatePersonalApp,
+} from "./personalApps";
+import {
+  fetchPersonalTodoList,
+  fetchPersonalTodoResourceDownloadUrl,
+  fetchPersonalTodoResourceUploadUrl,
+  savePersonalTodo,
+  updatePersonalTodo,
+  uploadPersonalTodoResource,
+} from "./personalTodos";
+import {
+  copyQuestionnaire,
+  deleteQuestionnaire,
+  deleteQuestionnaireQuestion,
+  fetchAnswerData,
+  fetchAnswerRecords,
+  fetchCreatedQuestionnaires,
+  fetchMyCreatedQuestionnaires,
+  fetchParticipatedQuestionnaires,
+  fetchQuestionnaireAnswerDetail,
+  fetchQuestionnaireAnswerUrl,
+  fetchQuestionnaireBrief,
+  fetchQuestionnaireDetail,
+  fetchQuestionnaireLastAnswerDetail,
+  fetchQuestionnaireLastAnswerRecord,
+  fetchQuestionnaireOfficeAccounts,
+  fetchQuestionnaireUploadUrl,
+  fetchQuestionnairesByCodes,
+  finishQuestionnaire,
+  publishQuestionnaire,
+  saveQuestionnaire,
+  saveQuestionnaireQuestions,
+  withdrawQuestionnaire,
 } from "./questionnaires";
 import {
-  fetchBoardroomList, fetchBoardroomDetail, fetchBoardroomSchedule,
-  fetchBoardroomReserveDetail, reserveBoardroom, editBoardroomReserve,
-  cancelBoardroomReserve, confirmBoardroomSign, fetchMyBoardroomReserves,
-  fetchBoardroomGradings, fetchBoardroomAreaOffices,
-} from "./boardrooms";
+  sendReminder,
+} from "./reminders";
 import {
-  savePersonalTodo, updatePersonalTodo, fetchPersonalTodoList,
-  uploadPersonalTodoResource, fetchPersonalTodoResourceDownloadUrl,
-  fetchPersonalTodoResourceUploadUrl,
-} from "./personalTodos";
-
+  createStreamMessage,
+  fetchStreamMessage,
+} from "./streaming";
+import {
+  addExecutors,
+  createTodoTask,
+  deleteExecutors,
+  deleteTodoTask,
+  fetchExecutorList,
+  fetchTodoTaskById,
+  fetchTodoTaskBySourceId,
+  fetchTodoTaskList,
+  fetchTodoTaskStatusCounts,
+  updateExecutorStatus,
+  updateTodoTask,
+  updateTodoTaskStatus,
+} from "./todos";
+import {
+  buildApiUrl,
+} from "./urlHelpers";
+import {
+  sendUserMessage,
+} from "./userMessages";
+import {
+  fetchUserInfo,
+} from "./users";
 type AnyDict = Record<string, any>;
-
-import { isSDKDebug } from "./debug";
+import {
+  cancelMeeting,
+  controlMeetingMember,
+  createMeeting,
+  fetchActiveMeetings,
+  fetchFixroomList,
+  fetchHistoryMeetings,
+  fetchMeetingDetail,
+  fetchMeetingList,
+  fetchMeetingMemberList,
+  fetchMeetingParams,
+  fetchMeetingRecordList,
+  fetchMeetingStatus,
+  fetchMemberSimplerecord,
+  fetchOrgVideoconfConf,
+  fetchVodDownloadUrls,
+  fetchVodList,
+  inviteMeetingMembers,
+  modifyMeeting,
+  stopMeeting,
+  subscribeMeetingEvents,
+} from "./videoconferences";
 
 const _logger = {
   debug: (...args: any[]) => { if (isSDKDebug()) console.error(`[${new Date().toISOString().slice(11,19)}] [DEBUG]`, ...args); },
@@ -1452,5 +1672,127 @@ export class LansengerClient {
 
   static getCallbackEventTypes(): Record<string, string> {
     return getCallbackEventTypes();
+  }
+
+  // ── Videoconference (视频会议开放能力, /xtra/videoconference/openapi/v1) ──
+
+  async createVideoconferenceMeeting(opts: { subject: string; start_time: number; members: AnyDict[]; org_id: string | number; auto_record?: number; type?: number; group_new?: number; conf_password?: string; control_password?: string; mask_type?: number; ext_attr?: string; join_mute?: number; open_mute?: number; enable_pre_join?: number; user_stop_time?: number; invite_admin?: number; user_token?: string }): Promise<VideoconferenceDetailResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return createMeeting(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async modifyVideoconferenceMeeting(opts: { mid: string | number; subject: string; start_time: number; members: AnyDict[]; org_id: string | number; operator: string; auto_record?: number; type?: number; group_new?: number; conf_password?: string; control_password?: string; user_token?: string }): Promise<VideoconferenceOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return modifyMeeting(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async cancelVideoconferenceMeeting(opts: { mid: string | number; org_id: string | number; operator: string; user_token?: string }): Promise<VideoconferenceOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return cancelMeeting(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async stopVideoconferenceMeeting(opts: { mid: string | number; org_id: string | number; operator: string; user_token?: string }): Promise<VideoconferenceOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return stopMeeting(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceDetail(opts: { mid: string | number; org_id: string | number; operator: string; user_token?: string }): Promise<VideoconferenceDetailResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchMeetingDetail(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceMeetingList(opts: { org_id: string | number; start_time: number; end_time: number; fetch_range?: string; staff_id?: string; limit?: number; offset?: number; user_token?: string }): Promise<VideoconferenceListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchMeetingList(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceRecordList(opts: { org_id: string | number; start_time: number; end_time: number; admin?: string; create_source?: number; limit?: number; offset?: number; user_token?: string }): Promise<VideoconferenceListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchMeetingRecordList(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceSimplerecord(opts: { mid: string | number; org_id: string | number; operator: string; limit?: number; offset?: number; user_token?: string }): Promise<VideoconferenceListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchMemberSimplerecord(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceFixroomList(opts: { org_id: string | number; operator: string; limit?: number; offset?: number; user_token?: string }): Promise<VideoconferenceListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchFixroomList(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceStatus(opts: { mids: (string | number)[]; org_id: string | number; user_token?: string }): Promise<VideoconferenceStatusListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchMeetingStatus(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async subscribeVideoconferenceEvents(opts: { mid: string | number; org_id: string | number; events: AnyDict[]; call_back_info?: string; user_token?: string }): Promise<VideoconferenceOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return subscribeMeetingEvents(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceParams(opts: { meeting_number: string; org_id: string | number; operator: string; user_token?: string }): Promise<VideoconferenceParamResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchMeetingParams(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceHistory(opts: { org_id: string | number; operator: string; limit?: number; offset?: number; user_token?: string }): Promise<VideoconferenceListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchHistoryMeetings(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceActive(opts: { org_id: string | number; operator: string; limit?: number; offset?: number; user_token?: string }): Promise<VideoconferenceListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchActiveMeetings(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async controlVideoconferenceMember(opts: { mid: string | number; staff_id: string; op_code: string; operator: string; org_id: string | number; user_token?: string }): Promise<VideoconferenceOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return controlMeetingMember(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async inviteVideoconferenceMembers(opts: { meeting_number: string; members: AnyDict[]; org_id: string | number; operator: string; user_token?: string }): Promise<VideoconferenceOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return inviteMeetingMembers(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceMemberList(opts: { mid: string | number; org_id: string | number; operator: string; limit?: number; offset?: number; user_token?: string }): Promise<VideoconferenceListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchMeetingMemberList(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceVodList(opts: { mid: string | number; org_id: string | number; operator: string; user_token?: string }): Promise<VideoconferenceVodListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchVodList(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceVodDownloadUrls(opts: { vods: AnyDict[]; org_id: string | number; operator: string; user_token?: string }): Promise<VideoconferenceVodUrlResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchVodDownloadUrls(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  async fetchVideoconferenceConf(opts: { org_id: string | number; meeting_number?: string; operator?: string; user_token?: string }): Promise<VideoconferenceConfResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchOrgVideoconfConf(this._config, token, { ...opts, fetchFn: this._fetchFn! });
   }
 }

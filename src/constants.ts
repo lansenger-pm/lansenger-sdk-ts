@@ -29,6 +29,29 @@ export const API_ENDPOINTS: Record<string, Record<string, string>> = {
     fetch: "/v1/org/{org_id}/fetch",
     extra_field_ids: "/v1/org/{org_id}/extrafieldids/fetch",
   },
+  videoconference: {
+    meeting_create: "/xtra/videoconference/openapi/v1/meeting/create",
+    meeting_modify: "/xtra/videoconference/openapi/v1/meeting/modify",
+    // server keeps the historical "cancle" spelling
+    meeting_cancel: "/xtra/videoconference/openapi/v1/meeting/cancle",
+    meeting_stop: "/xtra/videoconference/openapi/v1/meeting/stop",
+    meeting_detail: "/xtra/videoconference/openapi/v1/meeting/detail",
+    meeting_list: "/xtra/videoconference/openapi/v1/meeting/list",
+    meeting_record_list: "/xtra/videoconference/openapi/v1/meeting/record/list",
+    member_simplerecord: "/xtra/videoconference/openapi/v1/meeting/member/simplerecord",
+    fixroom_list: "/xtra/videoconference/openapi/v1/meeting/fixroom/list",
+    status_fetchmore: "/xtra/videoconference/openapi/v1/meeting/status/fetchmore",
+    events_subscribe: "/xtra/videoconference/openapi/v1/meeting/events/subscribe",
+    param_fetch: "/xtra/videoconference/openapi/v1/meeting/param/fetch",
+    history_fetch: "/xtra/videoconference/openapi/v1/meeting/history/fetch",
+    active_fetch: "/xtra/videoconference/openapi/v1/meeting/active/fetch",
+    member_control: "/xtra/videoconference/openapi/v1/meeting/member/control",
+    member_invite: "/xtra/videoconference/openapi/v1/meeting/member/invite",
+    member_list: "/xtra/videoconference/openapi/v1/meeting/member/list",
+    vod_list: "/xtra/videoconference/openapi/v1/meeting/vod/list",
+    vod_download_url: "/xtra/videoconference/openapi/v1/vod/url/download/fetch",
+    conf_fetch: "/xtra/videoconference/openapi/v1/conf/fetch",
+  },
   websocket: {
     endpoint: "/v1/ws/endpoint/create",
   },
@@ -307,5 +330,24 @@ export function guessAppMediaType(filePath: string): string {
   if (AUDIO_EXTENSIONS.has(ext)) return APP_MEDIA_TYPE_AUDIO;
   return APP_MEDIA_TYPE_FILE;
 }
+
+export const VC_MEMBER_ROLE_HOST = "admin";
+export const VC_MEMBER_ROLE_JOIN_HOST = "joinHost";
+export const VC_MEMBER_ROLE_MEMBER = "participant";
+
+// opCode values for meeting/member/control (接口枚举字典)
+export const VC_OPS = [
+  "kick", "quit", "join", "handup", "openScreenShare", "closeScreenShare",
+  "openVideo", "closeVideo", "applyAudio", "applyVideo", "shareVideo",
+  "cancelShareVideo", "muteall", "unmuteall", "remove", "call",
+  "enforceOpenVideo", "setJoinHost", "cancelJoinHost", "inviteOpenAudio",
+  "setHost", "grabHost",
+];
+
+export const VC_FETCH_RANGE_MY = "my";
+export const VC_FETCH_RANGE_ALL = "all";
+export const VC_FETCH_RANGE_PERSON = "person";
+export const VC_CREATE_SOURCE_CLIENT = 0;
+export const VC_CREATE_SOURCE_THIRD_PARTY = 1;
 
 export const VERSION = "1.4.5";

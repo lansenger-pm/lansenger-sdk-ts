@@ -2578,3 +2578,204 @@ export class PersonalTodoUrlResult {
     return d;
   }
 }
+export class VideoconferenceOpResult {
+  success: boolean;
+  done: boolean;
+  message: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; done?: boolean; message?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.done = init.done ?? false;
+    this.message = init.message ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, done: this.done };
+    if (this.message !== null) d.message = this.message;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class VideoconferenceDetailResult {
+  success: boolean;
+  mid: number | null;
+  subject: string | null;
+  meeting_number: string | null;
+  start_time: number | null;
+  stop_time: number | null;
+  type: number | null;
+  status: number | null;
+  admin: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; mid?: number | null; subject?: string | null; meeting_number?: string | null; start_time?: number | null; stop_time?: number | null; type?: number | null; status?: number | null; admin?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.mid = init.mid ?? null;
+    this.subject = init.subject ?? null;
+    this.meeting_number = init.meeting_number ?? null;
+    this.start_time = init.start_time ?? null;
+    this.stop_time = init.stop_time ?? null;
+    this.type = init.type ?? null;
+    this.status = init.status ?? null;
+    this.admin = init.admin ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    for (const k of ["mid", "subject", "meeting_number", "start_time", "stop_time", "type", "status", "admin"]) {
+      const v = (this as any)[k];
+      if (v !== null && v !== undefined) d[k] = v;
+    }
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class VideoconferenceListResult {
+  success: boolean;
+  offset: number;
+  total: number;
+  items: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; offset?: number; total?: number; items?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.offset = init.offset ?? 0;
+    this.total = init.total ?? 0;
+    this.items = init.items ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, offset: this.offset, total: this.total };
+    if (this.items !== null) d.items = this.items;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class VideoconferenceStatusListResult {
+  success: boolean;
+  statuses: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; statuses?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.statuses = init.statuses ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.statuses !== null) d.statuses = this.statuses;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class VideoconferenceParamResult {
+  success: boolean;
+  data: AnyDict | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; data?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.data = init.data ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.data !== null) d.data = this.data;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class VideoconferenceVodListResult {
+  success: boolean;
+  items: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; items?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.items = init.items ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.items !== null) d.items = this.items;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class VideoconferenceVodUrlResult {
+  success: boolean;
+  data: AnyDict | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; data?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.data = init.data ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.data !== null) d.data = this.data;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class VideoconferenceConfResult {
+  success: boolean;
+  max_person: number | null;
+  default_max_person: number | null;
+  allowed_record_flag: number | null;
+  force_passwd_flag: number | null;
+  space_size: number | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+
+  constructor(init: { success: boolean; max_person?: number | null; default_max_person?: number | null; allowed_record_flag?: number | null; force_passwd_flag?: number | null; space_size?: number | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.max_person = init.max_person ?? null;
+    this.default_max_person = init.default_max_person ?? null;
+    this.allowed_record_flag = init.allowed_record_flag ?? null;
+    this.force_passwd_flag = init.force_passwd_flag ?? null;
+    this.space_size = init.space_size ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    for (const k of ["max_person", "default_max_person", "allowed_record_flag", "force_passwd_flag", "space_size"]) {
+      const v = (this as any)[k];
+      if (v !== null && v !== undefined) d[k] = v;
+    }
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}

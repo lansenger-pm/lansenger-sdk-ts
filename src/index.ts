@@ -34,6 +34,15 @@ export {
   CALLBACK_EVENT_TYPES,
   guessMediaType,
   guessAppMediaType,
+  VC_MEMBER_ROLE_HOST,
+  VC_MEMBER_ROLE_JOIN_HOST,
+  VC_MEMBER_ROLE_MEMBER,
+  VC_OPS,
+  VC_FETCH_RANGE_MY,
+  VC_FETCH_RANGE_ALL,
+  VC_FETCH_RANGE_PERSON,
+  VC_CREATE_SOURCE_CLIENT,
+  VC_CREATE_SOURCE_THIRD_PARTY,
   VERSION,
 } from "./constants";
 export {
@@ -177,6 +186,14 @@ export {
   ChatStaffInfo,
   ChatGroupInfo,
   ChatListResult,
+  VideoconferenceDetailResult,
+  VideoconferenceOpResult,
+  VideoconferenceListResult,
+  VideoconferenceStatusListResult,
+  VideoconferenceParamResult,
+  VideoconferenceVodListResult,
+  VideoconferenceVodUrlResult,
+  VideoconferenceConfResult,
   ChatMessageInfo,
   ChatMessagesResult,
 } from "./models";
@@ -270,6 +287,28 @@ export {
   downloadMediaToFile,
   fetchMediaPath,
 } from "./media";
+export {
+  createMeeting,
+  modifyMeeting,
+  cancelMeeting,
+  stopMeeting,
+  fetchMeetingDetail,
+  fetchMeetingList,
+  fetchMeetingRecordList,
+  fetchMemberSimplerecord,
+  fetchFixroomList,
+  fetchMeetingStatus,
+  subscribeMeetingEvents,
+  fetchMeetingParams,
+  fetchHistoryMeetings,
+  fetchActiveMeetings,
+  controlMeetingMember,
+  inviteMeetingMembers,
+  fetchMeetingMemberList,
+  fetchVodList,
+  fetchVodDownloadUrls,
+  fetchOrgVideoconfConf,
+} from "./videoconferences";
 export { sendAccountMessage } from "./accountMessages";
 export { sendUserMessage } from "./userMessages";
 export { sendGroupMessage } from "./groupMessages";
