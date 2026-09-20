@@ -47,6 +47,20 @@ export {
   QUESTIONNAIRE_ANSWER_LIMIT_ONCE,
   QUESTIONNAIRE_ANSWER_LIMIT_UNLIMITED,
   QUESTIONNAIRE_QUESTION_TYPES,
+  BOARDROOM_STATUS_APPROVING,
+  BOARDROOM_STATUS_PENDING_SIGN,
+  BOARDROOM_STATUS_SIGN_TIMEOUT,
+  BOARDROOM_STATUS_REJECTED,
+  BOARDROOM_STATUS_CANCELED,
+  BOARDROOM_STATUS_RESERVED,
+  BOARDROOM_STATUS_FINISHED,
+  BOARDROOM_RESERVE_TYPE_SINGLE,
+  BOARDROOM_RESERVE_TYPE_REPEAT,
+  BOARDROOM_EDIT_TYPE_CURRENT,
+  BOARDROOM_EDIT_TYPE_CURRENT_AND_AFTER,
+  BOARDROOM_CANCEL_TYPE_CURRENT,
+  BOARDROOM_CANCEL_TYPE_CURRENT_AND_AFTER,
+  BOARDROOM_CANCEL_TYPE_ALL_UNFINISHED,
 } from "./constants";
 export {
   NOTICE_CONTENT_TYPE_TEXT,
@@ -96,6 +110,14 @@ export {
   QuestionnaireAnswerDetailResult,
   QuestionnaireRecordResult,
   QuestionnaireUploadUrlResult,
+  BoardroomAreaListResult,
+  BoardroomDetailResult,
+  BoardroomGradingListResult,
+  BoardroomListResult,
+  BoardroomOpResult,
+  BoardroomReserveDetailResult,
+  BoardroomReserveResult,
+  BoardroomScheduleResult,
   AppCardParams,
   LinkCardParams,
   OaCardParams,
@@ -212,6 +234,12 @@ export {
   fetchAnswerRecords, fetchQuestionnaireAnswerDetail, fetchQuestionnaireLastAnswerDetail,
   fetchAnswerData, fetchQuestionnaireLastAnswerRecord, fetchQuestionnaireUploadUrl,
 } from "./questionnaires";
+export {
+  fetchBoardroomList, fetchBoardroomDetail, fetchBoardroomSchedule,
+  fetchBoardroomReserveDetail, reserveBoardroom, editBoardroomReserve,
+  cancelBoardroomReserve, confirmBoardroomSign, fetchMyBoardroomReserves,
+  fetchBoardroomGradings, fetchBoardroomAreaOffices,
+} from "./boardrooms";
 export { sendReminder } from "./reminders";
 export {
   uploadMedia,

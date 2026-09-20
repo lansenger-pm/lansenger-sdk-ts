@@ -118,6 +118,19 @@ export const API_ENDPOINTS: Record<string, Record<string, string>> = {
     last_answer_record: "/xtra/questionnaire/server/openapi/v1/lastAnswerRecord",
     upload_url: "/xtra/questionnaire/server/openapi/v1/upload",
   },
+  boardrooms: {
+    room_list: "/xtra/boardroom/server/openapi/v2/roomList",
+    room_detail: "/xtra/boardroom/server/openapi/v2/roomDetail",
+    room_schedule: "/xtra/boardroom/server/openapi/v2/roomSchedule",
+    reserve_detail: "/xtra/boardroom/server/openapi/v2/reserveDetail",
+    reserve_room: "/xtra/boardroom/server/openapi/v2/reserveRoom",
+    edit_reserve: "/xtra/boardroom/server/openapi/v2/editReserve",
+    reserve_cancel: "/xtra/boardroom/server/openapi/v2/reserveCancel",
+    confirm_sign: "/xtra/boardroom/server/openapi/v2/confirmSign",
+    my_reserve_list: "/xtra/boardroom/server/openapi/v2/myReserveList",
+    grading_list: "/xtra/boardroom/server/openapi/v2/gradingList",
+    area_office_list: "/xtra/boardroom/server/openapi/v2/areaOfficeList",
+  },
   bot_commands: {
     create: "/v1/bot/commands/create",
     fetch: "/v1/bot/commands/fetch",
@@ -216,6 +229,21 @@ export const QUESTIONNAIRE_QUESTION_TYPES = [
   "remark", "picturesUpload", "filesUpload",
 ];
 
+export const BOARDROOM_STATUS_APPROVING = 0;
+export const BOARDROOM_STATUS_PENDING_SIGN = 1;
+export const BOARDROOM_STATUS_SIGN_TIMEOUT = 2;
+export const BOARDROOM_STATUS_REJECTED = 3;
+export const BOARDROOM_STATUS_CANCELED = 4;
+export const BOARDROOM_STATUS_RESERVED = 5;
+export const BOARDROOM_STATUS_FINISHED = 6;
+export const BOARDROOM_RESERVE_TYPE_SINGLE = "0";
+export const BOARDROOM_RESERVE_TYPE_REPEAT = "1";
+export const BOARDROOM_EDIT_TYPE_CURRENT = "1";
+export const BOARDROOM_EDIT_TYPE_CURRENT_AND_AFTER = "2";
+export const BOARDROOM_CANCEL_TYPE_CURRENT = "1";
+export const BOARDROOM_CANCEL_TYPE_CURRENT_AND_AFTER = "2";
+export const BOARDROOM_CANCEL_TYPE_ALL_UNFINISHED = "3";
+
 export const CALLBACK_EVENT_TYPES: Record<string, string> = {
   account_message: "public_account",
   account_subscribe: "public_account",
@@ -260,4 +288,4 @@ export function guessAppMediaType(filePath: string): string {
   return APP_MEDIA_TYPE_FILE;
 }
 
-export const VERSION = "1.6.0";
+export const VERSION = "1.8.0";

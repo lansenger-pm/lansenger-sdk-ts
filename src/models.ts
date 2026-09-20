@@ -2224,3 +2224,234 @@ export class QuestionnaireUploadUrlResult {
     return d;
   }
 }
+
+export class BoardroomListResult {
+  success: boolean;
+  count: number;
+  items: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; count?: number; items?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.count = init.count ?? 0;
+    this.items = init.items ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, count: this.count };
+    if (this.items !== null) d.items = this.items;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+const BR_DETAIL_KEYS = ["room_id", "name", "status", "people_num", "can_reserve_flag", "address", "area_name", "grading_id"] as const;
+
+export class BoardroomDetailResult {
+  success: boolean;
+  room_id: string | null;
+  name: string | null;
+  status: string | null;
+  people_num: number | null;
+  can_reserve_flag: string | null;
+  address: string | null;
+  area_name: string | null;
+  grading_id: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; room_id?: string | null; name?: string | null; status?: string | null; people_num?: number | null; can_reserve_flag?: string | null; address?: string | null; area_name?: string | null; grading_id?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.room_id = init.room_id ?? null;
+    this.name = init.name ?? null;
+    this.status = init.status ?? null;
+    this.people_num = init.people_num ?? null;
+    this.can_reserve_flag = init.can_reserve_flag ?? null;
+    this.address = init.address ?? null;
+    this.area_name = init.area_name ?? null;
+    this.grading_id = init.grading_id ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    for (const k of BR_DETAIL_KEYS) {
+      const v = (this as any)[k];
+      if (v !== null) d[k] = v;
+    }
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+const BR_SCHEDULE_KEYS = ["room_id", "name", "people_num", "can_reserve_flag", "reserves", "deactivations"] as const;
+
+export class BoardroomScheduleResult {
+  success: boolean;
+  room_id: string | null;
+  name: string | null;
+  people_num: number | null;
+  can_reserve_flag: string | null;
+  reserves: AnyDict[] | null;
+  deactivations: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; room_id?: string | null; name?: string | null; people_num?: number | null; can_reserve_flag?: string | null; reserves?: AnyDict[] | null; deactivations?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.room_id = init.room_id ?? null;
+    this.name = init.name ?? null;
+    this.people_num = init.people_num ?? null;
+    this.can_reserve_flag = init.can_reserve_flag ?? null;
+    this.reserves = init.reserves ?? null;
+    this.deactivations = init.deactivations ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    for (const k of BR_SCHEDULE_KEYS) {
+      const v = (this as any)[k];
+      if (v !== null) d[k] = v;
+    }
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+const BR_RESERVE_DETAIL_KEYS = ["reserve_id", "boardroom_name", "meeting_name", "status", "reserve_time_start", "reserve_time_end", "reserve_time", "reserve_user_name", "people_number"] as const;
+
+export class BoardroomReserveDetailResult {
+  success: boolean;
+  reserve_id: string | null;
+  boardroom_name: string | null;
+  meeting_name: string | null;
+  status: string | null;
+  reserve_time_start: string | null;
+  reserve_time_end: string | null;
+  reserve_time: string | null;
+  reserve_user_name: string | null;
+  people_number: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; reserve_id?: string | null; boardroom_name?: string | null; meeting_name?: string | null; status?: string | null; reserve_time_start?: string | null; reserve_time_end?: string | null; reserve_time?: string | null; reserve_user_name?: string | null; people_number?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.reserve_id = init.reserve_id ?? null;
+    this.boardroom_name = init.boardroom_name ?? null;
+    this.meeting_name = init.meeting_name ?? null;
+    this.status = init.status ?? null;
+    this.reserve_time_start = init.reserve_time_start ?? null;
+    this.reserve_time_end = init.reserve_time_end ?? null;
+    this.reserve_time = init.reserve_time ?? null;
+    this.reserve_user_name = init.reserve_user_name ?? null;
+    this.people_number = init.people_number ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    for (const k of BR_RESERVE_DETAIL_KEYS) {
+      const v = (this as any)[k];
+      if (v !== null) d[k] = v;
+    }
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+const BR_RESERVE_KEYS = ["reserve_id", "reserve_code", "boardroom_name", "meeting_name", "status", "reserve_time_start", "reserve_time_end", "reserve_time"] as const;
+
+export class BoardroomReserveResult {
+  success: boolean;
+  reserve_id: string | null;
+  reserve_code: string | null;
+  boardroom_name: string | null;
+  meeting_name: string | null;
+  status: string | null;
+  reserve_time_start: string | null;
+  reserve_time_end: string | null;
+  reserve_time: string | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; reserve_id?: string | null; reserve_code?: string | null; boardroom_name?: string | null; meeting_name?: string | null; status?: string | null; reserve_time_start?: string | null; reserve_time_end?: string | null; reserve_time?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.reserve_id = init.reserve_id ?? null;
+    this.reserve_code = init.reserve_code ?? null;
+    this.boardroom_name = init.boardroom_name ?? null;
+    this.meeting_name = init.meeting_name ?? null;
+    this.status = init.status ?? null;
+    this.reserve_time_start = init.reserve_time_start ?? null;
+    this.reserve_time_end = init.reserve_time_end ?? null;
+    this.reserve_time = init.reserve_time ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    for (const k of BR_RESERVE_KEYS) {
+      const v = (this as any)[k];
+      if (v !== null) d[k] = v;
+    }
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomOpResult {
+  success: boolean;
+  done: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; done?: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.done = init.done ?? false;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, done: this.done };
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomGradingListResult {
+  success: boolean;
+  total: number;
+  gradings: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; total?: number; gradings?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.total = init.total ?? 0;
+    this.gradings = init.gradings ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, total: this.total };
+    if (this.gradings !== null) d.gradings = this.gradings;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}
+
+export class BoardroomAreaListResult {
+  success: boolean;
+  total: number;
+  areas: AnyDict[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  constructor(init: { success: boolean; total?: number; areas?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+    this.success = init.success;
+    this.total = init.total ?? 0;
+    this.areas = init.areas ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+  }
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, total: this.total };
+    if (this.areas !== null) d.areas = this.areas;
+    if (this.error !== null) d.error = this.error;
+    return d;
+  }
+}

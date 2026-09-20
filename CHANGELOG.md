@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.8.0] - 2026-09-18
+
+### Added
+
+- **boardrooms**: 会议室预定 V2 `/xtra/boardroom/server/openapi/v2/` 全部 11 个端点 — 会议室检索（办公区/楼层/设备/时段筛选）、详情、当日预订与停用信息、预订详情、预订与修改（单次/重复）、取消与扫码确认、我的预订分页、分级与办公区列表。
+- **notes**: 多数接口需 `gradingId`（缺失报错或静默空结果）；`user_token` 传入时 body 身份字段被服务端忽略；`Fooler` 为 `Floor` 历史拼写。
+
+---
+
 ## [1.6.0] - 2026-09-18
 
 ### Added

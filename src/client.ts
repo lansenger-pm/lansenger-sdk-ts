@@ -34,6 +34,14 @@ import {
   QuestionnaireCopyResult, QuestionnaireQueryListResult, QuestionnaireAccountListResult,
   QuestionnairePageResult, QuestionnaireAnswerDetailResult, QuestionnaireRecordResult,
   QuestionnaireUploadUrlResult,
+  BoardroomAreaListResult,
+  BoardroomDetailResult,
+  BoardroomGradingListResult,
+  BoardroomListResult,
+  BoardroomOpResult,
+  BoardroomReserveDetailResult,
+  BoardroomReserveResult,
+  BoardroomScheduleResult,
 } from "./models";
 import { fetchStaffBasicInfo, fetchStaffDetail, fetchDepartmentAncestors, fetchStaffIdMapping, fetchOrgExtraFieldIds, searchStaff, fetchOrgInfo } from "./contacts";
 import { fetchDepartmentDetail, fetchDepartmentChildren, fetchDepartmentStaffs } from "./departments";
@@ -62,6 +70,12 @@ import {
   fetchAnswerRecords, fetchQuestionnaireAnswerDetail, fetchQuestionnaireLastAnswerDetail,
   fetchAnswerData, fetchQuestionnaireLastAnswerRecord, fetchQuestionnaireUploadUrl,
 } from "./questionnaires";
+import {
+  fetchBoardroomList, fetchBoardroomDetail, fetchBoardroomSchedule,
+  fetchBoardroomReserveDetail, reserveBoardroom, editBoardroomReserve,
+  cancelBoardroomReserve, confirmBoardroomSign, fetchMyBoardroomReserves,
+  fetchBoardroomGradings, fetchBoardroomAreaOffices,
+} from "./boardrooms";
 
 type AnyDict = Record<string, any>;
 
@@ -1235,6 +1249,73 @@ export class LansengerClient {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     return fetchQuestionnaireUploadUrl(this._config, token, fileName, md5, size, opts as any);
+  }
+
+  // ── Boardroom (会议室预定 V2) ───────────────────────────────────────
+  async fetchBoardroomList(opts: { grading_id?: string; area_office_id?: string; floor_ids?: string[]; equipment?: string[]; reserve_time_start?: string; reserve_time_end?: string; query_date?: string; page?: number; limit?: number; lx_user_id?: string; org_id?: string; user_token?: string } = {}): Promise<BoardroomListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchBoardroomList(this._config, token, opts as any);
+  }
+
+  async fetchBoardroomDetail(roomId: string, opts: { org_id?: string; user_token?: string } = {}): Promise<BoardroomDetailResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchBoardroomDetail(this._config, token, roomId, opts as any);
+  }
+
+  async fetchBoardroomSchedule(roomId: string, queryDate: string, gradingId: string, opts: { reserve_user_id?: string; org_id?: string; user_token?: string } = {}): Promise<BoardroomScheduleResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchBoardroomSchedule(this._config, token, roomId, queryDate, gradingId, opts as any);
+  }
+
+  async fetchBoardroomReserveDetail(reserveRoomId: string, opts: { grading_id?: string; org_id?: string; user_token?: string } = {}): Promise<BoardroomReserveDetailResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchBoardroomReserveDetail(this._config, token, reserveRoomId, opts as any);
+  }
+
+  async reserveBoardroom(boardRoomId: string, name: string, opts: { grading_id: string; reserve_time_start: string; reserve_time_end: string; notice_time: string; reserve_user?: string; org_id?: string; toastmaster?: string; leader?: string; leader_attend?: string; people_number?: string; other_demand?: string; is_video?: string; video_name?: string; user_list?: string[]; invitation_user_list?: string[]; table_cards?: string; reserve_type?: string; repeat_type?: string; repeat_days?: number[]; skip?: string; repeat_end_date?: string; user_token?: string }): Promise<BoardroomReserveResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return reserveBoardroom(this._config, token, boardRoomId, name, opts.grading_id, opts.reserve_time_start, opts.reserve_time_end, opts.notice_time, opts as any);
+  }
+
+  async editBoardroomReserve(reserveId: string, boardRoomId: string, name: string, opts: { grading_id: string; reserve_time_start: string; reserve_time_end: string; notice_time: string; edit_type?: string; people_number?: string; reserve_user?: string; org_id?: string; user_token?: string }): Promise<BoardroomReserveResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return editBoardroomReserve(this._config, token, reserveId, boardRoomId, name, opts.grading_id, opts.reserve_time_start, opts.reserve_time_end, opts.notice_time, opts as any);
+  }
+
+  async cancelBoardroomReserve(reserveId: string, opts: { cancel_user_id?: string; org_id?: string; cancel_reason?: string; is_send?: boolean; notify_user_list?: string[]; cancel_video?: string; cancel_type?: string; user_token?: string } = {}): Promise<BoardroomOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return cancelBoardroomReserve(this._config, token, reserveId, opts as any);
+  }
+
+  async confirmBoardroomSign(reserveId: string, opts: { org_id?: string; user_token?: string } = {}): Promise<BoardroomOpResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return confirmBoardroomSign(this._config, token, reserveId, opts as any);
+  }
+
+  async fetchMyBoardroomReserves(gradingId: string, opts: { keys?: string; start_time?: string; end_time?: string; boardroom_id?: string; floor_ids?: string[]; page?: number; limit?: number; lx_user_id?: string; org_id?: string; user_token?: string } = {}): Promise<BoardroomListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchMyBoardroomReserves(this._config, token, gradingId, opts as any);
+  }
+
+  async fetchBoardroomGradings(opts: { lx_user_id?: string; org_id?: string; user_token?: string } = {}): Promise<BoardroomGradingListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchBoardroomGradings(this._config, token, opts as any);
+  }
+
+  async fetchBoardroomAreaOffices(gradingId: string, opts: { user_token?: string } = {}): Promise<BoardroomAreaListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchBoardroomAreaOffices(this._config, token, gradingId, opts as any);
   }
 
   // ── Notice (通知系统) ──────────────────────────────────────────────
