@@ -87,17 +87,23 @@ describe("updatePersonalTodo", () => {
     const cap: { body?: Record<string, any> } = {};
     const r = await updatePersonalTodo(
       config, appToken, "TASK1", "org1", ["subject"],
-      { subject: "新主题", fetchFn: capturingFetch(cap, { errCode: 0, data: "TASK1" }) },
+      {
+        subject: "新主题", create_user_id: "u1", appid: "app1",
+        fetchFn: capturingFetch(cap, { errCode: 0, data: "TASK1" }),
+      },
     );
     expect(r.success).toBe(true);
     expect(cap.body!.orgId).toBe("org1");
     expect(cap.body!.updateContent.orgId).toBeUndefined();
     expect(cap.body!.updateContent.subject).toBe("新主题");
+    expect(cap.body!.updateContent.createUserId).toBe("u1");
+    expect(cap.body!.updateContent.appid).toBe("app1");
   });
 
   test("returns API error", async () => {
     const r = await updatePersonalTodo(config, appToken, "TASK1", "org1", ["subject"], {
-      subject: "s", fetchFn: mockFetchFn({ errCode: 3122, errMsg: "待办组不存在" }),
+      subject: "s", create_user_id: "u1", appid: "app1",
+      fetchFn: mockFetchFn({ errCode: 3122, errMsg: "待办组不存在" }),
     });
     expect(r.success).toBe(false);
     expect(r.error).toContain("errCode=3122");

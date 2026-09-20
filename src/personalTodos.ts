@@ -145,6 +145,8 @@ export async function updatePersonalTodo(
   if (!todoCode) return new PersonalTodoSaveResult({ success: false, error: "todo_code is required" });
   if (!orgId) return new PersonalTodoSaveResult({ success: false, error: "org_id is required" });
   if (!updateFields || !updateFields.length) return new PersonalTodoSaveResult({ success: false, error: "update_fields is required" });
+  if (!opts.create_user_id) return new PersonalTodoSaveResult({ success: false, error: "create_user_id is required" });
+  if (!opts.appid) return new PersonalTodoSaveResult({ success: false, error: "appid is required" });
 
   const updateContent: AnyDict = { code: todoCode };
   const candidates: Record<string, any> = {
@@ -171,6 +173,8 @@ export async function updatePersonalTodo(
       updateContent[key] = value;
     }
   }
+  updateContent.createUserId = opts.create_user_id;
+  updateContent.appid = opts.appid;
 
   const url = buildApiUrl(config, "personal_todos", "update", appToken, { userToken: opts.user_token });
   const body = { orgId, updateFields, updateContent };
