@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without leading v"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  # Gate 1: version numbers must be consistent across all three locations
+  # AND match the tag. Fails if package.json / constants.ts / the test
+  # assertion disagree, or if the tag name doesn't match.
+  verify-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - id: check
+        run: |
+          set -euo pipefail
+          TAG="${{ inputs.version }}"
+          if [ -z "$TAG" ]; then
+            TAG="${GITHUB_REF#refs/tags/v}"
+          fi
+          PKG=$(node -p "require('./package.json').version")
+          CONST=$(grep -m1 'export const VERSION' src/constants.ts | sed 's/.*"\(.*\)".*/\1/')
+          TEST=$(grep -m1 'expect(VERSION).toBe' tests/constants.test.ts | sed 's/.*"\(.*\)".*/\1/')
+          echo "Tag:               $TAG"
+          echo "package.json:      $PKG"
+          echo "constants.ts:      $CONST"
+          echo "constants.test.ts: $TEST"
+          if [ "$TAG" != "$PKG" ] || [ "$TAG" != "$CONST" ] || [ "$PKG" != "$CONST" ] || [ "$CONST" != "$TEST" ]; then
+            echo "::error::Version mismatch — tag=$TAG pkg=$PKG const=$CONST test=$TEST. Update all four together (see AGENTS.md)."
+            exit 1
+          fi
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+
+  # Gate 2: tests must be green. No release ships with a red suite.
+  # build alone is NOT a substitute — the VERSION test assertion catches
+  # stale constants that a clean build would silently ship.
+  test:
+    needs: verify-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx jest
+
+  # Gate 3: build must succeed. Only then publish.
+  publish:
+    needs: [verify-version, test]
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run build
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
