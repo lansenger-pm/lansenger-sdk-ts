@@ -7,7 +7,10 @@ import {
   uploadPersonalTodoResource,
   fetchPersonalTodoResourceDownloadUrl,
   fetchPersonalTodoResourceUploadUrl,
+  buildPersonalTodoResourceEntry,
+  resourceEntryFromUpload,
 } from "../src/personalTodos";
+import { PersonalTodoResourceResult } from "../src/models";
 import type { FetchFn } from "../src/http";
 
 const config = new LansengerConfig("app1", "sec1");
@@ -190,5 +193,80 @@ describe("personal todo constants", () => {
   test("endpoint paths", () => {
     expect(API_ENDPOINTS.personal_todos.save).toBe("/xtra/tdtask/server/openapi/v3/taskopt/savePersonalTask");
     expect(API_ENDPOINTS.personal_todos.resource_upload_url).toBe("/xtra/tdtask/server/openapi/resource/getUploadUrl");
+  });
+});
+
+describe("personal todo resource entry", () => {
+  const raw = {
+    errCode: 0,
+    data: {
+      fileName: "a.pdf",
+      mimeType: "application/pdf",
+      size: 10,
+      resourceId: "res1",
+    },
+  };
+  // 上传响应用 mimeType/size，挂附件必须叫 fileType/fileSize
+  const expected = {
+    fileName: "a.pdf",
+    resourceId: "res1",
+    fileType: "application/pdf",
+    fileSize: 10,
+    opt: 1,
+  };
+
+  test("accepts the raw upload response", () => {
+    expect(resourceEntryFromUpload(raw)).toEqual(expected);
+  });
+
+  test("accepts the inner data object", () => {
+    expect(resourceEntryFromUpload(raw.data)).toEqual(expected);
+  });
+
+  test("accepts the upload result object", () => {
+    // 参数名是 upload，早期实现只按 camelCase 取原始响应字段，
+    // 传结果对象会静默产出缺 resourceId 的条目（后端 errCode 500）。
+    const result = new PersonalTodoResourceResult({
+      success: true, file_name: "a.pdf", mime_type: "application/pdf",
+      size: 10, resource_id: "res1",
+    });
+    expect(resourceEntryFromUpload(result)).toEqual(expected);
+  });
+
+  test("result object, raw_response and toResourceEntry agree", async () => {
+    const result = await uploadPersonalTodoResource(
+      config, appToken, "app1", 10, "a.pdf", "application/pdf", "YWJj", "org1",
+      { fetchFn: mockFetchFn(raw) },
+    );
+    expect(result.toResourceEntry()).toEqual(expected);
+    expect(resourceEntryFromUpload(result)).toEqual(expected);
+    expect(resourceEntryFromUpload(result.raw_response!)).toEqual(expected);
+  });
+
+  test("toResourceEntry delegates to buildPersonalTodoResourceEntry", () => {
+    const result = new PersonalTodoResourceResult({
+      success: true, file_name: "a.pdf", mime_type: "application/pdf",
+      size: 10, resource_id: "res1",
+    });
+    expect(result.toResourceEntry()).toEqual(
+      buildPersonalTodoResourceEntry({
+        resource_id: "res1", file_name: "a.pdf",
+        file_type: "application/pdf", file_size: 10,
+      }),
+    );
+  });
+
+  test("opt=0 marks a removal and missing fields fall back, not throw", () => {
+    const empty = new PersonalTodoResourceResult({ success: true });
+    expect(empty.toResourceEntry(0)).toEqual({
+      fileName: "", resourceId: "", fileType: "", fileSize: 0, opt: 0,
+    });
+    expect(resourceEntryFromUpload(empty, 0).opt).toBe(0);
+  });
+
+  test("rejects input that carries no usable payload", () => {
+    // 既不是响应 dict、也没有可用字段或 raw_response：抛错，不静默产出空条目。
+    expect(() => resourceEntryFromUpload(null as any)).toThrow(TypeError);
+    expect(() => resourceEntryFromUpload(42 as any)).toThrow(TypeError);
   });
 });

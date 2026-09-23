@@ -276,6 +276,8 @@ export {
   savePersonalTodo, updatePersonalTodo, fetchPersonalTodoList,
   uploadPersonalTodoResource, fetchPersonalTodoResourceDownloadUrl,
   fetchPersonalTodoResourceUploadUrl,
+  buildPersonalTodoResourceEntry, resourceEntryFromUpload,
+  PersonalTodoResourceEntry,
 } from "./personalTodos";
 export { sendReminder } from "./reminders";
 export {

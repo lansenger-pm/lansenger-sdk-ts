@@ -2456,6 +2456,36 @@ export class BoardroomAreaListResult {
   }
 }
 
+// 挂附件用的 resources 条目（写体 DTO 必填 fileName/resourceId/fileType/fileSize）。
+// 陷阱：上传接口（/resource/update）返回 mimeType/size，挂附件必须映射成 fileType/fileSize，
+// 直接把上传响应塞进 resources 会被后端 errCode 500 打回（resourceList 是列表只读字段）。
+export interface PersonalTodoResourceEntry {
+  fileName: string;
+  resourceId: string;
+  fileType: string;
+  fileSize: number;
+  opt?: number;
+}
+
+// 条目结构的唯一定义处：`PersonalTodoResourceResult.toResourceEntry()` 与
+// `resourceEntryFromUpload()` 都经由它产出，避免同一结构在两处漂移。
+// 放在 models 是因为结果类要用它，而 personalTodos 依赖 models（反向导入会成环）。
+export function buildPersonalTodoResourceEntry(params: {
+  resource_id: string;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  opt?: number;
+}): PersonalTodoResourceEntry {
+  return {
+    fileName: params.file_name,
+    resourceId: params.resource_id,
+    fileType: params.file_type,
+    fileSize: params.file_size,
+    opt: params.opt ?? 1,
+  };
+}
+
 const PERSONAL_TODO_RESOURCE_KEYS = [
   "file_name", "mime_type", "suffix", "size", "md5", "extension_info",
   "resource_id", "download_url", "image_thumbnail_list",
@@ -2557,6 +2587,22 @@ export class PersonalTodoResourceResult {
     }
     if (this.error !== null) d.error = this.error;
     return d;
+  }
+  /**
+   * 挂到待办用的 resources 条目（opt: 1=添加、默认；0=移除）。
+   *
+   * 上传接口返回 `mimeType`/`size`，挂附件写体必须叫 `fileType`/`fileSize`，这里做映射。
+   * 条目结构由 `buildPersonalTodoResourceEntry()` 统一产出（与 Python SDK 的
+   * `to_resource_entry()` 同义，skills 文档里两种写法可互换）。
+   */
+  toResourceEntry(opt = 1): PersonalTodoResourceEntry {
+    return buildPersonalTodoResourceEntry({
+      resource_id: this.resource_id ?? "",
+      file_name: this.file_name ?? "",
+      file_type: this.mime_type ?? "",
+      file_size: this.size ?? 0,
+      opt,
+    });
   }
 }
 

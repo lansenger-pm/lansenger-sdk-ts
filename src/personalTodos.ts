@@ -8,10 +8,18 @@ import { buildApiUrl } from "./urlHelpers";
 import { doPost, FetchFn } from "./http";
 import {
   PersonalTodoListResult,
+  PersonalTodoResourceEntry,
   PersonalTodoResourceResult,
   PersonalTodoSaveResult,
   PersonalTodoUrlResult,
+  buildPersonalTodoResourceEntry,
 } from "./models";
+
+// 条目 DTO 与构造函数定义在 models（结果类的 toResourceEntry 要用，
+// personalTodos 依赖 models，反向导入会成环），这里保持同名导出，
+// 调用方从 personalTodos / 包根导入的路径不变。
+export type { PersonalTodoResourceEntry };
+export { buildPersonalTodoResourceEntry };
 import {
   PERSONAL_TODO_PRIORITY_LOW,
   PERSONAL_TODO_PRIORITY_NORMAL,
@@ -44,6 +52,49 @@ function parsePage(data: AnyDict | null): {
     has_more: Boolean(d.hasNextPage),
     items: d.result || [],
   };
+}
+
+export function resourceEntryFromUpload(
+  upload: AnyDict | PersonalTodoResourceResult,
+  opt = 1,
+): PersonalTodoResourceEntry {
+  // 上传结果对象：字段已解析好（snake_case），直接用。
+  // 早期实现只按 raw 响应的 camelCase 取值，传结果对象会静默产出
+  // {fileName:"", fileType:"", resourceId:undefined}——缺 resourceId 会被后端
+  // errCode 500 打回，而这个助手存在的目的正是防止那个错误。
+  if (upload && typeof (upload as any).file_name !== "undefined") {
+    const r = upload as PersonalTodoResourceResult;
+    return buildPersonalTodoResourceEntry({
+      resource_id: r.resource_id ?? "",
+      file_name: r.file_name ?? "",
+      file_type: r.mime_type ?? "",
+      file_size: r.size ?? 0,
+      opt,
+    });
+  }
+
+  // 结果对象但没有解析字段：退回其原始响应。拿不到就抛错——
+  // 静默退化成空条目比抛错难查得多。
+  let raw: unknown = upload;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    raw = (upload as any)?.raw_response;
+  }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    throw new TypeError(
+      "upload must be a response dict, the upload result object, " +
+      "or an object carrying a raw_response dict",
+    );
+  }
+
+  const u = raw as AnyDict;
+  const d = u.data && typeof u.data === "object" ? u.data : u;
+  return buildPersonalTodoResourceEntry({
+    resource_id: d.resourceId,
+    file_name: d.fileName ?? u.fileName ?? "",
+    file_type: d.mimeType ?? u.mimeType ?? "",
+    file_size: d.size ?? u.size ?? 0,
+    opt,
+  });
 }
 
 export interface PersonalTodoSaveOpts {
