@@ -331,11 +331,13 @@ export async function fetchActiveMeetings(
 }
 
 /**
- * Host controls a member (member/control).
+ * Host controls a member (/meeting/member/control).
  *
  * `op_code` is forwarded to the server verbatim — the server is the authority on
  * which values are accepted. `VC_OPS` in constants.ts is a reference list of
  * known values, not a validator, so unknown values are not rejected locally.
+ * Some values (e.g. muteall/unmuteall) may be rejected with errCode=105601
+ * depending on the meeting server build.
  */
 export async function controlMeetingMember(
   config: LansengerConfig,

@@ -564,6 +564,41 @@ describe("ChatMessageInfo", () => {
     const d = m.toDict();
     expect(d).not.toHaveProperty("content");
   });
+
+  test("plainText appCard joins headTitle/bodyTitle/bodyContent (LXBUGS-128493)", () => {
+    const m = new ChatMessageInfo({ send_time: "", sender: "s1", message_type: "other", content: { appCard: { headTitle: "构建通知", bodyTitle: "状态", bodyContent: "全部通过", fields: [{ key: "k", value: "v" }] } } });
+    expect(m.plainText()).toBe("构建通知 | 状态 | 全部通过");
+  });
+
+  test("plainText i18nAppCard is handled like appCard", () => {
+    const m = new ChatMessageInfo({ send_time: "", sender: "s1", message_type: "other", content: { i18nAppCard: { headTitle: "标题", bodyTitle: "副标题", bodyContent: "正文" } } });
+    expect(m.plainText()).toBe("标题 | 副标题 | 正文");
+  });
+
+  test("plainText linkCard joins title/description", () => {
+    const m = new ChatMessageInfo({ send_time: "", sender: "s1", message_type: "other", content: { linkCard: { title: "标题", description: "描述", link: "https://x" } } });
+    expect(m.plainText()).toBe("标题 | 描述");
+  });
+
+  test("plainText appArticles joins article titles", () => {
+    const m = new ChatMessageInfo({ send_time: "", sender: "s1", message_type: "other", content: { appArticles: { articles: [{ title: "A", url: "u" }, { title: "B", url: "v" }] } } });
+    expect(m.plainText()).toBe("A | B");
+  });
+
+  test("plainText formatText accepts the documented text key", () => {
+    const m = new ChatMessageInfo({ send_time: "", sender: "s1", message_type: "other", content: { formatText: { text: "md 正文", formatType: 1 } } });
+    expect(m.plainText()).toBe("md 正文");
+  });
+
+  test("plainText text object shape reads inner content", () => {
+    const m = new ChatMessageInfo({ send_time: "", sender: "s1", message_type: "text", content: { text: { content: "hello" } } });
+    expect(m.plainText()).toBe("hello");
+  });
+
+  test("plainText falls back to depth-limited scan of known text keys", () => {
+    const m = new ChatMessageInfo({ send_time: "", sender: "s1", message_type: "other", content: { customType: { nested: { bodyContent: "兜底内容" } } } });
+    expect(m.plainText()).toBe("兜底内容");
+  });
 });
 
 describe("ScheduleAttendeesUpdateResult", () => {

@@ -34,6 +34,18 @@ function mockErrorFetchFn(status: number): FetchFn {
   };
 }
 
+function recordingFetchFn(responseData: Record<string, any>, onBody?: (body: any) => void): FetchFn {
+  return async (url: string | URL, init?: RequestInit) => {
+    if (onBody && init?.body && typeof init.body === "string") onBody(JSON.parse(init.body));
+    return {
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      json: async () => responseData,
+    } as any;
+  };
+}
+
 const config = new LansengerConfig("app1", "sec1");
 const appToken = "test_token";
 
@@ -103,6 +115,32 @@ describe("createSchedule", () => {
     const result = await createSchedule(config, appToken, "cal1", "Meeting", startTime, endTime, [], { user_id: "u1", fetchFn });
     expect(result.success).toBe(true);
     expect(result.schedule_id).toBe("sch_auto");
+  });
+
+  test("rejects invalid attendeeFlag locally without HTTP (LXBUGS-128487)", async () => {
+    let called = 0;
+    const fetchFn: FetchFn = async () => { called++; throw new Error("should not be called"); };
+    const result = await createSchedule(config, appToken, "cal1", "Meeting", startTime, endTime, [{ staffId: "s1", attendeeFlag: "required" }], { fetchFn });
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("attendeeFlag");
+    expect(result.error).toContain("yes");
+    expect(called).toBe(0);
+  });
+
+  test("allows attendees without attendeeFlag (server default)", async () => {
+    let body: any = null;
+    const fetchFn = recordingFetchFn({ errCode: 0, data: { scheduleId: "sch1" } }, (b) => { body = b; });
+    const result = await createSchedule(config, appToken, "cal1", "Meeting", startTime, endTime, [{ staffId: "s1" }], { fetchFn });
+    expect(result.success).toBe(true);
+    expect(body.attendees).toEqual([{ staffId: "s1" }]);
+  });
+
+  test("auto-fills attendees with attendeeFlag yes from user_id", async () => {
+    let body: any = null;
+    const fetchFn = recordingFetchFn({ errCode: 0, data: { scheduleId: "sch_auto" } }, (b) => { body = b; });
+    const result = await createSchedule(config, appToken, "cal1", "Meeting", startTime, endTime, [], { user_id: "u1", fetchFn });
+    expect(result.success).toBe(true);
+    expect(body.attendees).toEqual([{ staffId: "u1", attendeeFlag: "yes" }]);
   });
 });
 

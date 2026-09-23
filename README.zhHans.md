@@ -340,7 +340,7 @@ const schedule = await client.createSchedule(
   cal.calendar_id!, "团队会议",
   { date: "2024-01-15", time: "10:00", timeZone: "Asia/Shanghai" },
   { date: "2024-01-15", time: "11:00", timeZone: "Asia/Shanghai" },
-  [{ staffId: "staff1", attendeeFlag: "required" }],
+  [{ staffId: "staff1", attendeeFlag: "yes" }], // 可选值 yes/option/no — 服务器不接受 "required"
   { user_token: "ut" },
 );
 

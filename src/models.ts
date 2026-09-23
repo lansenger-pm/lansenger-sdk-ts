@@ -1754,6 +1754,38 @@ export class ChatListResult {
   }
 }
 
+// Keys whose string values are human-readable message text; used by
+// ChatMessageInfo.plainText as a fallback for card payloads not covered by
+// the explicit branches above.
+const TEXT_KEYS = new Set(["text", "content", "title", "summary", "description", "headTitle", "bodyTitle", "bodyContent"]);
+const TEXT_SCAN_MAX_DEPTH = 4;
+
+// Depth-limited scan for known text keys inside a message payload.
+function scanMessageText(obj: unknown, depth: number = 0): string {
+  if (depth > TEXT_SCAN_MAX_DEPTH) return "";
+  const parts: string[] = [];
+  if (Array.isArray(obj)) {
+    for (const item of obj) {
+      const nested = scanMessageText(item, depth + 1);
+      if (nested) parts.push(nested);
+    }
+  } else if (typeof obj === "object" && obj !== null) {
+    for (const [k, v] of Object.entries(obj as AnyDict)) {
+      if (TEXT_KEYS.has(k)) {
+        if (typeof v === "string" && v.trim()) parts.push(v.trim());
+        else if (typeof v === "object" && v !== null) {
+          const nested = scanMessageText(v, depth + 1);
+          if (nested) parts.push(nested);
+        }
+      } else if (typeof v === "object" && v !== null) {
+        const nested = scanMessageText(v, depth + 1);
+        if (nested) parts.push(nested);
+      }
+    }
+  }
+  return parts.join(" | ");
+}
+
 export class ChatMessageInfo {
   send_time: string;
   sender: string;
@@ -1778,10 +1810,42 @@ export class ChatMessageInfo {
     if (content === null || content === undefined) return "";
     if (typeof content === "string") return content;
     if (typeof content === "object") {
-      if ("text" in content && content.text) return content.text;
-      if ("formatText" in content && typeof content.formatText === "object" && content.formatText !== null) {
-        return content.formatText.content || "";
+      const c = content as AnyDict;
+      const formatText = c.formatText;
+      if (typeof formatText === "object" && formatText !== null) {
+        // OpenAPI 4.6.4 documents the body key as "text"; some
+        // writer paths use "content" — accept both.
+        const ft = (formatText as AnyDict).text || (formatText as AnyDict).content;
+        return typeof ft === "string" ? ft : "";
       }
+      const text = c.text;
+      if (typeof text === "string") return text;
+      if (typeof text === "object" && text !== null) {
+        const inner = (text as AnyDict).content;
+        if (typeof inner === "string") return inner;
+      }
+      const card = c.appCard || c.i18nAppCard;
+      if (typeof card === "object" && card !== null) {
+        const parts = ["headTitle", "bodyTitle", "bodyContent"]
+          .map(k => (card as AnyDict)[k])
+          .filter((p): p is string => typeof p === "string" && p.length > 0);
+        if (parts.length > 0) return parts.join(" | ");
+      }
+      const link = c.linkCard;
+      if (typeof link === "object" && link !== null) {
+        const parts = ["title", "description"]
+          .map(k => (link as AnyDict)[k])
+          .filter((p): p is string => typeof p === "string" && p.length > 0);
+        if (parts.length > 0) return parts.join(" | ");
+      }
+      const articles = c.appArticles;
+      if (typeof articles === "object" && articles !== null && Array.isArray((articles as AnyDict).articles)) {
+        const titles = ((articles as AnyDict).articles as unknown[])
+          .filter((a): a is AnyDict => typeof a === "object" && a !== null && typeof (a as AnyDict).title === "string")
+          .map(a => a.title as string);
+        if (titles.length > 0) return titles.join(" | ");
+      }
+      return scanMessageText(c);
     }
     return "";
   }

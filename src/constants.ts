@@ -340,6 +340,10 @@ export const VC_MEMBER_ROLE_MEMBER = "participant";
 // op_code 原样透传（客户端硬校验曾误挡合法值、又放行服务端不认的值，故移除）。
 // 实测修正 (2026-09-23)：服务端认 "mute"（单人静音，errCode 0），不认 "applyAudio"
 // （errCode 105601 opCode 不存在），据此增删。
+// Verified live (LXBUGS-128490): "kick" works; "muteall"/"unmuteall" are
+// rejected by the meeting server (errCode=105601 opCode不存在) in the tested
+// environment. They are kept here pending server-side confirmation — treat
+// 105601 as "value unsupported in this environment".
 export const VC_OPS = [
   "kick", "quit", "join", "handup", "openScreenShare", "closeScreenShare",
   "openVideo", "closeVideo", "mute", "applyVideo", "shareVideo",
@@ -354,4 +358,4 @@ export const VC_FETCH_RANGE_PERSON = "person";
 export const VC_CREATE_SOURCE_CLIENT = 0;
 export const VC_CREATE_SOURCE_THIRD_PARTY = 1;
 
-export const VERSION = "1.5.0";
+export const VERSION = "1.6.0";

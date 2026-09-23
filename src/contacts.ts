@@ -147,10 +147,14 @@ export async function searchStaff(
   const page = opts?.page;
   const pageSize = opts?.page_size;
   const queryParams: Record<string, string | number | boolean> = {};
-  if (page != null && pageSize != null) {
-    queryParams.page = page;
-    queryParams.page_size = pageSize;
+  // Server requires page and page_size together (doc 4.1.16 v2); sending only
+  // one is silently ignored, so default page=1 when only page_size is given.
+  if (page != null || pageSize != null) {
+    queryParams.page = page != null ? page : 1;
+    queryParams.page_size = pageSize != null ? pageSize : 20;
   }
+  // NOTE: has_more may be unreliable (observed always true, LXBUGS-128510);
+  // prefer comparing staff_info.length against total for pagination termination.
   const url = buildApiUrl(config, "staffs", "search", appToken, {
     userToken,
     userId,

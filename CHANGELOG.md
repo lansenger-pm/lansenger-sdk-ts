@@ -21,6 +21,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **videoconference**: `modifyMeeting` / `modifyVideoconferenceMeeting` 补齐 `user_stop_time`（自动结束时间）透传，与 `createMeeting` 对齐。此前该参数只在创建时可传——修改时不生效，且会把会议结束时间重置为开始时间 +24 小时。
 - **videoconference**: `controlMeetingMember` 移除 `op_code` 客户端校验，改为原样透传（服务端才是权威），`VC_OPS` 保留为已知值参考表。客户端硬校验既拦掉了服务端实际接受的取值（如 `mute`），又放行了服务端不认的值（如 `applyAudio`）。
 
+---
+
+## [1.6.0] - 2026-09-23
+
+### Fixed
+
+- **calendars**: default `attendeeFlag` changed from `"required"` to `"yes"` — not in the server enum (`yes`/`option`/`no`), made the auto-fill path fail with 40060 (LXBUGS-128487). Added `ATTENDEE_FLAGS` local validation before any HTTP call; docstrings corrected to the unix-seconds time structure.
+- **contacts**: `searchStaff` applies `page_size` alone by defaulting `page=1` (LXBUGS-128510); documented unreliable `hasMore`.
+- **models**: `plainText()` now parses appCard/i18nAppCard, linkCard, appArticles, formatText (`text` + legacy `content` keys) and object text shapes, with a depth-limited fallback scan (LXBUGS-128493).
+- **streaming**: `createStreamMessage` downgrades success-with-empty-msgId to a failure (LXBUGS-128497).
+- **groups**: `checkIsInGroup` explains the errCode=10000 ambiguity (LXBUGS-128498).
+- **videoconferences**: `VC_OPS` annotated — `muteall`/`unmuteall` rejected live with 105601 (LXBUGS-128490).
+- **media/client**: documented download/health-check return shapes (LXBUGS-128494).
+- READMEs: attendee example fixed.
+
+---
+
 ## [1.5.0] - 2026-09-21
 
 ### Added
@@ -30,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Notes
 
 - 创建/修改要求成员列表恰好一名 `role="admin"` 主持人；录像下载链接每次最多 3 个；`fetch_range='person'` 必须传 `staff_id`；`mids` 不得为空。
+
+---
 
 ## [1.4.5] - 2026-09-20
 
