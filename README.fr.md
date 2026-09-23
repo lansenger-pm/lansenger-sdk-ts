@@ -340,7 +340,7 @@ const schedule = await client.createSchedule(
   cal.calendar_id!, "Réunion d'équipe",
   { date: "2024-01-15", time: "10:00", timeZone: "Asia/Shanghai" },
   { date: "2024-01-15", time: "11:00", timeZone: "Asia/Shanghai" },
-  [{ staffId: "staff1", attendeeFlag: "required" }],
+  [{ staffId: "staff1", attendeeFlag: "yes" }], // yes/option/no — « required » est rejeté par le serveur
   { user_token: "ut" },
 );
 
