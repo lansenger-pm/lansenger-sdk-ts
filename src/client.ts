@@ -1682,7 +1682,7 @@ export class LansengerClient {
     return createMeeting(this._config, token, { ...opts, fetchFn: this._fetchFn! });
   }
 
-  async modifyVideoconferenceMeeting(opts: { mid: string | number; subject: string; start_time: number; members: AnyDict[]; org_id: string | number; operator: string; auto_record?: number; type?: number; group_new?: number; conf_password?: string; control_password?: string; user_token?: string }): Promise<VideoconferenceOpResult> {
+  async modifyVideoconferenceMeeting(opts: { mid: string | number; subject: string; start_time: number; members: AnyDict[]; org_id: string | number; operator: string; auto_record?: number; type?: number; group_new?: number; conf_password?: string; control_password?: string; user_stop_time?: number; user_token?: string }): Promise<VideoconferenceOpResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     return modifyMeeting(this._config, token, { ...opts, fetchFn: this._fetchFn! });

@@ -8,7 +8,7 @@ import {
   VideoconferenceVodUrlResult, VideoconferenceConfResult,
 } from "./models";
 import {
-  VC_MEMBER_ROLE_HOST, VC_OPS,
+  VC_MEMBER_ROLE_HOST,
   VC_FETCH_RANGE_PERSON,
   VC_CREATE_SOURCE_CLIENT,
 } from "./constants";
@@ -32,9 +32,20 @@ function _pageData(data: AnyDict | null): { offset: number; total: number; items
   return { offset: d.offset ?? 0, total: d.total ?? 0, items: d.items ?? d.mids ?? null };
 }
 
+/**
+ * Op-endpoint result. The outer `errCode` has already been validated by
+ * `parseApiResponse`, so `done` means "the request completed":
+ * - endpoints that return an inner `{code, message}` (cancel / stop / member control)
+ *   are judged by `code === 0`;
+ * - endpoints that return a business object (modify returns the meeting object, which
+ *   carries no inner `code`) count as completed. Judging those by the inner code made
+ *   `done` permanently false for modifyMeeting, unlike createMeeting (DetailResult).
+ */
 function _op(data: AnyDict | null): { done: boolean; message: string | null } {
-  const d = (data || {}).data || {};
-  return { done: d.code === 0, message: d.message ?? null };
+  const raw = (data || {}).data;
+  const inner: AnyDict = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+  if ("code" in inner) return { done: inner.code === 0, message: inner.message ?? null };
+  return { done: true, message: inner.message ?? null };
 }
 
 export async function createMeeting(
@@ -87,6 +98,7 @@ export async function modifyMeeting(
     members: AnyDict[]; org_id: string | number; operator: string;
     auto_record?: number; type?: number; group_new?: number;
     conf_password?: string; control_password?: string;
+    user_stop_time?: number;
     user_token?: string; fetchFn?: FetchFn;
   },
 ): Promise<VideoconferenceOpResult> {
@@ -101,6 +113,9 @@ export async function modifyMeeting(
     confPassword: opts.conf_password ?? "", controlPassword: opts.control_password ?? "",
     member: opts.members,
   };
+  // Same contract as createMeeting: omitted => the server resets the meeting to
+  // start_time + 24h, so only send the field when the caller gave a value.
+  if (opts.user_stop_time !== undefined) body.userStopTime = opts.user_stop_time;
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceOpResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
@@ -315,14 +330,18 @@ export async function fetchActiveMeetings(
   return new VideoconferenceListResult({ success: true, raw_response: data!, ..._pageData(data!.data) });
 }
 
+/**
+ * Host controls a member (member/control).
+ *
+ * `op_code` is forwarded to the server verbatim — the server is the authority on
+ * which values are accepted. `VC_OPS` in constants.ts is a reference list of
+ * known values, not a validator, so unknown values are not rejected locally.
+ */
 export async function controlMeetingMember(
   config: LansengerConfig,
   appToken: string,
   opts: { mid: string | number; staff_id: string; op_code: string; operator: string; org_id: string | number; user_token?: string; fetchFn?: FetchFn },
 ): Promise<VideoconferenceOpResult> {
-  if (!VC_OPS.includes(opts.op_code)) {
-    return new VideoconferenceOpResult({ success: false, error: `op_code must be one of ${VC_OPS.join(", ")}` });
-  }
   const url = buildApiUrl(config, "videoconference", "member_control", appToken, { userToken: opts.user_token || "" });
   const body: AnyDict = {
     orgId: _orgId(opts.org_id), staffId: opts.staff_id,

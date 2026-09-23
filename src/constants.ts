@@ -335,10 +335,14 @@ export const VC_MEMBER_ROLE_HOST = "admin";
 export const VC_MEMBER_ROLE_JOIN_HOST = "joinHost";
 export const VC_MEMBER_ROLE_MEMBER = "participant";
 
-// opCode values for meeting/member/control (接口枚举字典)
+// Known opCode values for meeting/member/control (接口枚举字典) —— 仅供参考，不做
+// 客户端校验。服务端才是权威；本表可能不全，controlMeetingMember 会把调用方的
+// op_code 原样透传（客户端硬校验曾误挡合法值、又放行服务端不认的值，故移除）。
+// 实测修正 (2026-09-23)：服务端认 "mute"（单人静音，errCode 0），不认 "applyAudio"
+// （errCode 105601 opCode 不存在），据此增删。
 export const VC_OPS = [
   "kick", "quit", "join", "handup", "openScreenShare", "closeScreenShare",
-  "openVideo", "closeVideo", "applyAudio", "applyVideo", "shareVideo",
+  "openVideo", "closeVideo", "mute", "applyVideo", "shareVideo",
   "cancelShareVideo", "muteall", "unmuteall", "remove", "call",
   "enforceOpenVideo", "setJoinHost", "cancelJoinHost", "inviteOpenAudio",
   "setHost", "grabHost",

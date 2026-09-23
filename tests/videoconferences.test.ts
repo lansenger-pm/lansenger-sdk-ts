@@ -95,6 +95,43 @@ describe("modifyMeeting", () => {
     expect(result.success).toBe(true);
     expect(result.done).toBe(true);
   });
+
+  test("passes user_stop_time through when given", async () => {
+    const capture: { url?: string; body?: any } = {};
+    const result = await modifyMeeting(makeConfig(), "tok", {
+      mid: "10", subject: "m", start_time: 1, members: HOST_MEMBERS, org_id: 1, operator: "s1",
+      user_stop_time: 1700003600000,
+      fetchFn: mockFetchFn({ errCode: 0, data: { code: 0 } }, capture),
+    });
+    expect(result.success).toBe(true);
+    expect(capture.body.userStopTime).toBe(1700003600000);
+  });
+
+  test("omits user_stop_time when not given", async () => {
+    const capture: { url?: string; body?: any } = {};
+    await modifyMeeting(makeConfig(), "tok", {
+      mid: "10", subject: "m", start_time: 1, members: HOST_MEMBERS, org_id: 1, operator: "s1",
+      fetchFn: mockFetchFn({ errCode: 0, data: { code: 0 } }, capture),
+    });
+    expect("userStopTime" in capture.body).toBe(false);
+  });
+
+  // /meeting/modify 返回的是会议对象（无内层 code），done 不应恒为 false。
+  // 响应形状取自 2026-09-23 实测抓包。
+  test("done is true when the server returns the meeting object", async () => {
+    const result = await modifyMeeting(makeConfig(), "tok", {
+      mid: "1380079", subject: "测试预约 sdkvfy01 已改", start_time: 1790233200000,
+      members: HOST_MEMBERS, org_id: "14803712", operator: "s1",
+      fetchFn: mockFetchFn({ errCode: 0, errMsg: "OK", data: {
+        admin: "s1", autoRecord: 0, confPassword: "", controlPassword: "", createSource: 1,
+        ctime: 1790145779263, haveVodRecord: 0, id: 1380079, meetingNumber: "",
+        mtime: 1790148033630, startTime: 1790233200000, status: 0, stopTime: 0,
+        subject: "测试预约 sdkvfy01 已改", type: 1,
+      } }),
+    });
+    expect(result.success).toBe(true);
+    expect(result.done).toBe(true);
+  });
 });
 
 describe("cancelMeeting / stopMeeting / fetchMeetingDetail", () => {
@@ -106,6 +143,27 @@ describe("cancelMeeting / stopMeeting / fetchMeetingDetail", () => {
     expect(result.success).toBe(true);
     expect(capture.url).toContain("/meeting/cancle");
     expect(capture.body.mid).toBe(5);
+  });
+
+  // 有内层 code 的端点仍按 code == 0 判 done。
+  test("done follows the inner code when the endpoint returns one", async () => {
+    const result = await cancelMeeting(makeConfig(), "tok", {
+      mid: 5, org_id: 1, operator: "s1",
+      fetchFn: mockFetchFn({ errCode: 0, data: { code: 105213, message: "会议未开始或已结束" } }),
+    });
+    expect(result.success).toBe(true);
+    expect(result.done).toBe(false);
+    expect(result.message).toBe("会议未开始或已结束");
+  });
+
+  // 成功但完全没有 data 负载：三个 SDK 一致判为完成（Go 的 fillVCOp 同义）。
+  test("done is true when a successful response carries no payload", async () => {
+    const result = await cancelMeeting(makeConfig(), "tok", {
+      mid: 5, org_id: 1, operator: "s1",
+      fetchFn: mockFetchFn({ errCode: 0, errMsg: "OK" }),
+    });
+    expect(result.success).toBe(true);
+    expect(result.done).toBe(true);
   });
 
   test("stop posts to meeting/stop", async () => {
@@ -204,6 +262,16 @@ describe("subscribeMeetingEvents", () => {
     expect(capture.body.callBackInfo).toBe("extra");
     expect(capture.body.events.length).toBe(1);
   });
+
+  // 2026-09-23 实测抓包：内层带 code，仍按 code == 0 判 done（不受本次语义调整影响）。
+  test("done is true for the live-captured subscribe response", async () => {
+    const result = await subscribeMeetingEvents(makeConfig(), "tok", {
+      mid: 1380079, org_id: 14803712, events: [{ eventType: 1 }],
+      fetchFn: mockFetchFn({ errCode: 0, errMsg: "OK", data: { code: 0, errCode: 0, message: "" } }),
+    });
+    expect(result.success).toBe(true);
+    expect(result.done).toBe(true);
+  });
 });
 
 describe("fetchMeetingParams", () => {
@@ -223,21 +291,27 @@ describe("fetchMeetingParams", () => {
 });
 
 describe("controlMeetingMember", () => {
-  test("rejects op_code outside whitelist", async () => {
+  test("passes op_code through verbatim (no client-side validation)", async () => {
+    const capture: { url?: string; body?: any } = {};
     const result = await controlMeetingMember(makeConfig(), "tok", {
-      mid: 1, staff_id: "s2", op_code: "explode", operator: "s1", org_id: 1,
-    });
-    expect(result.success).toBe(false);
-    expect(result.error).toContain("op_code");
-  });
-
-  test("accepts whitelisted op_code", async () => {
-    const result = await controlMeetingMember(makeConfig(), "tok", {
-      mid: 1, staff_id: "s2", op_code: "muteall", operator: "s1", org_id: 1,
-      fetchFn: mockFetchFn({ errCode: 0, data: { code: 0 } }),
+      mid: 1, staff_id: "s2", op_code: "some_new_op", operator: "s1", org_id: 1,
+      fetchFn: mockFetchFn({ errCode: 0, data: { code: 0 } }, capture),
     });
     expect(result.success).toBe(true);
+    expect(capture.body.opCode).toBe("some_new_op");
+  });
+
+  test("sends a known op_code unchanged", async () => {
+    const capture: { url?: string; body?: any } = {};
+    const result = await controlMeetingMember(makeConfig(), "tok", {
+      mid: 1, staff_id: "s2", op_code: "muteall", operator: "s1", org_id: 1,
+      fetchFn: mockFetchFn({ errCode: 0, data: { code: 0 } }, capture),
+    });
+    expect(result.success).toBe(true);
+    expect(capture.body.opCode).toBe("muteall");
+    // VC_OPS 只是已知值参考表，不参与校验；服务端认 "mute"
     expect(VC_OPS).toContain("muteall");
+    expect(VC_OPS).toContain("mute");
   });
 });
 
