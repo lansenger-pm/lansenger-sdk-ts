@@ -358,4 +358,4 @@ export const VC_FETCH_RANGE_PERSON = "person";
 export const VC_CREATE_SOURCE_CLIENT = 0;
 export const VC_CREATE_SOURCE_THIRD_PARTY = 1;
 
-export const VERSION = "1.6.0";
+export const VERSION = "1.6.1";
