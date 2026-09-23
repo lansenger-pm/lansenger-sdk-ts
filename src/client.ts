@@ -466,6 +466,13 @@ export class LansengerClient {
     this._userTokenManager!.setTokens(userToken, refreshToken, expiresIn, staffId, refreshExpiresIn);
   }
 
+  /**
+   * Verify credentials work by attempting to get a token.
+   *
+   * Returns true if a token was obtained successfully, false otherwise
+   * (unlike most SDK methods, this returns a plain boolean instead of
+   * throwing or returning a *Result object).
+   */
   async healthCheck(): Promise<boolean> {
     try {
       await this.getToken();
@@ -944,6 +951,13 @@ export class LansengerClient {
     return downloadMediaByShareId(this._config, this._tokenManager!, this._fetchFn!, shareId, { userToken: opts?.user_token || "" });
   }
 
+  /**
+   * Download media and save to a file.
+   *
+   * Note: unlike most SDK methods (which return a *Result with a success
+   * field), this throws LansengerFileError on failure and returns the path
+   * string on success.
+   */
   async downloadMediaToFile(mediaId: string, opts?: { target_path?: string; media_type?: string }): Promise<string> {
     await this._ensureInit();
     return downloadMediaToFile(this._config, this._tokenManager!, this._fetchFn!, mediaId, opts?.target_path, opts?.media_type || "file");
@@ -1268,7 +1282,7 @@ export class LansengerClient {
     const userId = opts?.user_id || "";
     if (!attendees || !attendees.length) {
       if (!userId) throw new Error("attendees is required (or provide user_id to auto-fill creator)");
-      attendees = [{ staffId: userId, attendeeFlag: "required" }];
+      attendees = [{ staffId: userId, attendeeFlag: "yes" }];
     }
     return createSchedule(this._config, token, calendarId, summary, startTime, endTime, attendees, { ...opts, fetchFn: this._fetchFn! });
   }

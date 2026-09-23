@@ -133,8 +133,18 @@ export async function checkIsInGroup(
   });
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new IsInGroupResult({ success: false, error: httpErr });
-  const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new IsInGroupResult({ success: false, error: apiErr });
+  const [ok, rawApiErr] = parseApiResponse(data!);
+  if (!ok) {
+    // Server returns errCode=10000 "API服务 不可得" for a staff member who
+    // is not in the group (LXBUGS-128498) instead of isInGroup=false. Do
+    // NOT map it to is_in_group=false: the same code may also mean a real
+    // query failure — surface the ambiguity instead.
+    let apiErr = rawApiErr;
+    if (apiErr && apiErr.includes("errCode=10000")) {
+      apiErr += " (the server returns this code both for query failures and for non-members; membership could not be determined)";
+    }
+    return new IsInGroupResult({ success: false, error: apiErr });
+  }
   const d = data!.data || {};
   return new IsInGroupResult({
     success: true, is_in_group: d.isInGroup || false, raw_response: data!,

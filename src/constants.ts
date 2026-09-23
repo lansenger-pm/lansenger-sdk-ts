@@ -336,6 +336,10 @@ export const VC_MEMBER_ROLE_JOIN_HOST = "joinHost";
 export const VC_MEMBER_ROLE_MEMBER = "participant";
 
 // opCode values for meeting/member/control (接口枚举字典)
+// Verified live (LXBUGS-128490): "kick" works; "muteall"/"unmuteall" are
+// rejected by the meeting server (errCode=105601 opCode不存在) in the tested
+// environment. They are kept here pending server-side confirmation — treat
+// 105601 as "value unsupported in this environment".
 export const VC_OPS = [
   "kick", "quit", "join", "handup", "openScreenShare", "closeScreenShare",
   "openVideo", "closeVideo", "applyAudio", "applyVideo", "shareVideo",
@@ -350,4 +354,4 @@ export const VC_FETCH_RANGE_PERSON = "person";
 export const VC_CREATE_SOURCE_CLIENT = 0;
 export const VC_CREATE_SOURCE_THIRD_PARTY = 1;
 
-export const VERSION = "1.5.0";
+export const VERSION = "1.6.0";

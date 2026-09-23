@@ -21,7 +21,18 @@ export async function createStreamMessage(
   const [ok, apiErr] = parseApiResponse(data!);
   if (!ok) return new StreamMessageResult({ success: false, error: apiErr });
   const d = data!.data || {};
-  return new StreamMessageResult({ success: true, message_id: d.msgId, raw_response: data! });
+  const msgId = d.msgId;
+  // Server has been observed returning success with an empty payload
+  // (LXBUGS-128497); without a msgId the fetch step is unusable, so treat
+  // it as a failure instead of reporting success.
+  if (!msgId) {
+    return new StreamMessageResult({
+      success: false,
+      error: "server returned success but no msgId; stream message is unusable",
+      raw_response: data!,
+    });
+  }
+  return new StreamMessageResult({ success: true, message_id: msgId, raw_response: data! });
 }
 
 export async function fetchStreamMessage(

@@ -315,6 +315,13 @@ export async function fetchActiveMeetings(
   return new VideoconferenceListResult({ success: true, raw_response: data!, ..._pageData(data!.data) });
 }
 
+/**
+ * Host controls a member (/meeting/member/control).
+ *
+ * op_code: one of VC_OPS (kick/join/handup/setHost/...). Some values
+ * (e.g. muteall/unmuteall) may be rejected with errCode=105601
+ * depending on the meeting server build.
+ */
 export async function controlMeetingMember(
   config: LansengerConfig,
   appToken: string,

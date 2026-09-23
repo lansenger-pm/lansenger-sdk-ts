@@ -7,6 +7,39 @@ import {
   ScheduleAttendeeMetaResult, ScheduleAttendeesUpdateResult,
 } from "./models";
 
+// Server-accepted attendeeFlag values (OpenAPI 4.23.10). Values like
+// "required"/"optional"/"attendee"/"host" are NOT accepted — the server
+// rejects the whole request with errCode=40060.
+export const ATTENDEE_FLAG_YES = "yes";        // must attend
+export const ATTENDEE_FLAG_OPTION = "option";  // optional attendance
+export const ATTENDEE_FLAG_NO = "no";          // does not attend
+export const ATTENDEE_FLAGS = [ATTENDEE_FLAG_YES, ATTENDEE_FLAG_OPTION, ATTENDEE_FLAG_NO];
+
+// Time field structure (OpenAPI 4.23.10):
+//   { "time": 1656468000, "timeZone": "Asia/Shanghai" }  — time is Unix SECONDS
+//   all_day="yes": { "date": "2006-01-02", "timeZone": "UTC" } — date replaces time
+
+// Returns an error message for invalid attendee dicts, else null.
+function validateAttendees(attendees: Record<string, string>[]): string | null {
+  for (let i = 0; i < attendees.length; i++) {
+    const a = attendees[i];
+    if (typeof a !== "object" || a === null || !("staffId" in a)) {
+      return `attendees[${i}] must be an object with a 'staffId' key`;
+    }
+    const flag = a.attendeeFlag;
+    if (flag != null && !ATTENDEE_FLAGS.includes(flag)) {
+      return (
+        `attendees[${i}].attendeeFlag=${JSON.stringify(flag)} is not accepted by the server; ` +
+        `valid values: ${ATTENDEE_FLAGS.map(f => `"${f}"`).join(", ")}`
+      );
+    }
+  }
+  return null;
+}
+
+/**
+ * Fetch the user's primary calendar.
+ */
 export async function fetchPrimaryCalendar(
   config: LansengerConfig,
   appToken: string,
@@ -27,6 +60,14 @@ export async function fetchPrimaryCalendar(
   });
 }
 
+/**
+ * Create a schedule.
+ *
+ * startTime/endTime: { "time": <unix seconds>, "timeZone": "IANA name" };
+ * for all_day="yes" use { "date": "YYYY-MM-DD", "timeZone": "UTC" }.
+ * attendees: objects with staffId + optional attendeeFlag
+ * ("yes"/"option"/"no", default "yes").
+ */
 export async function createSchedule(
   config: LansengerConfig,
   appToken: string,
@@ -50,8 +91,10 @@ export async function createSchedule(
   const userId = opts?.user_id || "";
   if (!attendees || !attendees.length) {
     if (!userId) return new ScheduleCreateResult({ success: false, error: "attendees is required (or provide user_id to auto-fill creator)" });
-    attendees = [{ staffId: userId, attendeeFlag: "required" }];
+    attendees = [{ staffId: userId, attendeeFlag: ATTENDEE_FLAG_YES }];
   }
+  const attendeeErr = validateAttendees(attendees);
+  if (attendeeErr) return new ScheduleCreateResult({ success: false, error: attendeeErr });
   const url = buildApiUrl(config, "calendars", "schedule_create", appToken, { userToken, userId, pathVars: { calendar_id: calendarId } });
   const body: Record<string, any> = { summary, startTime, endTime, attendees };
   if (opts?.description) body.description = opts.description;
@@ -126,6 +169,12 @@ export async function deleteSchedule(
   return new ScheduleCreateResult({ success: true, schedule_id: sid, raw_response: data! });
 }
 
+/**
+ * Update a schedule.
+ *
+ * opts.start_time/opts.end_time: { "time": <unix seconds>, "timeZone": "IANA name" };
+ * for all_day="yes" use { "date": "YYYY-MM-DD", "timeZone": "UTC" }.
+ */
 export async function updateSchedule(
   config: LansengerConfig,
   appToken: string,

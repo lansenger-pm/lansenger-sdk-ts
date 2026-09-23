@@ -141,6 +141,14 @@ describe("checkIsInGroup", () => {
     const result = await checkIsInGroup(config, appToken, "");
     expect(result.success).toBe(false);
   });
+
+  test("errCode=10000 error gets ambiguity explanation, not is_in_group=false (LXBUGS-128498)", async () => {
+    const fetchFn = mockFetchFn({ errCode: 10000, errMsg: "API服务 不可得" });
+    const result = await checkIsInGroup(config, appToken, "gid1", { fetchFn });
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("errCode=10000");
+    expect(result.error).toContain("membership could not be determined");
+  });
 });
 
 describe("updateGroupInfo", () => {

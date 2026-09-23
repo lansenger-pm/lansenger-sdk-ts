@@ -169,6 +169,13 @@ export async function downloadMediaByShareId(
   }
 }
 
+/**
+ * Download media and save to a file.
+ *
+ * Note: unlike most SDK functions (which return a *Result with a success
+ * field), this throws LansengerFileError on failure and returns the path
+ * string on success.
+ */
 export async function downloadMediaToFile(
   config: LansengerConfig,
   tokenManager: TokenManager,

@@ -24,6 +24,18 @@ function mockErrorFetchFn(status: number): FetchFn {
   };
 }
 
+function recordingUrlFetchFn(responseData: Record<string, any>, onUrl?: (url: string | URL) => void): FetchFn {
+  return async (url: string | URL, init?: RequestInit) => {
+    if (onUrl) onUrl(url);
+    return {
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      json: async () => responseData,
+    } as any;
+  };
+}
+
 const config = new LansengerConfig("app1", "sec1");
 const appToken = "test_token";
 
@@ -155,6 +167,24 @@ describe("searchStaff", () => {
   test("returns error on empty keyword", async () => {
     const result = await searchStaff(config, appToken, "");
     expect(result.success).toBe(false);
+  });
+
+  test("page_size alone still gets page params in URL (LXBUGS-128510)", async () => {
+    let url = "";
+    const fetchFn = recordingUrlFetchFn({ errCode: 0, data: { hasMore: true, total: 247, staffInfo: [] } }, (u) => { url = String(u); });
+    const result = await searchStaff(config, appToken, "Zhang", { page_size: 5, fetchFn });
+    expect(result.success).toBe(true);
+    expect(url).toContain("page=1");
+    expect(url).toContain("page_size=5");
+  });
+
+  test("page and page_size are sent together", async () => {
+    let url = "";
+    const fetchFn = recordingUrlFetchFn({ errCode: 0, data: { hasMore: true, total: 247, staffInfo: [] } }, (u) => { url = String(u); });
+    const result = await searchStaff(config, appToken, "Zhang", { page: 2, page_size: 5, fetchFn });
+    expect(result.success).toBe(true);
+    expect(url).toContain("page=2");
+    expect(url).toContain("page_size=5");
   });
 });
 
