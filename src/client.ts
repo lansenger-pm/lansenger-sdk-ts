@@ -536,12 +536,20 @@ export class LansengerClient {
     if (opts?.file_path) {
       await this._ensureInit();
       const mt = opts.media_type || guessAppMediaType(opts.file_path) || APP_MEDIA_TYPE_FILE;
-      const mediaResult = await uploadAppMedia(this._config, this._tokenManager!, this._fetchFn!, opts.file_path, mt);
+      const userToken = opts.user_token || "";
+      // assistant 身份（带 user_token）走 v1 上传通道会被 10005 invalid
+      // appCategory 拒绝——统一收敛到 v2 通道（4.5.5，user_token 鉴权）；
+      // bot 身份仍走 v1（LXBUGS-128492 测试轮）。
+      const mediaResult = userToken
+        ? await uploadAppMediaV2(this._config, this._tokenManager!, this._fetchFn!, opts.file_path, userToken, mt)
+        : await uploadAppMedia(this._config, this._tokenManager!, this._fetchFn!, opts.file_path, mt);
       if (!mediaResult.success) return new SendMessageResult({ success: false, error: mediaResult.error });
       textObj.mediaType = APP_TO_MSG_MEDIA_TYPE[mt] || MEDIA_TYPE_AUDIO;
       textObj.mediaIds = [mediaResult.media_id];
       if (opts.cover_image_path && mt === APP_MEDIA_TYPE_VIDEO) {
-        const coverResult = await uploadAppMedia(this._config, this._tokenManager!, this._fetchFn!, opts.cover_image_path, APP_MEDIA_TYPE_IMAGE);
+        const coverResult = userToken
+          ? await uploadAppMediaV2(this._config, this._tokenManager!, this._fetchFn!, opts.cover_image_path, userToken, APP_MEDIA_TYPE_IMAGE)
+          : await uploadAppMedia(this._config, this._tokenManager!, this._fetchFn!, opts.cover_image_path, APP_MEDIA_TYPE_IMAGE);
         if (!coverResult.success) return new SendMessageResult({ success: false, error: coverResult.error });
         textObj.coverMediaIds = [coverResult.media_id];
       }

@@ -90,6 +90,14 @@ export async function uploadAppMediaV2(
     return new UploadMediaResult({ success: false, error: `File not found: ${filePath}` });
   if (!userToken)
     return new UploadMediaResult({ success: false, error: "userToken is required for uploadAppMediaV2" });
+  // OpenAPI 4.5.5 用字符串枚举；数字 1/2/3 是旧 4.5.1 端点的约定，传数字会 50052。
+  const VALID_APP_MEDIA_TYPES = ["file", "video", "image", "audio"];
+  if (!VALID_APP_MEDIA_TYPES.includes(mediaType)) {
+    return new UploadMediaResult({
+      success: false,
+      error: `mediaType must be one of 'file'/'video'/'image'/'audio' (strings per OpenAPI 4.5.5); got ${JSON.stringify(mediaType)}. The numeric 1/2/3 convention belongs to the legacy 4.5.1 uploadMedia endpoint.`,
+    });
+  }
   let token: string;
   try { token = await tokenManager.getToken(); } catch (e) { return new UploadMediaResult({ success: false, error: `Auth failed: ${e instanceof Error ? e.message : String(e)}` }); }
   let url = buildApiUrl(config, "media", "app_create_v2", token, { userToken }) + `&type=${mediaType}`;
@@ -128,7 +136,24 @@ export async function downloadMedia(
     const response = await fetchFn(url);
     if (!response.ok) return new DownloadMediaResult({ success: false, error: `Download HTTP error: ${response.status}` });
     const arrayBuffer = await response.arrayBuffer();
-    return new DownloadMediaResult({ success: true, data: Buffer.from(arrayBuffer) });
+    const body = Buffer.from(arrayBuffer);
+    // 网关在 media 不存在/无权限时返回 200 + JSON 错误体（如 errCode=10003）
+    // 而非文件流；不校验会把错误 JSON 静默写成目标文件。
+    const contentType = (response.headers.get("content-type") || "").toLowerCase();
+    if (contentType.includes("json") || body[0] === 0x7b /* { */ || body[0] === 0x5b /* [ */) {
+      try {
+        const parsed = JSON.parse(body.toString("utf8"));
+        if (parsed && typeof parsed === "object" && "errCode" in parsed) {
+          return new DownloadMediaResult({
+            success: false,
+            error: `Download returned an API error instead of a file (errCode=${parsed.errCode}): ${parsed.errMsg || parsed.message || ""} — media may not exist or the identity lacks access; the chat-history fileUrls signed link (~1h validity) is a reliable fallback`,
+          });
+        }
+      } catch {
+        /* not JSON — treat as file content */
+      }
+    }
+    return new DownloadMediaResult({ success: true, data: body });
   } catch (e) {
     return new DownloadMediaResult({ success: false, error: `Download HTTP error: ${e instanceof Error ? e.message : String(e)}` });
   }
