@@ -304,14 +304,15 @@ describe("controlMeetingMember", () => {
   test("sends a known op_code unchanged", async () => {
     const capture: { url?: string; body?: any } = {};
     const result = await controlMeetingMember(makeConfig(), "tok", {
-      mid: 1, staff_id: "s2", op_code: "muteall", operator: "s1", org_id: 1,
+      mid: 1, staff_id: "s2", op_code: "mute", operator: "s1", org_id: 1,
       fetchFn: mockFetchFn({ errCode: 0, data: { code: 0 } }, capture),
     });
     expect(result.success).toBe(true);
-    expect(capture.body.opCode).toBe("muteall");
-    // VC_OPS 只是已知值参考表，不参与校验；服务端认 "mute"
-    expect(VC_OPS).toContain("muteall");
+    expect(capture.body.opCode).toBe("mute");
+    // VC_OPS 只是已知值参考表，不参与校验；接口仅支持单人操作，
+    // muteall/unmuteall 已按后端确认移除（LXBUGS-128490/邹治会 2026-09-24）
     expect(VC_OPS).toContain("mute");
+    expect(VC_OPS).not.toContain("muteall");
   });
 });
 

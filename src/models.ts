@@ -578,12 +578,20 @@ export class DynamicCardUpdateParams {
   head_status_info: Record<string, string> | null;
   links: Record<string, string>[] | null;
   is_last_update: boolean;
+  // The update must carry the identity that SENT the card (OpenAPI 4.6.5/4.6.13):
+  // bot-sent cards update with the app identity alone; human-sent cards
+  // (e.g. group messages) need user_token (query) or user_id (body userId) —
+  // a mismatch fails with 10005 无权限 (LXBUGS-128492).
+  user_token: string;
+  user_id: string;
 
-  constructor(init: { msg_id: string; head_status_info?: Record<string, string> | null; links?: Record<string, string>[] | null; is_last_update?: boolean }) {
+  constructor(init: { msg_id: string; head_status_info?: Record<string, string> | null; links?: Record<string, string>[] | null; is_last_update?: boolean; user_token?: string; user_id?: string }) {
     this.msg_id = init.msg_id;
     this.head_status_info = init.head_status_info ?? null;
     this.links = init.links ?? null;
     this.is_last_update = init.is_last_update ?? false;
+    this.user_token = init.user_token ?? "";
+    this.user_id = init.user_id ?? "";
   }
 }
 

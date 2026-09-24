@@ -860,10 +860,11 @@ export class LansengerClient {
     return _parseSendResponse(data!, "approveCard", "approve_card_update");
   }
 
-  async updateDynamicCard(msgId: string, opts?: { head_status_info?: AnyDict; links?: AnyDict[]; is_last_update?: boolean }): Promise<SendMessageResult> {
+  async updateDynamicCard(msgId: string, opts?: { head_status_info?: AnyDict; links?: AnyDict[]; is_last_update?: boolean; user_token?: string; user_id?: string }): Promise<SendMessageResult> {
     const params = new DynamicCardUpdateParams({
       msg_id: msgId, head_status_info: opts?.head_status_info,
       links: opts?.links, is_last_update: opts?.is_last_update || false,
+      user_token: opts?.user_token || "", user_id: opts?.user_id || "",
     });
     return this.updateDynamicCardWithParams(params);
   }
@@ -871,11 +872,15 @@ export class LansengerClient {
   async updateDynamicCardWithParams(params: DynamicCardUpdateParams): Promise<SendMessageResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
-    const url = buildApiUrl(this._config, "message", "dynamic_update", token);
+    let url = buildApiUrl(this._config, "message", "dynamic_update", token);
+    // Identity must match the card's sender (LXBUGS-128492): bot-sent cards
+    // work with the app identity; human-sent cards need user_token/user_id.
+    if (params.user_token) url += `&user_token=${encodeURIComponent(params.user_token)}`;
     const appCardUpdateMsg: AnyDict = { isLastUpdate: params.is_last_update };
     if (params.head_status_info) appCardUpdateMsg.headStatusInfo = params.head_status_info;
     if (params.links) appCardUpdateMsg.links = params.links;
     const payload: AnyDict = { msgId: params.msg_id, msgType: "appCard", msgData: { appCardUpdateMsg } };
+    if (params.user_id) payload.userId = params.user_id;
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
     if (httpErr) return new SendMessageResult({ success: false, error: httpErr, msg_type: "dynamic_update" });
     return _parseSendResponse(data!, "dynamic_update", "update_dynamic_card");
