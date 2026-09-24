@@ -212,6 +212,6 @@ describe("Other constants", () => {
   });
 
   test("VERSION", () => {
-    expect(VERSION).toBe("1.6.1");
+    expect(VERSION).toBe("1.7.0");
   });
 });

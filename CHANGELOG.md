@@ -50,6 +50,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.0] - 2026-09-24
+
+### Fixed
+
+- **dynamic-card**: `updateDynamicCard` / `updateDynamicCardWithParams` / `DynamicCardUpdateParams` now accept `user_token` (query) and `user_id` (body `userId`) — the update must carry the identity that originally SENT the card. Bot-sent cards update with the app identity alone; human-sent cards (e.g. group messages) require the sender identity; a mismatch fails with 10005 无权限 (LXBUGS-128492, verified live by 李川 lxtest).
+- **videoconferences**: `VC_OPS` removed `muteall`/`unmuteall` — `/meeting/member/control` is per-member only (backend confirmation 邹治会 2026-09-24); `mute` (per-member mute) verified live errCode=0 (LXBUGS-128490).
+
+---
+
 ## [1.4.5] - 2026-09-20
 
 ### Added
