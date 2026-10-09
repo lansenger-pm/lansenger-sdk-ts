@@ -9,19 +9,6 @@ import {
   UserTokenManager,
 } from "./auth";
 import {
-  cancelBoardroomReserve,
-  confirmBoardroomSign,
-  editBoardroomReserve,
-  fetchBoardroomAreaOffices,
-  fetchBoardroomDetail,
-  fetchBoardroomGradings,
-  fetchBoardroomList,
-  fetchBoardroomReserveDetail,
-  fetchBoardroomSchedule,
-  fetchMyBoardroomReserves,
-  reserveBoardroom,
-} from "./boardrooms";
-import {
   createBotCommands,
   deleteBotCommands,
   fetchBotCommands,
@@ -107,6 +94,7 @@ import {
   downloadMedia,
   downloadMediaByShareId,
   downloadMediaToFile,
+  downloadMediaToFileResult,
   fetchMediaPath,
   uploadAppMedia,
   uploadAppMediaV2,
@@ -117,14 +105,6 @@ import {
   AppCardParams,
   ApproveCardParams,
   ApproveCardUpdateParams,
-  BoardroomAreaListResult,
-  BoardroomDetailResult,
-  BoardroomGradingListResult,
-  BoardroomListResult,
-  BoardroomOpResult,
-  BoardroomReserveDetailResult,
-  BoardroomReserveResult,
-  BoardroomScheduleResult,
   BotCommandQueryResult,
   BotCommandResult,
   BotMessageResult,
@@ -137,6 +117,7 @@ import {
   DepartmentDetailResult,
   DepartmentStaffsResult,
   DownloadMediaResult,
+  DownloadFileResult,
   DynamicCardUpdateParams,
   ExtraFieldIdsResult,
   GroupInfoResult,
@@ -145,31 +126,12 @@ import {
   IsInGroupResult,
   LinkCardParams,
   MediaPathResult,
-  NoticeAccountListResult,
-  NoticeSendResult,
   OaCardParams,
   OrgInfoResult,
   PersonalAppCreateResult,
   PersonalAppInfoResult,
   PersonalAppListResult,
-  PersonalTodoListResult,
-  PersonalTodoResourceResult,
-  PersonalTodoSaveResult,
-  PersonalTodoUrlResult,
   QueryGroupsResult,
-  QuestionnaireAccountListResult,
-  QuestionnaireAnswerDetailResult,
-  QuestionnaireAnswerUrlResult,
-  QuestionnaireCopyResult,
-  QuestionnaireDetailResult,
-  QuestionnaireOpResult,
-  QuestionnairePageResult,
-  QuestionnaireQueryListResult,
-  QuestionnaireQuestionDeleteResult,
-  QuestionnaireQuestionSaveResult,
-  QuestionnaireRecordResult,
-  QuestionnaireSaveResult,
-  QuestionnaireUploadUrlResult,
   ScheduleAttendeeMetaResult,
   ScheduleAttendeesResult,
   ScheduleAttendeesUpdateResult,
@@ -183,11 +145,6 @@ import {
   StaffIdMappingResult,
   StaffSearchResult,
   StreamMessageResult,
-  TodoTaskCreateResult,
-  TodoTaskExecutorListResult,
-  TodoTaskInfoResult,
-  TodoTaskListResult,
-  TodoTaskStatusCountResult,
   UpdateGroupMembersResult,
   UpdateGroupResult,
   UploadMediaResult,
@@ -203,10 +160,6 @@ import {
   VideoconferenceVodListResult,
   VideoconferenceVodUrlResult,
 } from "./models";
-import {
-  fetchNoticeAccounts,
-  sendNotice,
-} from "./notices";
 import {
   buildAuthorizeUrl,
   exchangeCodeForUserToken,
@@ -225,58 +178,12 @@ import {
   updatePersonalApp,
 } from "./personalApps";
 import {
-  fetchPersonalTodoList,
-  fetchPersonalTodoResourceDownloadUrl,
-  fetchPersonalTodoResourceUploadUrl,
-  savePersonalTodo,
-  updatePersonalTodo,
-  uploadPersonalTodoResource,
-} from "./personalTodos";
-import {
-  copyQuestionnaire,
-  deleteQuestionnaire,
-  deleteQuestionnaireQuestion,
-  fetchAnswerData,
-  fetchAnswerRecords,
-  fetchCreatedQuestionnaires,
-  fetchMyCreatedQuestionnaires,
-  fetchParticipatedQuestionnaires,
-  fetchQuestionnaireAnswerDetail,
-  fetchQuestionnaireAnswerUrl,
-  fetchQuestionnaireBrief,
-  fetchQuestionnaireDetail,
-  fetchQuestionnaireLastAnswerDetail,
-  fetchQuestionnaireLastAnswerRecord,
-  fetchQuestionnaireOfficeAccounts,
-  fetchQuestionnaireUploadUrl,
-  fetchQuestionnairesByCodes,
-  finishQuestionnaire,
-  publishQuestionnaire,
-  saveQuestionnaire,
-  saveQuestionnaireQuestions,
-  withdrawQuestionnaire,
-} from "./questionnaires";
-import {
   sendReminder,
 } from "./reminders";
 import {
   createStreamMessage,
   fetchStreamMessage,
 } from "./streaming";
-import {
-  addExecutors,
-  createTodoTask,
-  deleteExecutors,
-  deleteTodoTask,
-  fetchExecutorList,
-  fetchTodoTaskById,
-  fetchTodoTaskBySourceId,
-  fetchTodoTaskList,
-  fetchTodoTaskStatusCounts,
-  updateExecutorStatus,
-  updateTodoTask,
-  updateTodoTaskStatus,
-} from "./todos";
 import {
   buildApiUrl,
 } from "./urlHelpers";
@@ -976,6 +883,11 @@ export class LansengerClient {
     return downloadMediaToFile(this._config, this._tokenManager!, this._fetchFn!, mediaId, opts?.target_path, opts?.media_type || "file");
   }
 
+  async downloadMediaToFileResult(mediaId: string, opts?: { target_path?: string; media_type?: string }): Promise<DownloadFileResult> {
+    await this._ensureInit();
+    return downloadMediaToFileResult(this._config, this._tokenManager!, this._fetchFn!, mediaId, opts?.target_path, opts?.media_type || "file");
+  }
+
   async fetchMediaPathInfo(mediaId: string, opts?: { user_token?: string }): Promise<MediaPathResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
@@ -1211,78 +1123,6 @@ export class LansengerClient {
     return fetchDepartmentStaffs(this._config, token, departmentId, { user_token: opts?.user_token || "", page: opts?.page, page_size: opts?.page_size, fetchFn: this._fetchFn! });
   }
 
-  async createTodoTask(title: string, link: string, pcLink: string, executorIds: string[], orgId: string, type: number = 1, opts?: { source_id?: string; desc?: string; sender_id?: string; user_token?: string }): Promise<TodoTaskCreateResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return createTodoTask(this._config, token, title, link, pcLink, executorIds, orgId, type, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  async updateTodoTask(todotaskId: string, title: string, link: string, pcLink: string, orgId: string, opts?: { desc?: string; user_token?: string }): Promise<TodoTaskCreateResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return updateTodoTask(this._config, token, todotaskId, title, link, pcLink, orgId, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  async updateTodoTaskStatus(todotaskId: string, status: string, orgId: string, opts?: { staff_id?: string; user_token?: string }): Promise<TodoTaskCreateResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return updateTodoTaskStatus(this._config, token, todotaskId, status, orgId, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  async deleteTodoTask(todotaskId: string, orgId: string, opts?: { staff_id?: string; user_token?: string }): Promise<TodoTaskCreateResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return deleteTodoTask(this._config, token, todotaskId, orgId, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  async fetchTodoTaskList(orgId: string, opts?: { app_ids?: string[]; staff_id?: string; status_list?: string[]; user_token?: string }): Promise<TodoTaskListResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchTodoTaskList(this._config, token, orgId, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  async fetchTodoTaskBySourceId(sourceId: string, orgId: string, opts?: { staff_id?: string; user_token?: string }): Promise<TodoTaskInfoResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchTodoTaskBySourceId(this._config, token, sourceId, orgId, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  async fetchTodoTaskById(todotaskId: string, orgId: string, opts?: { staff_id?: string; user_token?: string }): Promise<TodoTaskInfoResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchTodoTaskById(this._config, token, todotaskId, orgId, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  async fetchTodoTaskStatusCounts(staffId: string, orgId: string, opts?: { app_id?: string; status_list?: string[]; user_token?: string }): Promise<TodoTaskStatusCountResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchTodoTaskStatusCounts(this._config, token, staffId, orgId, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  async updateExecutorStatus(executorStatusList: AnyDict[], orgId: string, opts?: { todotask_id?: string; user_token?: string }): Promise<TodoTaskCreateResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return updateExecutorStatus(this._config, token, executorStatusList, orgId, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  async addExecutors(executorIds: string[], orgId: string, opts?: { todotask_id?: string; user_token?: string }): Promise<TodoTaskCreateResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return addExecutors(this._config, token, executorIds, orgId, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  async deleteExecutors(executorIds: string[], orgId: string, opts?: { todotask_id?: string; user_token?: string }): Promise<TodoTaskCreateResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return deleteExecutors(this._config, token, executorIds, orgId, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  async fetchExecutorList(todotaskId: string, orgId: string, opts?: { staff_id?: string; status_list?: string[]; user_token?: string }): Promise<TodoTaskExecutorListResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchExecutorList(this._config, token, todotaskId, orgId, { ...opts, fetchFn: this._fetchFn! });
-  }
-
   async fetchPrimaryCalendar(opts?: { user_token?: string; user_id?: string }): Promise<CalendarPrimaryResult> {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
@@ -1372,269 +1212,6 @@ export class LansengerClient {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     return deleteBotCommands(this._config, token, scopeType, { ...opts, fetchFn: this._fetchFn! });
-  }
-
-  // ── Questionnaire (问卷系统) ────────────────────────────────────────
-  async saveQuestionnaire(params: { title: string; account_code: string; code?: string; welcome_speech?: string; bye_speech?: string; cover_resource_id?: string; resource_ids?: string; app_id?: string; user_type?: number; create_mobile?: string; create_user_id?: string; user_token?: string }): Promise<QuestionnaireSaveResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return saveQuestionnaire(this._config, token, params as any);
-  }
-
-  async saveQuestionnaireQuestions(questionnaireCode: string, questionList: AnyDict[], opts: { create_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireQuestionSaveResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return saveQuestionnaireQuestions(this._config, token, questionnaireCode, questionList, opts as any);
-  }
-
-  async deleteQuestionnaireQuestion(questionCode: string, opts: { create_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireQuestionDeleteResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return deleteQuestionnaireQuestion(this._config, token, questionCode, opts as any);
-  }
-
-  async publishQuestionnaire(questionnaireCode: string, opts: { scope_type?: number; staff_ids?: string[]; phones?: string[]; answer_limit?: number; message_flag?: number; page_flag?: number; share_flag?: number; view_stats_flag?: number; anonym_flag?: number; publish_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireOpResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return publishQuestionnaire(this._config, token, questionnaireCode, opts as any);
-  }
-
-  async withdrawQuestionnaire(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireOpResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return withdrawQuestionnaire(this._config, token, questionnaireCode, opts as any);
-  }
-
-  async finishQuestionnaire(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireOpResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return finishQuestionnaire(this._config, token, questionnaireCode, opts as any);
-  }
-
-  async deleteQuestionnaire(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireOpResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return deleteQuestionnaire(this._config, token, questionnaireCode, opts as any);
-  }
-
-  async fetchQuestionnaireDetail(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireDetailResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchQuestionnaireDetail(this._config, token, questionnaireCode, opts as any);
-  }
-
-  async fetchQuestionnaireBrief(questionnaireCode: string, opts: { user_token?: string } = {}): Promise<QuestionnaireDetailResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchQuestionnaireBrief(this._config, token, questionnaireCode, opts as any);
-  }
-
-  async fetchQuestionnaireAnswerUrl(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireAnswerUrlResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchQuestionnaireAnswerUrl(this._config, token, questionnaireCode, opts as any);
-  }
-
-  async copyQuestionnaire(questionnaireCode: string, opts: { operate_user_id?: string; user_token?: string } = {}): Promise<QuestionnaireCopyResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return copyQuestionnaire(this._config, token, questionnaireCode, opts as any);
-  }
-
-  async fetchQuestionnairesByCodes(codeList: string[], opts: { include_deleted?: number; user_token?: string } = {}): Promise<QuestionnaireQueryListResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchQuestionnairesByCodes(this._config, token, codeList, opts as any);
-  }
-
-  async fetchQuestionnaireOfficeAccounts(opts: { user_id?: string; user_token?: string } = {}): Promise<QuestionnaireAccountListResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchQuestionnaireOfficeAccounts(this._config, token, opts as any);
-  }
-
-  async fetchCreatedQuestionnaires(accountCode: string, opts: { page_no?: number; page_size?: number; status?: number; user_id?: string; user_token?: string } = {}): Promise<QuestionnairePageResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchCreatedQuestionnaires(this._config, token, accountCode, opts as any);
-  }
-
-  async fetchMyCreatedQuestionnaires(orgId: string, opts: { page_no?: number; page_size?: number; title?: string; status?: number; user_id?: string; user_token?: string } = {}): Promise<QuestionnairePageResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchMyCreatedQuestionnaires(this._config, token, orgId, opts as any);
-  }
-
-  async fetchParticipatedQuestionnaires(orgId: string, opts: { page_no?: number; page_size?: number; status?: number; user_id?: string; user_token?: string } = {}): Promise<QuestionnairePageResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchParticipatedQuestionnaires(this._config, token, orgId, opts as any);
-  }
-
-  async fetchAnswerRecords(accountCode: string, questionnaireCode: string, opts: { page_no?: number; page_size?: number; user_id?: string; user_token?: string } = {}): Promise<QuestionnairePageResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchAnswerRecords(this._config, token, accountCode, questionnaireCode, opts as any);
-  }
-
-  async fetchQuestionnaireAnswerDetail(accountCode: string, answerCode: string, opts: { user_id?: string; user_token?: string } = {}): Promise<QuestionnaireAnswerDetailResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchQuestionnaireAnswerDetail(this._config, token, accountCode, answerCode, opts as any);
-  }
-
-  async fetchQuestionnaireLastAnswerDetail(questionnaireCode: string, opts: { answer_record_code?: string; user_id?: string; user_token?: string } = {}): Promise<QuestionnaireAnswerDetailResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchQuestionnaireLastAnswerDetail(this._config, token, questionnaireCode, opts as any);
-  }
-
-  async fetchAnswerData(accountCode: string, questionnaireCode: string, opts: { page_no?: number; page_size?: number; user_id?: string; user_token?: string } = {}): Promise<QuestionnairePageResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchAnswerData(this._config, token, accountCode, questionnaireCode, opts as any);
-  }
-
-  async fetchQuestionnaireLastAnswerRecord(questionnaireCode: string, opts: { answer_record_code?: string; user_id?: string; user_token?: string } = {}): Promise<QuestionnaireRecordResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchQuestionnaireLastAnswerRecord(this._config, token, questionnaireCode, opts as any);
-  }
-
-  async fetchQuestionnaireUploadUrl(fileName: string, md5: string, size: number, opts: { user_token?: string } = {}): Promise<QuestionnaireUploadUrlResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchQuestionnaireUploadUrl(this._config, token, fileName, md5, size, opts as any);
-  }
-
-  // ── Boardroom (会议室预定 V2) ───────────────────────────────────────
-  async fetchBoardroomList(opts: { grading_id?: string; area_office_id?: string; floor_ids?: string[]; equipment?: string[]; reserve_time_start?: string; reserve_time_end?: string; query_date?: string; page?: number; limit?: number; lx_user_id?: string; org_id?: string; user_token?: string } = {}): Promise<BoardroomListResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchBoardroomList(this._config, token, opts as any);
-  }
-
-  async fetchBoardroomDetail(roomId: string, opts: { org_id?: string; user_token?: string } = {}): Promise<BoardroomDetailResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchBoardroomDetail(this._config, token, roomId, opts as any);
-  }
-
-  async fetchBoardroomSchedule(roomId: string, queryDate: string, gradingId: string, opts: { reserve_user_id?: string; org_id?: string; user_token?: string } = {}): Promise<BoardroomScheduleResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchBoardroomSchedule(this._config, token, roomId, queryDate, gradingId, opts as any);
-  }
-
-  async fetchBoardroomReserveDetail(reserveRoomId: string, opts: { grading_id?: string; org_id?: string; user_token?: string } = {}): Promise<BoardroomReserveDetailResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchBoardroomReserveDetail(this._config, token, reserveRoomId, opts as any);
-  }
-
-  async reserveBoardroom(boardRoomId: string, name: string, opts: { grading_id: string; reserve_time_start: string; reserve_time_end: string; notice_time: string; reserve_user?: string; org_id?: string; toastmaster?: string; leader?: string; leader_attend?: string; people_number?: string; other_demand?: string; is_video?: string; video_name?: string; user_list?: string[]; invitation_user_list?: string[]; table_cards?: string; reserve_type?: string; repeat_type?: string; repeat_days?: number[]; skip?: string; repeat_end_date?: string; user_token?: string }): Promise<BoardroomReserveResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return reserveBoardroom(this._config, token, boardRoomId, name, opts.grading_id, opts.reserve_time_start, opts.reserve_time_end, opts.notice_time, opts as any);
-  }
-
-  async editBoardroomReserve(reserveId: string, boardRoomId: string, name: string, opts: { grading_id: string; reserve_time_start: string; reserve_time_end: string; notice_time: string; edit_type?: string; people_number?: string; reserve_user?: string; org_id?: string; user_token?: string }): Promise<BoardroomReserveResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return editBoardroomReserve(this._config, token, reserveId, boardRoomId, name, opts.grading_id, opts.reserve_time_start, opts.reserve_time_end, opts.notice_time, opts as any);
-  }
-
-  async cancelBoardroomReserve(reserveId: string, opts: { cancel_user_id?: string; org_id?: string; cancel_reason?: string; is_send?: boolean; notify_user_list?: string[]; cancel_video?: string; cancel_type?: string; user_token?: string } = {}): Promise<BoardroomOpResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return cancelBoardroomReserve(this._config, token, reserveId, opts as any);
-  }
-
-  async confirmBoardroomSign(reserveId: string, opts: { org_id?: string; user_token?: string } = {}): Promise<BoardroomOpResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return confirmBoardroomSign(this._config, token, reserveId, opts as any);
-  }
-
-  async fetchMyBoardroomReserves(gradingId: string, opts: { keys?: string; start_time?: string; end_time?: string; boardroom_id?: string; floor_ids?: string[]; page?: number; limit?: number; lx_user_id?: string; org_id?: string; user_token?: string } = {}): Promise<BoardroomListResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchMyBoardroomReserves(this._config, token, gradingId, opts as any);
-  }
-
-  async fetchBoardroomGradings(opts: { lx_user_id?: string; org_id?: string; user_token?: string } = {}): Promise<BoardroomGradingListResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchBoardroomGradings(this._config, token, opts as any);
-  }
-
-  async fetchBoardroomAreaOffices(gradingId: string, opts: { user_token?: string } = {}): Promise<BoardroomAreaListResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchBoardroomAreaOffices(this._config, token, gradingId, opts as any);
-  }
-
-  // ── Personal Todo (个人待办) ────────────────────────────────────────
-  async savePersonalTodo(subject: string, startTime: number, dueTime: number, priority: number, createUserId: string, orgId: string, appid: string, opts: AnyDict = {}): Promise<PersonalTodoSaveResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return savePersonalTodo(this._config, token, subject, startTime, dueTime, priority, createUserId, orgId, appid, opts as any);
-  }
-
-  async updatePersonalTodo(todoCode: string, orgId: string, updateFields: string[], opts: AnyDict = {}): Promise<PersonalTodoSaveResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return updatePersonalTodo(this._config, token, todoCode, orgId, updateFields, opts as any);
-  }
-
-  async fetchPersonalTodoList(orgId: string, staffId: string, opts: AnyDict = {}): Promise<PersonalTodoListResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchPersonalTodoList(this._config, token, orgId, staffId, opts as any);
-  }
-
-  async uploadPersonalTodoResource(appId: string, size: number, fileName: string, contentType: string, fileData: string, orgId: string, opts: AnyDict = {}): Promise<PersonalTodoResourceResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return uploadPersonalTodoResource(this._config, token, appId, size, fileName, contentType, fileData, orgId, opts as any);
-  }
-
-  async fetchPersonalTodoResourceDownloadUrl(resourceId: string, orgId: string, opts: AnyDict = {}): Promise<PersonalTodoUrlResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchPersonalTodoResourceDownloadUrl(this._config, token, resourceId, orgId, opts as any);
-  }
-
-  async fetchPersonalTodoResourceUploadUrl(fileName: string, md5: string, size: number, orgId: string, opts: AnyDict = {}): Promise<PersonalTodoUrlResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchPersonalTodoResourceUploadUrl(this._config, token, fileName, md5, size, orgId, opts as any);
-  }
-
-  // ── Notice (通知系统) ──────────────────────────────────────────────
-  async sendNotice(params: {
-    title: string; content_type: number; account_code: string; user_type: number;
-    content?: string; notice_link?: string; notice_location?: string;
-    latitude?: number; longitude?: number;
-    release_phones?: string[]; cc_phones?: string[];
-    release_range?: AnyDict[]; cc_staff_ids?: string[];
-    create_mobile?: string; create_user_id?: string;
-    resource_list?: AnyDict[]; extend_id?: string;
-    confirm_flag?: number; forward_flag?: number; reply_flag?: number; anonymous_flag?: number;
-    remind_status?: number; remind_msg_type?: string; at_once_flag?: number;
-    remind_after_type?: string; remind_max_count?: number; remind_interval_time?: number;
-    remind_interval_time_duration?: string; remind_range_type?: string; remind_range_staff_ids?: string[];
-    user_token?: string;
-  }): Promise<NoticeSendResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return sendNotice(this._config, token, params as any);
-  }
-
-  async fetchNoticeAccounts(opts: { org_id?: string; user_token?: string } = {}): Promise<NoticeAccountListResult> {
-    await this._ensureInit();
-    const token = await this._tokenManager!.getToken();
-    return fetchNoticeAccounts(this._config, token, opts as any);
   }
 
   // ── Personal Apps (4.38) ───────────────────────────────────────────

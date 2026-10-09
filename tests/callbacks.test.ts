@@ -4,6 +4,7 @@ import {
   BotPrivateMessageData, BotGroupMessageData,
   CALLBACK_EVENT_TYPES, getCallbackEventTypes,
 } from "../src/callbacks";
+import { LansengerCallbackError } from "../src/exceptions";
 import * as crypto from "crypto";
 
 function computeSignature(token: string, timestamp: string, nonce: string, dataEncrypt: string): string {
@@ -218,5 +219,15 @@ describe("CALLBACK_EVENT_TYPES", () => {
     expect(CALLBACK_EVENT_TYPES.ua_cert_create).toBe("certificate");
     expect(CALLBACK_EVENT_TYPES.report_location).toBe("location");
     expect(CALLBACK_EVENT_TYPES.schedule_modify).toBe("calendar");
+  });
+});
+describe("parseCallbackPayload malformed input", () => {
+  test("throws LansengerCallbackError instead of a raw SyntaxError", () => {
+    expect(() => parseCallbackPayload("bogus-encrypted")).toThrow(LansengerCallbackError);
+    expect(() => parseCallbackPayload("bogus-encrypted")).toThrow(/parsing callback JSON payload/);
+  });
+
+  test("throws LansengerCallbackError for a non-object JSON payload", () => {
+    expect(() => parseCallbackPayload("[1,2,3]")).toThrow(LansengerCallbackError);
   });
 });

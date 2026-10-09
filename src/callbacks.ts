@@ -1,5 +1,7 @@
 import * as crypto from "crypto";
 
+import { LansengerCallbackError } from "./exceptions";
+
 type AnyDict = Record<string, any>;
 
 export const CALLBACK_EVENT_TYPES: Record<string, string> = {
@@ -868,25 +870,29 @@ export function parseCallbackPayload(
   const encodingKey = opts.encodingKey || "";
 
   if (encodingKey && input.trim().startsWith("{")) {
-    let payloadInner: AnyDict;
+    let payloadInner: AnyDict | null = null;
     try {
       payloadInner = JSON.parse(input);
     } catch {
-      payloadInner = {};
+      // 不是合法的 JSON 包装体：按加密负载继续往下处理（与 Python SDK 行为一致），
+      // 之前这里静默退化成空 payload 并返回 []。
+      payloadInner = null;
     }
-    const dataEncrypt = payloadInner.dataEncrypt || "";
-    if (typeof dataEncrypt === "string" && dataEncrypt) {
-      input = dataEncrypt;
-    } else {
-      if (opts.verifySignature) {
-        if (!verifyCallbackSignature(
-          opts.timestamp || "", opts.nonce || "", opts.signature || "",
-          encodingKey, input, opts.callbackToken || "",
-        )) {
-          throw new Error("Callback signature verification failed");
+    if (payloadInner !== null) {
+      const dataEncrypt = payloadInner.dataEncrypt || "";
+      if (typeof dataEncrypt === "string" && dataEncrypt) {
+        input = dataEncrypt;
+      } else {
+        if (opts.verifySignature) {
+          if (!verifyCallbackSignature(
+            opts.timestamp || "", opts.nonce || "", opts.signature || "",
+            encodingKey, input, opts.callbackToken || "",
+          )) {
+            throw new Error("Callback signature verification failed");
+          }
         }
+        return _parseDecryptedPayload(payloadInner);
       }
-      return _parseDecryptedPayload(payloadInner);
     }
   }
 
@@ -909,7 +915,17 @@ export function parseCallbackPayload(
     return _parseDecryptedPayload(payload);
   }
 
-  const payload = JSON.parse(input);
+  let payload: AnyDict;
+  try {
+    payload = JSON.parse(input);
+  } catch (err) {
+    throw new LansengerCallbackError(
+      `parsing callback JSON payload: ${(err as Error).message}`,
+    );
+  }
+  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+    throw new LansengerCallbackError("parsing callback JSON payload: expected a JSON object");
+  }
   if ("dataEncrypt" in payload && !encodingKey) {
     throw new Error("Encrypted callback payload requires encodingKey for decryption");
   }

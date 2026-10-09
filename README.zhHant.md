@@ -34,8 +34,6 @@
 - **訊息管理** — 撤回、動態卡片更新
 - **群組** — 建立、查詢資訊/成員/列表、檢查成員、更新設定與成員、解散
 - **日曆日程** — 主日曆、日程 CRUD + 更新、參會人管理 + 參會人元資料、update_schedule_attendees()
-- **統一待辦** — 建立、更新、刪除、查詢、執行人管理、狀態統計
-- **通知系統** — 透過官方帳號發送通知（文字/連結、手機號/staffId 兩種投放、確認/提醒策略、附件），查詢組織官方帳號
 - **機器人命令** — 創建/查詢/刪除機器人快捷命令
 - **個人應用** — 創建/修改/查詢/刪除/列表個人機器人應用
 - **回調事件** — 25 種事件類型、結構化解析、AES 解密（4.10.1.4）、SHA1 簽名驗證
@@ -64,9 +62,6 @@ npm test
 每個 SDK 方法都需要 `appToken`。客戶端使用 `app_id` + `app_secret` 自動取得並刷新 appToken，透過 `GET /v1/apptoken/create` 端點。你無需手動管理 appToken — `TokenManager` 負責整個生命週期：
 
 1. **首次呼叫** → 使用 app_id + app_secret 請求 `GET /v1/apptoken/create` → 回傳 `appToken`（有效期 2 小時）
-- **問卷系統** — 建立/更新/發布/撤回/結束/刪除問卷，批次管理題目，官方帳號與我建立/我參與的列表（分頁），答卷記錄與匯出，預簽名上傳地址
-- **會議室預訂 V2** — 會議室檢索（辦公區/樓層/設備/時段篩選），詳情與當日預訂情況，預訂與修改（單次/重複），取消與掃碼確認，我的預訂（分頁），分級與辦公區列表
-- **個人待辦** — 建立、編輯、查詢使用者個人待辦及資源附件；與應用待辦完全分離
 2. **後續呼叫** → 重用緩衝的 appToken 直到過期
 3. **令牌過期** → 自動透過同一端點刷新
 
@@ -286,6 +281,9 @@ const download = await client.downloadMediaFile("media123");
 // 保存至檔案
 const filePath = await client.downloadMediaToFile("media123", { target_path: "/tmp/file.pdf" });
 
+// 保存至檔案（失敗時回傳結果物件，不拋例外）
+const fileResult = await client.downloadMediaToFileResult("media123", { target_path: "/tmp/file.pdf" });
+
 // 取得下載 URL 路徑 (4.5.3)
 const pathResult = await client.fetchMediaPathInfo("media123");
 
@@ -365,43 +363,7 @@ await client.updateScheduleAttendeeMeta("cal1", "sch1", {
 });
 ```
 
-## 7. 統一待辦
-
-```typescript
-import { TODO_TYPE_APPROVAL, TODO_TODO_STATUS_DONE } from "lansenger-sdk-ts";
-
-// 建立待辦任務
-const todo = await client.createTodoTask(
-  "審批請求", "https://app.com/a/1", "https://pc.app.com/a/1",
-  ["staff1"], "org1", TODO_TYPE_APPROVAL,
-);
-
-// 更新狀態（11=待閱, 12=已閱, 21=待辦, 22=已辦）
-await client.updateTodoTaskStatus("taskId", TODO_TODO_STATUS_DONE, "org1");
-
-// 更新內容
-await client.updateTodoTask("taskId", "已更新", "l", "p", "org1");
-
-// 刪除（僅限傳送者）
-await client.deleteTodoTask("taskId", "org1");
-
-// 查詢
-const listResult = await client.fetchTodoTaskList("org1");
-const task = await client.fetchTodoTaskById("taskId", "org1");
-const task = await client.fetchTodoTaskBySourceId("src1", "org1");
-const counts = await client.fetchTodoTaskStatusCounts("staff1", "org1");
-
-// 執行人管理
-await client.addExecutors(["staff2"], "org1", { todotask_id: "taskId" });
-await client.deleteExecutors(["staff2"], "org1", { todotask_id: "taskId" });
-const executors = await client.fetchExecutorList("taskId", "org1");
-await client.updateExecutorStatus(
-  [{ executorId: "staff1", todotaskId: "taskId", status: "22" }],
-  "org1",
-);
-```
-
-## 8. 聊天讀取 (4.24 MCP)
+## 7. 聊天讀取 (4.24 MCP)
 
 ```typescript
 // 取得聊天列表（私聊 + 群聊）
@@ -414,7 +376,7 @@ const messages = await client.fetchChatMessages({
 });
 ```
 
-## 9. 回調事件
+## 8. 回調事件
 
 SDK 同時支援純 JSON 和 AES 加密回調載荷（藍信 API 規範 4.10.1.4）。
 
@@ -526,7 +488,6 @@ const token = store.loadAppToken(); // 過期則為 null
 | `staff *` (通訊錄唯讀) | N | **Y** | **Y** | `search` 額外需要 userToken |
 | `department *` | N | **Y** | **Y** | 僅限組織級應用 |
 | `calendar *` | N | **Y** | **Y** | 有 userToken = 使用者身分；無 = 機器人身分 |
-| `todo *` | N | **Y** | **Y** | 僅限組織級應用 |
 | `chat list/messages` | N | **Y** | **Y** | 僅限組織級應用 |
 | `group *` (群組管理 V2) | N | N | **Y** | 需要機器人已在群內 |
 | `media upload` | **Y** | **Y** | **Y** | 通用上傳 |
@@ -539,7 +500,7 @@ const token = store.loadAppToken(); // 過期則為 null
 
 > **個人機器人**只能收發訊息和上傳/下載檔案。無法存取通訊錄、日曆或 OAuth2。
 >
-> **組織應用 vs 組織應用+機器人**：相同的 appID/appSecret。唯一區別在於訊息通道——只有機器人可以傳送機器人私聊和群聊訊息（因為只有機器人能入群）。其他所有 API（通訊錄、日曆、待辦、聊天、OAuth2、串流）兩者完全一樣。目前只有自建應用支援機器人能力。
+> **組織應用 vs 組織應用+機器人**：相同的 appID/appSecret。唯一區別在於訊息通道——只有機器人可以傳送機器人私聊和群聊訊息（因為只有機器人能入群）。其他所有 API（通訊錄、日曆、聊天、OAuth2、串流）兩者完全一樣。目前只有自建應用支援機器人能力。
 
 ### 開發者中心權限
 
@@ -599,11 +560,6 @@ lansenger-sdk-ts/
 │   ├── persistence.ts        # CredentialStore — 檔案持久化
 │   ├── callbacks.ts          # 回調事件 — 25 種事件、AES 解密、SHA1 簽名驗證
 │   ├── groups.ts             # 群組 API（含解散 4.28.6）
-│   ├── todos.ts              # 統一待辦
-│   ├── notices.ts           # 通知系統
-│   ├── questionnaires.ts    # 問卷系統
-│   ├── boardrooms.ts        # 會議室預訂 V2
-│   ├── personalTodos.ts     # 個人待辦
 │   ├── calendars.ts          # 日曆與日程
 │   ├── reminders.ts          # 加急提醒 (4.6.14)
 │   ├── chats.ts              # 聊天讀取 (4.24 MCP)

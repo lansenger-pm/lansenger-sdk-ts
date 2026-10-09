@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import { uploadAppMediaV2, downloadMediaByShareId } from "../src/media";
+import { uploadAppMediaV2, downloadMediaByShareId, downloadMediaToFile, downloadMediaToFileResult } from "../src/media";
 import { TokenManager } from "../src/auth";
 import { LansengerConfig } from "../src/config";
 import { FetchFn } from "../src/http";
@@ -193,5 +193,95 @@ describe("downloadMediaByShareId", () => {
     const result = await downloadMediaByShareId(config, makeTokenManager(), fetchFn, "share_123");
     expect(result.success).toBe(false);
     expect(result.error).toContain("500");
+  });
+});
+
+describe("downloadMediaToFile / downloadMediaToFileResult", () => {
+  let tmpDir: string;
+
+  beforeAll(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "lansenger_dl_test_"));
+  });
+
+  afterAll(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  function binaryFetchFn(body: Buffer, contentType = "application/octet-stream"): FetchFn {
+    return routedFetchFn(async () => ({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      headers: { get: () => contentType },
+      arrayBuffer: async () => body.buffer.slice(body.byteOffset, body.byteOffset + body.byteLength),
+    }));
+  }
+
+  function jsonErrorFetchFn(payload: Record<string, any>): FetchFn {
+    return binaryFetchFn(Buffer.from(JSON.stringify(payload)), "application/json");
+  }
+
+  test("downloadMediaToFileResult writes the file and reports path and size", async () => {
+    const target = path.join(tmpDir, "ok.dat");
+    const result = await downloadMediaToFileResult(
+      config, makeTokenManager(), binaryFetchFn(Buffer.from("hello-bytes")), "media_1", target,
+    );
+    expect(result.success).toBe(true);
+    expect(result.path).toBe(target);
+    expect(result.size).toBe(11);
+    expect(fs.readFileSync(target).toString()).toBe("hello-bytes");
+    expect(result.toDict()).toEqual({ success: true, path: target, size: 11 });
+  });
+
+  test("downloadMediaToFileResult returns error instead of throwing on API error", async () => {
+    const result = await downloadMediaToFileResult(
+      config, makeTokenManager(),
+      jsonErrorFetchFn({ errCode: 50000, errMsg: "OPEN ID invalid" }), "media_bad",
+    );
+    expect(result.success).toBe(false);
+    expect(result.path).toBeNull();
+    expect(result.error).toContain("errCode=50000");
+  });
+
+  test("downloadMediaToFileResult returns error when the save fails", async () => {
+    const result = await downloadMediaToFileResult(
+      config, makeTokenManager(), binaryFetchFn(Buffer.from("payload")), "media_2",
+      "/nonexistent-dir-xyz/out.dat",
+    );
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Save failed");
+  });
+
+  test("downloadMediaToFileResult sniffs png extension for image type", async () => {
+    const png = Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      Buffer.alloc(8),
+    ]);
+    const result = await downloadMediaToFileResult(
+      config, makeTokenManager(), binaryFetchFn(png), "media_img", undefined, "image",
+    );
+    expect(result.success).toBe(true);
+    expect(result.path!.endsWith(".png")).toBe(true);
+    fs.unlinkSync(result.path!);
+  });
+
+  test("downloadMediaToFile keeps throwing LansengerFileError on API error", async () => {
+    await expect(
+      downloadMediaToFile(
+        config, makeTokenManager(),
+        jsonErrorFetchFn({ errCode: 50000, errMsg: "OPEN ID invalid" }),
+        "media_bad", path.join(tmpDir, "never.dat"),
+      ),
+    ).rejects.toThrow(/Download failed/);
+    expect(fs.existsSync(path.join(tmpDir, "never.dat"))).toBe(false);
+  });
+
+  test("downloadMediaToFile still returns the path on success", async () => {
+    const target = path.join(tmpDir, "d2f.dat");
+    const returned = await downloadMediaToFile(
+      config, makeTokenManager(), binaryFetchFn(Buffer.from("abc")), "media_3", target,
+    );
+    expect(returned).toBe(target);
+    expect(fs.readFileSync(target).toString()).toBe("abc");
   });
 });

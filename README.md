@@ -34,8 +34,6 @@ All three bot types use the same auth mechanism: `appToken` is required for ever
 - **Message management** — revoke, dynamic card update
 - **Groups** — create, info, members, list, membership check, update settings & members, dismiss
 - **Calendar & schedule** — primary calendar, schedule CRUD + update, attendee management + attendee metadata, update_schedule_attendees()
-- **Unified todo** — create, update, delete, query, executor management, status counts
-- **Notices (通知系统)** — send official-account notices (text/link content, phone/staff targeting, confirm/forward/reply flags, reminder policies, attachments), query org official accounts
 - **Bot slash commands** (4.37) — create/query/delete Command entries for bot interaction menus
 - **Personal apps** (4.38) — create/update/query/delete/list personal bots with user token
 - **Callback events** — 25 event types, structured parsing, AES decryption (per 4.10.1.4), SHA1 signature verification
@@ -64,9 +62,6 @@ npm test
 Every SDK method requires `appToken`. The client automatically obtains and refreshes it using your `app_id` + `app_secret`. You never need to manage appToken manually — the `TokenManager` handles the lifecycle:
 
 1. **First call** → `GET /v1/apptoken/create` with app_id + app_secret → returns `appToken` (valid 2 hours)
-- **Questionnaires (问卷系统)** — create/update/publish/withdraw/finish/delete questionnaires, batch question management, office-account & created/participated lists (paged), answer records and export, presigned upload URL
-- **Boardroom (会议室预定 V2)** — room lookup with area/floor/equipment/time filters, room detail & daily schedule, reserve/edit (single & repeating), cancel, scan-code confirmation, my reservations (paged), grading & office-area lists
-- **Personal todos (个人待办)** — create/edit/list user-owned personal todos and manage attachments; separate from application todos
 2. **Subsequent calls** → reuse cached appToken until expiry
 3. **Token expired** → automatically refresh via the same endpoint
 
@@ -289,6 +284,9 @@ const download = await client.downloadMediaFile("media123");
 // Save to file
 const filePath = await client.downloadMediaToFile("media123", { target_path: "/tmp/file.pdf" });
 
+// Save to file, failure returned as a result object (no throw)
+const fileResult = await client.downloadMediaToFileResult("media123", { target_path: "/tmp/file.pdf" });
+
 // Get download URL path (4.5.3)
 const pathResult = await client.fetchMediaPathInfo("media123");
 
@@ -368,43 +366,7 @@ await client.updateScheduleAttendeeMeta("cal1", "sch1", {
 });
 ```
 
-## 7. Unified Todo
-
-```typescript
-import { TODO_TYPE_APPROVAL, TODO_TODO_STATUS_DONE } from "lansenger-sdk-ts";
-
-// Create todo task
-const todo = await client.createTodoTask(
-  "Approval Request", "https://app.com/a/1", "https://pc.app.com/a/1",
-  ["staff1"], "org1", TODO_TYPE_APPROVAL,
-);
-
-// Update status (11=pending-read, 12=read, 21=pending-do, 22=done)
-await client.updateTodoTaskStatus("taskId", TODO_TODO_STATUS_DONE, "org1");
-
-// Update content
-await client.updateTodoTask("taskId", "Updated", "l", "p", "org1");
-
-// Delete (sender only)
-await client.deleteTodoTask("taskId", "org1");
-
-// Query
-const listResult = await client.fetchTodoTaskList("org1");
-const task = await client.fetchTodoTaskById("taskId", "org1");
-const task = await client.fetchTodoTaskBySourceId("src1", "org1");
-const counts = await client.fetchTodoTaskStatusCounts("staff1", "org1");
-
-// Executor management
-await client.addExecutors(["staff2"], "org1", { todotask_id: "taskId" });
-await client.deleteExecutors(["staff2"], "org1", { todotask_id: "taskId" });
-const executors = await client.fetchExecutorList("taskId", "org1");
-await client.updateExecutorStatus(
-  [{ executorId: "staff1", todotaskId: "taskId", status: "22" }],
-  "org1",
-);
-```
-
-## 8. Chat Reading (4.24 MCP)
+## 7. Chat Reading (4.24 MCP)
 
 ```typescript
 // Fetch chat list (private + group conversations)
@@ -417,7 +379,7 @@ const messages = await client.fetchChatMessages({
 });
 ```
 
-## 9. Callback Events
+## 8. Callback Events
 
 The SDK supports both plain JSON and AES-encrypted callback payloads (per Lansenger API spec 4.10.1.4).
 
@@ -529,7 +491,6 @@ The Lansenger platform has three identity types with different API access:
 | `staff *` (contacts read-only) | N | **Y** | **Y** | `search` additionally requires userToken |
 | `department *` | N | **Y** | **Y** | Org-level apps only |
 | `calendar *` | N | **Y** | **Y** | With userToken = user identity; without = bot identity |
-| `todo *` | N | **Y** | **Y** | Org-level apps only |
 | `chat list/messages` | N | **Y** | **Y** | Org-level apps only |
 | `group *` (group management V2) | N | N | **Y** | Requires bot to be in group |
 | `media upload` | **Y** | **Y** | **Y** | General upload |
@@ -542,7 +503,7 @@ The Lansenger platform has three identity types with different API access:
 
 > **Personal Bot** can only send/receive messages and upload/download files. Cannot access contacts, calendars, or OAuth2.
 >
-> **Org App vs Org App + Bot**: Same appID/appSecret. The only difference is messaging channels — only bots can send bot DMs and group messages (because only bots can join groups). All other APIs (contacts, calendar, todo, chat, OAuth2, streaming) work identically for both. Currently only self-built apps support bot capability.
+> **Org App vs Org App + Bot**: Same appID/appSecret. The only difference is messaging channels — only bots can send bot DMs and group messages (because only bots can join groups). All other APIs (contacts, calendar, chat, OAuth2, streaming) work identically for both. Currently only self-built apps support bot capability.
 
 ### Developer Center Permissions
 
@@ -602,11 +563,6 @@ lansenger-sdk-ts/
 │   ├── persistence.ts        # CredentialStore — file-based persistence
 │   ├── callbacks.ts          # Callback events — 25 event types, AES decryption, SHA1 verification
 │   ├── groups.ts             # Group APIs (including dismiss 4.28.6)
-│   ├── todos.ts              # Unified Todo
-│   ├── notices.ts           # Notice (通知系统)
-│   ├── questionnaires.ts    # Questionnaire (问卷系统)
-│   ├── boardrooms.ts        # Boardroom (会议室预定 V2)
-│   ├── personalTodos.ts     # Personal Todo (个人待办)
 │   ├── calendars.ts          # Calendar & Schedule
 │   ├── reminders.ts          # Urgent message reminders (4.6.14)
 │   ├── chats.ts              # Chat reading (4.24 MCP)

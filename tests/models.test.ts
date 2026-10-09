@@ -1,14 +1,13 @@
 import {
   SendMessageResult, StaffBasicInfoResult, UserTokenResult,
-  GroupInfoResult, CreateGroupResult, TodoTaskCreateResult,
+  GroupInfoResult, CreateGroupResult,
   CalendarPrimaryResult, ScheduleCreateResult, ChatListResult,
   ChatStaffInfo, ChatGroupInfo, ChatMessageInfo, ChatMessagesResult,
   StaffDetailResult, DepartmentAncestorsResult, StaffIdMappingResult,
   OrgInfoResult, UploadMediaResult, QueryGroupsResult,
   GroupMemberResult, GroupListResult, IsInGroupResult,
   UpdateGroupResult, UpdateGroupMembersResult,
-  TodoTaskInfoResult, TodoTaskListResult, TodoTaskStatusCountResult,
-  TodoTaskExecutorListResult, ScheduleInfoResult, ScheduleListResult,
+  ScheduleInfoResult, ScheduleListResult,
   ScheduleAttendeesResult, ScheduleUpdateResult, ScheduleAttendeeMetaResult,
   AppCardParams, LinkCardParams, OaCardParams,
   DynamicCardUpdateParams, GroupCreateInfo,
@@ -19,14 +18,6 @@ import {
   UserInfoResult, ScheduleAttendeesUpdateResult,
   BotCommandResult, BotCommandQueryResult,
   PersonalAppCreateResult, PersonalAppInfoResult, PersonalAppListResult,
-  NoticeSendResult, NoticeAccountListResult,
-  QuestionnaireSaveResult, QuestionnaireOpResult, QuestionnaireDetailResult,
-  QuestionnairePageResult, QuestionnaireAnswerDetailResult, QuestionnaireRecordResult,
-  BoardroomListResult, BoardroomDetailResult, BoardroomScheduleResult,
-  BoardroomReserveDetailResult, BoardroomReserveResult, BoardroomOpResult,
-  BoardroomGradingListResult, BoardroomAreaListResult,
-  PersonalTodoListResult, PersonalTodoResourceResult,
-  PersonalTodoSaveResult, PersonalTodoUrlResult,
 } from "../src/models";
 
 describe("SendMessageResult", () => {
@@ -176,19 +167,6 @@ describe("CreateGroupResult", () => {
     const d = r.toDict();
     expect(d.total_members).toBe(0);
     expect(d.group_id).toBe("gid");
-  });
-});
-
-describe("TodoTaskCreateResult", () => {
-  test("constructor defaults", () => {
-    const r = new TodoTaskCreateResult({ success: true });
-    expect(r.todotask_id).toBeNull();
-  });
-
-  test("toDict", () => {
-    const r = new TodoTaskCreateResult({ success: true, todotask_id: "tid" });
-    const d = r.toDict();
-    expect(d.todotask_id).toBe("tid");
   });
 });
 
@@ -387,37 +365,6 @@ describe("GroupListResult", () => {
     const r = new GroupListResult({ success: true });
     expect(r.total_group_ids).toBe(0);
     expect(r.group_ids).toBeNull();
-  });
-});
-
-describe("TodoTaskInfoResult", () => {
-  test("constructor defaults", () => {
-    const r = new TodoTaskInfoResult({ success: true });
-    expect(r.todotask_id).toBeNull();
-    expect(r.title).toBeNull();
-  });
-});
-
-describe("TodoTaskListResult", () => {
-  test("constructor defaults", () => {
-    const r = new TodoTaskListResult({ success: true });
-    expect(r.total).toBe(0);
-    expect(r.todotask_list).toBeNull();
-  });
-});
-
-describe("TodoTaskStatusCountResult", () => {
-  test("constructor defaults", () => {
-    const r = new TodoTaskStatusCountResult({ success: true });
-    expect(r.status_counts).toBeNull();
-  });
-});
-
-describe("TodoTaskExecutorListResult", () => {
-  test("constructor defaults", () => {
-    const r = new TodoTaskExecutorListResult({ success: true });
-    expect(r.total).toBe(0);
-    expect(r.executor_list).toBeNull();
   });
 });
 
@@ -661,170 +608,3 @@ describe("PersonalAppListResult", () => {
   });
 });
 
-describe("NoticeSendResult", () => {
-  test("defaults", () => {
-    const r = new NoticeSendResult({ success: true });
-    expect(r.success).toBe(true);
-    expect(r.notice_code).toBeNull();
-    expect(r.error).toBeNull();
-  });
-
-  test("toDict omits nulls", () => {
-    const r = new NoticeSendResult({ success: true, notice_code: "NTC1", notice_status: 2 });
-    const d = r.toDict();
-    expect(d.notice_code).toBe("NTC1");
-    expect("title" in d).toBe(false);
-    expect("raw_response" in d).toBe(false);
-  });
-});
-
-describe("NoticeAccountListResult", () => {
-  test("defaults", () => {
-    const r = new NoticeAccountListResult({ success: true });
-    expect(r.total).toBe(0);
-    expect(r.accounts).toBeNull();
-  });
-
-  test("toDict", () => {
-    const r = new NoticeAccountListResult({ success: true, total: 1, accounts: [{ code: "A" }] });
-    expect(r.toDict().accounts).toEqual([{ code: "A" }]);
-  });
-});
-
-describe("QuestionnaireSaveResult", () => {
-  test("toDict omits nulls", () => {
-    const r = new QuestionnaireSaveResult({ success: true, questionnaire_code: "QN1" });
-    const d = r.toDict();
-    expect(d.questionnaire_code).toBe("QN1");
-    expect("raw_response" in d).toBe(false);
-  });
-});
-
-describe("QuestionnairePageResult", () => {
-  test("defaults and toDict", () => {
-    const r = new QuestionnairePageResult({ success: true, total: 3 });
-    const d = r.toDict();
-    expect(d.total).toBe(3);
-    expect(d.has_more).toBe(false);
-    expect("items" in d).toBe(false);
-  });
-});
-
-describe("QuestionnaireRecordResult", () => {
-  test("toDict omits nulls", () => {
-    const r = new QuestionnaireRecordResult({ success: true, record_code: "AR1", stats_status: 1 });
-    const d = r.toDict();
-    expect(d.record_code).toBe("AR1");
-    expect("answer_user_id" in d).toBe(false);
-  });
-});
-
-describe("BoardroomListResult", () => {
-  test("defaults and toDict", () => {
-    const r = new BoardroomListResult({ success: true, count: 2, items: [{ id: "room1" }] });
-    const d = r.toDict();
-    expect(d.count).toBe(2);
-    expect(d.items).toEqual([{ id: "room1" }]);
-    expect("raw_response" in d).toBe(false);
-  });
-});
-
-describe("BoardroomDetailResult", () => {
-  test("omits nulls", () => {
-    const r = new BoardroomDetailResult({ success: true, room_id: "room1", name: "第一会议室" });
-    const d = r.toDict();
-    expect(d.room_id).toBe("room1");
-    expect("address" in d).toBe(false);
-  });
-});
-
-describe("BoardroomScheduleResult", () => {
-  test("includes reserve arrays", () => {
-    const r = new BoardroomScheduleResult({
-      success: true, room_id: "room1", reserves: [{ id: "r1" }], deactivations: [],
-    });
-    const d = r.toDict();
-    expect(d.reserves).toEqual([{ id: "r1" }]);
-    expect(d.deactivations).toEqual([]);
-  });
-});
-
-describe("BoardroomReserveDetailResult", () => {
-  test("includes reservation fields", () => {
-    const r = new BoardroomReserveDetailResult({
-      success: true, reserve_id: "res1", meeting_name: "周会", people_number: "10",
-    });
-    const d = r.toDict();
-    expect(d.reserve_id).toBe("res1");
-    expect(d.people_number).toBe("10");
-  });
-});
-
-describe("BoardroomReserveResult", () => {
-  test("includes reserve code and omits nulls", () => {
-    const r = new BoardroomReserveResult({
-      success: true, reserve_id: "res1", reserve_code: "BR001", meeting_name: "周会",
-    });
-    const d = r.toDict();
-    expect(d.reserve_code).toBe("BR001");
-    expect("address" in d).toBe(false);
-  });
-});
-
-describe("BoardroomOpResult", () => {
-  test("includes done", () => {
-    const r = new BoardroomOpResult({ success: true, done: true });
-    expect(r.toDict()).toEqual({ success: true, done: true });
-  });
-});
-
-describe("BoardroomGradingListResult", () => {
-  test("includes gradings", () => {
-    const r = new BoardroomGradingListResult({
-      success: true, total: 1, gradings: [{ id: "g1" }],
-    });
-    expect(r.toDict().gradings).toEqual([{ id: "g1" }]);
-  });
-});
-
-describe("BoardroomAreaListResult", () => {
-  test("includes areas", () => {
-    const r = new BoardroomAreaListResult({
-      success: true, total: 1, areas: [{ id: "area1" }],
-    });
-    expect(r.toDict().areas).toEqual([{ id: "area1" }]);
-  });
-});
-
-describe("PersonalTodoSaveResult", () => {
-  test("includes todo code and omits nulls", () => {
-    const r = new PersonalTodoSaveResult({ success: true, todo_code: "TASK1" });
-    expect(r.toDict()).toEqual({ success: true, todo_code: "TASK1" });
-  });
-});
-
-describe("PersonalTodoListResult", () => {
-  test("includes page metadata", () => {
-    const r = new PersonalTodoListResult({ success: true, total: 2, has_more: true });
-    const d = r.toDict();
-    expect(d.total).toBe(2);
-    expect(d.has_more).toBe(true);
-    expect("items" in d).toBe(false);
-  });
-});
-
-describe("PersonalTodoResourceResult", () => {
-  test("includes resource fields", () => {
-    const r = new PersonalTodoResourceResult({ success: true, resource_id: "res1", size: 10 });
-    const d = r.toDict();
-    expect(d.resource_id).toBe("res1");
-    expect(d.size).toBe(10);
-  });
-});
-
-describe("PersonalTodoUrlResult", () => {
-  test("includes URL", () => {
-    const r = new PersonalTodoUrlResult({ success: true, url: "https://example.com" });
-    expect(r.toDict().url).toBe("https://example.com");
-  });
-});

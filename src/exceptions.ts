@@ -38,3 +38,9 @@ export class LansengerFileError extends LansengerError {
     super(message, undefined, false);
   }
 }
+
+export class LansengerCallbackError extends LansengerError {
+  constructor(message: string) {
+    super(message, undefined, false);
+  }
+}

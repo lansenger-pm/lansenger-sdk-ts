@@ -3,9 +3,7 @@ import {
   APP_MEDIA_TYPE_FILE, APP_MEDIA_TYPE_VIDEO,
   APP_MEDIA_TYPE_IMAGE, APP_MEDIA_TYPE_AUDIO, IMAGE_EXTENSIONS,
   VIDEO_EXTENSIONS, AUDIO_EXTENSIONS, MAX_MESSAGE_LENGTH,
-  TOKEN_REFRESH_MARGIN, TODO_TODO_STATUS_PENDING_READ,
-  TODO_TODO_STATUS_READ, TODO_TODO_STATUS_PENDING_DO, TODO_TODO_STATUS_DONE,
-  TODO_TYPE_NOTIFICATION, TODO_TYPE_APPROVAL, REMINDER_TYPE_NONE,
+  TOKEN_REFRESH_MARGIN, REMINDER_TYPE_NONE,
   REMINDER_TYPE_POPUP, REMINDER_TYPE_SMS, REMINDER_TYPE_PHONE,
   CALLBACK_EVENT_TYPES, VERSION, guessMediaType, guessAppMediaType,
 } from "../src/constants";
@@ -37,11 +35,6 @@ describe("API_ENDPOINTS", () => {
   test("has calendar endpoints with path vars", () => {
     expect(API_ENDPOINTS.calendars.schedule_create).toContain("{calendar_id}");
     expect(API_ENDPOINTS.calendars.schedule_fetch).toContain("{schedule_id}");
-  });
-
-  test("has todo endpoints", () => {
-    expect(API_ENDPOINTS.todo.create).toContain("todotask/create");
-    expect(API_ENDPOINTS.todo.info_fetch).toContain("todotask/info/fetch");
   });
 
   test("has chats endpoints", () => {
@@ -135,18 +128,6 @@ describe("Other constants", () => {
     expect(TOKEN_REFRESH_MARGIN).toBe(300);
   });
 
-  test("todo status constants", () => {
-    expect(TODO_TODO_STATUS_PENDING_READ).toBe("11");
-    expect(TODO_TODO_STATUS_READ).toBe("12");
-    expect(TODO_TODO_STATUS_PENDING_DO).toBe("21");
-    expect(TODO_TODO_STATUS_DONE).toBe("22");
-  });
-
-  test("todo type constants", () => {
-    expect(TODO_TYPE_NOTIFICATION).toBe(1);
-    expect(TODO_TYPE_APPROVAL).toBe(2);
-  });
-
   test("reminder type constants", () => {
     expect(REMINDER_TYPE_NONE).toBe(0);
     expect(REMINDER_TYPE_POPUP).toBe(1);
@@ -160,58 +141,7 @@ describe("Other constants", () => {
     expect(CALLBACK_EVENT_TYPES.staff_modify).toBe("staff");
   });
 
-  describe("questionnaires", () => {
-    test("save path", () => {
-      expect(API_ENDPOINTS.questionnaires.save).toBe("/xtra/questionnaire/server/openapi/v1/saveQuestionnaire");
-    });
-
-    test("upload_url path", () => {
-      expect(API_ENDPOINTS.questionnaires.upload_url).toBe("/xtra/questionnaire/server/openapi/v1/upload");
-    });
-  });
-
-  describe("notices", () => {
-    test("send path", () => {
-      expect(API_ENDPOINTS.notices.send).toBe("/xtra/notice/server/openapi/v1/send");
-    });
-
-    test("accounts_fetch path", () => {
-      expect(API_ENDPOINTS.notices.accounts_fetch).toBe("/xtra/notice/server/openapi/v1/notice/account");
-    });
-  });
-
-  describe("boardrooms", () => {
-    test("endpoint paths", () => {
-      expect(API_ENDPOINTS.boardrooms).toEqual({
-        room_list: "/xtra/boardroom/server/openapi/v2/roomList",
-        room_detail: "/xtra/boardroom/server/openapi/v2/roomDetail",
-        room_schedule: "/xtra/boardroom/server/openapi/v2/roomSchedule",
-        reserve_detail: "/xtra/boardroom/server/openapi/v2/reserveDetail",
-        reserve_room: "/xtra/boardroom/server/openapi/v2/reserveRoom",
-        edit_reserve: "/xtra/boardroom/server/openapi/v2/editReserve",
-        reserve_cancel: "/xtra/boardroom/server/openapi/v2/reserveCancel",
-        confirm_sign: "/xtra/boardroom/server/openapi/v2/confirmSign",
-        my_reserve_list: "/xtra/boardroom/server/openapi/v2/myReserveList",
-        grading_list: "/xtra/boardroom/server/openapi/v2/gradingList",
-        area_office_list: "/xtra/boardroom/server/openapi/v2/areaOfficeList",
-      });
-    });
-  });
-
-  describe("personal todos", () => {
-    test("endpoint paths", () => {
-      expect(API_ENDPOINTS.personal_todos).toEqual({
-        save: "/xtra/tdtask/server/openapi/v3/taskopt/savePersonalTask",
-        update: "/xtra/tdtask/server/openapi/v3/taskopt/updatePersonalTask",
-        user_list: "/xtra/tdtask/server/openapi/v3/user/list",
-        resource_update: "/xtra/tdtask/server/openapi/resource/update",
-        resource_download: "/xtra/tdtask/server/openapi/resource/getResourceDownload",
-        resource_upload_url: "/xtra/tdtask/server/openapi/resource/getUploadUrl",
-      });
-    });
-  });
-
   test("VERSION", () => {
-    expect(VERSION).toBe("1.8.0");
+    expect(VERSION).toBe("1.9.0");
   });
 });

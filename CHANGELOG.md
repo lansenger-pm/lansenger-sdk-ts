@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.9.0] - 2026-10-09
+
+### Added
+
+- `downloadMediaToFileResult()`：与 `downloadMediaToFile()` 相同的下载逻辑，但返回 `DownloadFileResult`（`success` / `path` / `size` / `error`），下载或写盘失败不抛异常。`downloadMediaToFile()` 保持原有契约（失败抛 `LansengerFileError`）。
+- 导出 `DownloadFileResult` 与 `downloadMediaToFileResult`。
+
+### Removed
+
+- 移除 7 个应用域：qingjia（请假 V2）、jiaban（加班 V2）、questionnaire（问卷）、notice（通知）、todo（应用待办）、boardroom（会议室预定 V2）、personalTodo（个人待办）。这些应用与蓝信标准接口不同、且会按交付定制，不属于「交付给谁都不变」的标准版，故从 SDK 中剥离。对应模块（含仅供其使用的 V2 分页解析 `parseV2PageInfo`）、`*LansengerClient` 方法、导出、常量、结果类与单元测试均已删除，5 个语言版本的 README 同步删去相应章节。
+
+### Fixed
+
+- **回调解析**：`parseCallbackPayload()` 收到无法解析的载荷时抛 `LansengerCallbackError`，不再泄漏 `SyntaxError`。
+
+---
+
+## [1.8.0] - 2026-09-24
+
+### Fixed (media, mirror of python 1.10.1)
+
+- **media.download**: the gateway returns 200 + a JSON error body (e.g. errCode 10003) when the media is missing or the identity lacks access — `downloadMedia` no longer silently returns that error body as file content; it fails with the server message and points to the chat-history `fileUrls` signed-link fallback.
+- **media.uploadAppMediaV2**: non-string / out-of-enum `mediaType` is rejected locally with guidance (the numeric 1/2/3 convention belongs to the legacy 4.5.1 endpoint) — prevents errCode 50052 缺少上传media类型.
+
+### Changed
+
+- **client.sendFile / sendText with file_path**: when `user_token` is provided (assistant identity) the upload routes through the v2 app-media channel (4.5.5) — the v1 channel rejected the assistant identity with 10005 invalid appCategory; bot identity keeps the v1 path.
+
+---
+
+## [1.7.0] - 2026-09-24
+
+### Fixed
+
+- **dynamic-card**: `updateDynamicCard` / `updateDynamicCardWithParams` / `DynamicCardUpdateParams` now accept `user_token` (query) and `user_id` (body `userId`) — the update must carry the identity that originally SENT the card. Bot-sent cards update with the app identity alone; human-sent cards (e.g. group messages) require the sender identity; a mismatch fails with 10005 无权限 (LXBUGS-128492, verified live by 李川 lxtest).
+- **videoconferences**: `VC_OPS` removed `muteall`/`unmuteall` — `/meeting/member/control` is per-member only (backend confirmation 邹治会 2026-09-24); `mute` (per-member mute) verified live errCode=0 (LXBUGS-128490).
+
+---
+
 ## [1.6.1] - 2026-09-23
 
 ### Added
@@ -49,28 +88,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 创建/修改要求成员列表恰好一名 `role="admin"` 主持人；录像下载链接每次最多 3 个；`fetch_range='person'` 必须传 `staff_id`；`mids` 不得为空。
 
 ---
-
-## [1.7.0] - 2026-09-24
-
-### Fixed
-
-- **dynamic-card**: `updateDynamicCard` / `updateDynamicCardWithParams` / `DynamicCardUpdateParams` now accept `user_token` (query) and `user_id` (body `userId`) — the update must carry the identity that originally SENT the card. Bot-sent cards update with the app identity alone; human-sent cards (e.g. group messages) require the sender identity; a mismatch fails with 10005 无权限 (LXBUGS-128492, verified live by 李川 lxtest).
-- **videoconferences**: `VC_OPS` removed `muteall`/`unmuteall` — `/meeting/member/control` is per-member only (backend confirmation 邹治会 2026-09-24); `mute` (per-member mute) verified live errCode=0 (LXBUGS-128490).
-
----
-
----
-
-## [1.8.0] - 2026-09-24
-
-### Fixed (media, mirror of python 1.10.1)
-
-- **media.download**: the gateway returns 200 + a JSON error body (e.g. errCode 10003) when the media is missing or the identity lacks access — `downloadMedia` no longer silently returns that error body as file content; it fails with the server message and points to the chat-history `fileUrls` signed-link fallback.
-- **media.uploadAppMediaV2**: non-string / out-of-enum `mediaType` is rejected locally with guidance (the numeric 1/2/3 convention belongs to the legacy 4.5.1 endpoint) — prevents errCode 50052 缺少上传media类型.
-
-### Changed
-
-- **client.sendFile / sendText with file_path**: when `user_token` is provided (assistant identity) the upload routes through the v2 app-media channel (4.5.5) — the v1 channel rejected the assistant identity with 10005 invalid appCategory; bot identity keeps the v1 path.
 
 ## [1.4.5] - 2026-09-20
 

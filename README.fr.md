@@ -34,8 +34,6 @@ Les trois types de robots utilisent le même mécanisme d'authentification : `ap
 - **Gestion des messages** — révocation, mise à jour dynamique de carte
 - **Groups** — créer, infos, membres, liste, vérification de membership, mise à jour des paramètres & membres, dissoudre
 - **Calendrier & Schedule** — calendrier principal, CRUD de schedule + mise à jour, gestion des participants + métadonnées participants, update_schedule_attendees()
-- **Todo unifié** — créer, mettre à jour, supprimer, interroger, gestion d'exécuteur, comptes de statut
-- **Notices (通知系统)** — envoyer des notifications via un compte officiel (texte/lien, ciblage téléphone/staff, confirmation/rappels, pièces jointes), lister les comptes officiels
 - **Commandes de bot** — créer/gérer les entrées de commande de bot
 - **Applications personnelles** — gérer les bots personnels
 - **Événements de callback** — 25 types d'événements, parsing structuré, décryptage AES (spec 4.10.1.4), vérification de signature SHA1
@@ -64,9 +62,6 @@ npm test
 Chaque méthode du SDK requiert `appToken`. Le client l'obtient et le refresh automatiquement à partir de votre `app_id` + `app_secret` via `GET /v1/apptoken/create`. Vous n'avez jamais besoin de gérer appToken manuellement — le `TokenManager` gère le cycle de vie :
 
 1. **Premier appel** → `GET /v1/apptoken/create` avec app_id + app_secret → renvoie `appToken` (valide 2 heures)
-- **Questionnaires (问卷系统)** — créer/mettre à jour/publier/retirer/terminer/supprimer des questionnaires, gestion groupée des questions, listes paginées, enregistrements et export des réponses, URL de téléversement pré-signée
-- **Boardroom (会议室预定 V2)** — recherche de salles, détails et planning journalier, réservation/modification, annulation, confirmation par scan, mes réservations, listes de gradings et zones
-- **Todos personnels (个人待办)** — créer/modifier/lister les todos personnels et gérer les pièces jointes
 2. **Appels suivants** → réutilise le appToken en cache jusqu'à expiration
 3. **Token expiré** → refresh automatique via le même endpoint
 
@@ -286,6 +281,9 @@ const download = await client.downloadMediaFile("media123");
 // Sauvegarder dans un fichier
 const filePath = await client.downloadMediaToFile("media123", { target_path: "/tmp/file.pdf" });
 
+// Sauvegarder dans un fichier, échec renvoyé comme objet résultat (sans exception)
+const fileResult = await client.downloadMediaToFileResult("media123", { target_path: "/tmp/file.pdf" });
+
 // Récupérer le chemin de téléchargement URL (4.5.3)
 const pathResult = await client.fetchMediaPathInfo("media123");
 
@@ -365,43 +363,7 @@ await client.updateScheduleAttendeeMeta("cal1", "sch1", {
 });
 ```
 
-## 7. Todo unifié
-
-```typescript
-import { TODO_TYPE_APPROVAL, TODO_TODO_STATUS_DONE } from "lansenger-sdk-ts";
-
-// Créer une tâche todo
-const todo = await client.createTodoTask(
-  "Demande d'approbation", "https://app.com/a/1", "https://pc.app.com/a/1",
-  ["staff1"], "org1", TODO_TYPE_APPROVAL,
-);
-
-// Mettre à jour le statut (11=à lire, 12=lu, 21=à faire, 22=fait)
-await client.updateTodoTaskStatus("taskId", TODO_TODO_STATUS_DONE, "org1");
-
-// Mettre à jour le contenu
-await client.updateTodoTask("taskId", "Mis à jour", "l", "p", "org1");
-
-// Supprimer (envoyeur uniquement)
-await client.deleteTodoTask("taskId", "org1");
-
-// Interroger
-const listResult = await client.fetchTodoTaskList("org1");
-const task = await client.fetchTodoTaskById("taskId", "org1");
-const task = await client.fetchTodoTaskBySourceId("src1", "org1");
-const counts = await client.fetchTodoTaskStatusCounts("staff1", "org1");
-
-// Gestion des exécuteurs
-await client.addExecutors(["staff2"], "org1", { todotask_id: "taskId" });
-await client.deleteExecutors(["staff2"], "org1", { todotask_id: "taskId" });
-const executors = await client.fetchExecutorList("taskId", "org1");
-await client.updateExecutorStatus(
-  [{ executorId: "staff1", todotaskId: "taskId", status: "22" }],
-  "org1",
-);
-```
-
-## 8. Lecture de chats (4.24 MCP)
+## 7. Lecture de chats (4.24 MCP)
 
 ```typescript
 // Récupérer la liste de chats (privé + groupe)
@@ -414,7 +376,7 @@ const messages = await client.fetchChatMessages({
 });
 ```
 
-## 9. Événements de callback
+## 8. Événements de callback
 
 Le SDK prend en charge les payloads de callback en JSON brut et en AES chiffré (selon la spec API Lansenger 4.10.1.4).
 
@@ -526,7 +488,6 @@ La plateforme Lansenger propose trois types d'identité avec différents accès 
 | `staff *` (contacts lecture seule) | N | **Y** | **Y** | `search` nécessite en plus userToken |
 | `department *` | N | **Y** | **Y** | Applications niveau organisation uniquement |
 | `calendar *` | N | **Y** | **Y** | Avec userToken = identité utilisateur ; sans = identité bot |
-| `todo *` | N | **Y** | **Y** | Applications niveau organisation uniquement |
 | `chat list/messages` | N | **Y** | **Y** | Applications niveau organisation uniquement |
 | `group *` (gestion de groupe V2) | N | N | **Y** | Nécessite que le bot soit dans le groupe |
 | `media upload` | **Y** | **Y** | **Y** | Upload général |
@@ -539,7 +500,7 @@ La plateforme Lansenger propose trois types d'identité avec différents accès 
 
 > **Bot Personnel** peut seulement envoyer/recevoir des messages et uploader/télécharger des fichiers. Ne peut pas accéder aux contacts, calendriers ou OAuth2.
 >
-> **App d'org vs App d'org + Bot** : Même appID/appSecret. La seule différence réside dans les canaux de messagerie — seuls les bots peuvent envoyer des DMs et des messages de groupe (car seuls les bots peuvent rejoindre les groupes). Toutes les autres API (contacts, calendrier, todo, chat, OAuth2, streaming) fonctionnent de manière identique pour les deux. Actuellement, seules les apps auto-créées supportent la capacité bot.
+> **App d'org vs App d'org + Bot** : Même appID/appSecret. La seule différence réside dans les canaux de messagerie — seuls les bots peuvent envoyer des DMs et des messages de groupe (car seuls les bots peuvent rejoindre les groupes). Toutes les autres API (contacts, calendrier, chat, OAuth2, streaming) fonctionnent de manière identique pour les deux. Actuellement, seules les apps auto-créées supportent la capacité bot.
 
 ### Permissions du Developer Center
 
@@ -599,11 +560,6 @@ lansenger-sdk-ts/
 │   ├── persistence.ts        # CredentialStore — persistance fichier des identifiants & tokens
 │   ├── callbacks.ts          # Événements de callback — 25 types, décryptage AES, vérification SHA1
 │   ├── groups.ts             # API Groups (incluant dissoudre 4.28.6)
-│   ├── todos.ts              # Todo unifié
-│   ├── notices.ts           # Notifications (通知系统)
-│   ├── questionnaires.ts    # Questionnaires (问卷系统)
-│   ├── boardrooms.ts        # Boardroom (会议室预定 V2)
-│   ├── personalTodos.ts     # Personal Todo (个人待办)
 │   ├── calendars.ts          # Calendrier & Schedule
 │   ├── reminders.ts          # Rappels urgents (4.6.14)
 │   ├── chats.ts              # Lecture de chats (4.24 MCP)

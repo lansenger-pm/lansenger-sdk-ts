@@ -34,8 +34,6 @@
 - **消息管理** — 撤回、动态卡片更新
 - **群组** — 创建、信息、成员、列表、成员检查、更新设置与成员、解散
 - **日历与日程** — 主日历、日程 CRUD + 更新、参会人管理 + 参会人元数据、update_schedule_attendees()
-- **统一待办** — 创建、更新、删除、查询、执行人管理、状态计数
-- **通知系统** — 通过官方账号发送通知（文本/链接、手机号/staffId 两种投放、确认/提醒策略、附件），查询组织官方账号
 - **机器人命令** — 创建/查询/删除机器人快捷命令
 - **个人应用** — 创建/修改/查询/删除/列表个人机器人应用
 - **回调事件** — 25 种事件类型，结构化解析，AES 解密（4.10.1.4），SHA1 签名验证
@@ -64,9 +62,6 @@ npm test
 每个 SDK 方法都需要 `appToken`。客户端使用 `app_id` + `app_secret` 自动获取和刷新。`TokenManager` 处理整个生命周期：
 
 1. **首次调用** → `GET /v1/apptoken/create` → 返回 `appToken`（有效期 2 小时）
-- **问卷系统** — 创建/更新/发布/撤回/结束/删除问卷，批量管理题目，官方账号与我创建/我参与的列表（分页），答卷记录与导出，预签名上传地址
-- **会议室预定 V2** — 会议室检索（办公区/楼层/设备/时段筛选），详情与当日预订情况，预订与修改（单次/重复），取消与扫码确认，我的预订（分页），分级与办公区列表
-- **个人待办** — 创建、编辑、查询用户个人待办及资源附件；与应用待办完全分离
 2. **后续调用** → 复用缓存的 appToken 直到过期
 3. **令牌过期** → 自动通过相同端点刷新
 
@@ -286,6 +281,9 @@ const download = await client.downloadMediaFile("media123");
 // 保存到文件
 const filePath = await client.downloadMediaToFile("media123", { target_path: "/tmp/file.pdf" });
 
+// 保存到文件（失败时返回结果对象，不抛异常）
+const fileResult = await client.downloadMediaToFileResult("media123", { target_path: "/tmp/file.pdf" });
+
 // 获取下载 URL 路径 (4.5.3)
 const pathResult = await client.fetchMediaPathInfo("media123");
 
@@ -365,43 +363,7 @@ await client.updateScheduleAttendeeMeta("cal1", "sch1", {
 });
 ```
 
-## 7. 统一待办
-
-```typescript
-import { TODO_TYPE_APPROVAL, TODO_TODO_STATUS_DONE } from "lansenger-sdk-ts";
-
-// 创建待办任务
-const todo = await client.createTodoTask(
-  "审批请求", "https://app.com/a/1", "https://pc.app.com/a/1",
-  ["staff1"], "org1", TODO_TYPE_APPROVAL,
-);
-
-// 更新状态（11=待阅, 12=已阅, 21=待办, 22=已办）
-await client.updateTodoTaskStatus("taskId", TODO_TODO_STATUS_DONE, "org1");
-
-// 更新内容
-await client.updateTodoTask("taskId", "已更新", "l", "p", "org1");
-
-// 删除（仅发送者）
-await client.deleteTodoTask("taskId", "org1");
-
-// 查询
-const listResult = await client.fetchTodoTaskList("org1");
-const task = await client.fetchTodoTaskById("taskId", "org1");
-const task = await client.fetchTodoTaskBySourceId("src1", "org1");
-const counts = await client.fetchTodoTaskStatusCounts("staff1", "org1");
-
-// 执行人管理
-await client.addExecutors(["staff2"], "org1", { todotask_id: "taskId" });
-await client.deleteExecutors(["staff2"], "org1", { todotask_id: "taskId" });
-const executors = await client.fetchExecutorList("taskId", "org1");
-await client.updateExecutorStatus(
-  [{ executorId: "staff1", todotaskId: "taskId", status: "22" }],
-  "org1",
-);
-```
-
-## 8. 聊天读取 (4.24 MCP)
+## 7. 聊天读取 (4.24 MCP)
 
 ```typescript
 // 获取聊天列表（私聊 + 聊）
@@ -414,7 +376,7 @@ const messages = await client.fetchChatMessages({
 });
 ```
 
-## 9. 回调事件
+## 8. 回调事件
 
 SDK 支持纯 JSON 和 AES 加密回调载荷（蓝信 API 规范 4.10.1.4）。
 
@@ -526,7 +488,6 @@ const token = store.loadAppToken(); // 过期则为 null
 | `staff *` (通讯录只读) | N | **Y** | **Y** | `search` 额外需要 userToken |
 | `department *` | N | **Y** | **Y** | 仅限组织级应用 |
 | `calendar *` | N | **Y** | **Y** | 有 userToken = 用户身份；无 = 机器人身份 |
-| `todo *` | N | **Y** | **Y** | 仅限组织级应用 |
 | `chat list/messages` | N | **Y** | **Y** | 仅限组织级应用 |
 | `group *` (群组管理 V2) | N | N | **Y** | 需要机器人已在群内 |
 | `media upload` | **Y** | **Y** | **Y** | 通用上传 |
@@ -539,7 +500,7 @@ const token = store.loadAppToken(); // 过期则为 null
 
 > **个人机器人**只能收发消息和上传/下载文件。无法访问通讯录、日历或 OAuth2。
 >
-> **组织应用 vs 组织应用+机器人**：相同的 appID/appSecret。唯一区别在于消息通道——只有机器人可以发送机器人私聊和群聊消息（因为只有机器人能入群）。其他所有 API（通讯录、日历、待办、聊天、OAuth2、流式）两者完全一样。目前只有自建应用支持机器人能力。
+> **组织应用 vs 组织应用+机器人**：相同的 appID/appSecret。唯一区别在于消息通道——只有机器人可以发送机器人私聊和群聊消息（因为只有机器人能入群）。其他所有 API（通讯录、日历、聊天、OAuth2、流式）两者完全一样。目前只有自建应用支持机器人能力。
 
 ### 开发者中心权限
 
@@ -599,11 +560,6 @@ lansenger-sdk-ts/
 │   ├── persistence.ts        # CredentialStore — 文件持久化
 │   ├── callbacks.ts          # 回调事件 — 25 种事件、AES 解密、SHA1 签名验证
 │   ├── groups.ts             # 群组 API（含解散 4.28.6）
-│   ├── todos.ts              # 统一待办
-│   ├── notices.ts           # 通知系统
-│   ├── questionnaires.ts    # 问卷系统
-│   ├── boardrooms.ts        # 会议室预定 V2
-│   ├── personalTodos.ts     # 个人待办
 │   ├── calendars.ts          # 日历与日程
 │   ├── reminders.ts          # 紧急提醒 (4.6.14)
 │   ├── chats.ts              # 聊天读取 (4.24 MCP)

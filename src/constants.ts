@@ -113,55 +113,6 @@ export const API_ENDPOINTS: Record<string, Record<string, string>> = {
     attendees_update: "/v1/calendars/{calendar_id}/schedules/{schedule_id}/members/update",
     attendees_meta_update: "/v1/calendars/{calendar_id}/schedules/{schedule_id}/members/meta/update",
   },
-  notices: {
-    send: "/xtra/notice/server/openapi/v1/send",
-    accounts_fetch: "/xtra/notice/server/openapi/v1/notice/account",
-  },
-  questionnaires: {
-    save: "/xtra/questionnaire/server/openapi/v1/saveQuestionnaire",
-    questions_save: "/xtra/questionnaire/server/openapi/v1/saveQuestionList",
-    question_delete: "/xtra/questionnaire/server/openapi/v1/deleteQuestion",
-    publish: "/xtra/questionnaire/server/openapi/v1/publish",
-    withdraw: "/xtra/questionnaire/server/openapi/v1/withdraw",
-    finish: "/xtra/questionnaire/server/openapi/v1/finish",
-    delete: "/xtra/questionnaire/server/openapi/v1/delete",
-    detail: "/xtra/questionnaire/server/openapi/v1/detail",
-    answer_url: "/xtra/questionnaire/server/openapi/v1/getAnswerUrl",
-    copy: "/xtra/questionnaire/server/openapi/v1/copy",
-    detail_no_auth: "/xtra/questionnaire/server/openapi/v1/detailWithoutAuth",
-    query_list: "/xtra/questionnaire/server/openapi/v1/queryList",
-    user_accounts: "/xtra/questionnaire/server/openapi/v1/userOfficeAccountList",
-    create_list: "/xtra/questionnaire/server/openapi/v1/createList",
-    my_create_list: "/xtra/questionnaire/server/openapi/v1/myCreateList",
-    participation_list: "/xtra/questionnaire/server/openapi/v1/participationList",
-    answer_list: "/xtra/questionnaire/server/openapi/v1/answerList",
-    answer_detail: "/xtra/questionnaire/server/openapi/v1/answerDetail",
-    last_answer_detail: "/xtra/questionnaire/server/openapi/v1/lastAnswerDetail",
-    answer_data: "/xtra/questionnaire/server/openapi/v1/answerData",
-    last_answer_record: "/xtra/questionnaire/server/openapi/v1/lastAnswerRecord",
-    upload_url: "/xtra/questionnaire/server/openapi/v1/upload",
-  },
-  boardrooms: {
-    room_list: "/xtra/boardroom/server/openapi/v2/roomList",
-    room_detail: "/xtra/boardroom/server/openapi/v2/roomDetail",
-    room_schedule: "/xtra/boardroom/server/openapi/v2/roomSchedule",
-    reserve_detail: "/xtra/boardroom/server/openapi/v2/reserveDetail",
-    reserve_room: "/xtra/boardroom/server/openapi/v2/reserveRoom",
-    edit_reserve: "/xtra/boardroom/server/openapi/v2/editReserve",
-    reserve_cancel: "/xtra/boardroom/server/openapi/v2/reserveCancel",
-    confirm_sign: "/xtra/boardroom/server/openapi/v2/confirmSign",
-    my_reserve_list: "/xtra/boardroom/server/openapi/v2/myReserveList",
-    grading_list: "/xtra/boardroom/server/openapi/v2/gradingList",
-    area_office_list: "/xtra/boardroom/server/openapi/v2/areaOfficeList",
-  },
-  personal_todos: {
-    save: "/xtra/tdtask/server/openapi/v3/taskopt/savePersonalTask",
-    update: "/xtra/tdtask/server/openapi/v3/taskopt/updatePersonalTask",
-    user_list: "/xtra/tdtask/server/openapi/v3/user/list",
-    resource_update: "/xtra/tdtask/server/openapi/resource/update",
-    resource_download: "/xtra/tdtask/server/openapi/resource/getResourceDownload",
-    resource_upload_url: "/xtra/tdtask/server/openapi/resource/getUploadUrl",
-  },
   bot_commands: {
     create: "/v1/bot/commands/create",
     fetch: "/v1/bot/commands/fetch",
@@ -173,21 +124,6 @@ export const API_ENDPOINTS: Record<string, Record<string, string>> = {
     fetch: "/v1/personal/apps/{app_id}/fetch",
     delete: "/v1/personal/apps/{app_id}/delete",
     list_fetch: "/v1/personal/apps/list/fetch",
-  },
-  todo: {
-    create: "/xtra/task/unified/v1/todotask/create",
-    info_update: "/xtra/task/unified/v1/todotask/info/update",
-    status_update: "/xtra/task/unified/v1/todotask/status/update",
-    sender_delete: "/xtra/task/unified/v1/sender/todotask/delete",
-    list_fetch: "/xtra/task/unified/v1/todotask/list/fetch",
-    info_fetch_by_source_id: "/xtra/task/unified/v1/todotask/info/fetchbysourceid",
-    info_fetch: "/xtra/task/unified/v1/todotask/info/fetch",
-    status_count_list_fetch: "/xtra/task/unified/v1/todotask/status/countList/fetch",
-    executor_status_update: "/xtra/task/unified/v1/todotask/executor/status/update",
-    executor_create: "/xtra/task/unified/v1/todotask/executor/create",
-    executor_delete: "/xtra/task/unified/v1/todotask/executor/delete",
-    executor_list_fetch: "/xtra/task/unified/v1/todotask/executor/list/fetch",
-    staff_application_fetch: "/xtra/task/unified/v1/staff/application/fetch",
   },
 };
 
@@ -221,71 +157,10 @@ export const AUDIO_EXTENSIONS = new Set([".mp3", ".wav", ".amr", ".m4a", ".ogg",
 export const MAX_MESSAGE_LENGTH = 4000;
 export const TOKEN_REFRESH_MARGIN = 300;
 
-export const TODO_TODO_STATUS_PENDING_READ = "11";
-export const TODO_TODO_STATUS_READ = "12";
-export const TODO_TODO_STATUS_PENDING_DO = "21";
-export const TODO_TODO_STATUS_DONE = "22";
-
-export const TODO_TYPE_NOTIFICATION = 1;
-export const TODO_TYPE_APPROVAL = 2;
-
 export const REMINDER_TYPE_NONE = 0;
 export const REMINDER_TYPE_POPUP = 1;
 export const REMINDER_TYPE_SMS = 2;
 export const REMINDER_TYPE_PHONE = 3;
-
-export const NOTICE_CONTENT_TYPE_TEXT = 1;
-export const NOTICE_CONTENT_TYPE_LINK = 2;
-export const NOTICE_USER_TYPE_PHONE = 1;   // target users by mobile number (phoneUserRange)
-export const NOTICE_USER_TYPE_OPENID = 2;  // target users by staffId/department (openUserRange)
-export const NOTICE_RANGE_OBJ_TYPE_STAFF = 1;
-export const NOTICE_RANGE_OBJ_TYPE_DEPARTMENT = 2;
-export const NOTICE_PHONE_RANGE_MAX = 10;   // releaseRangeList / ccRangeList phone limit
-export const NOTICE_OPEN_RANGE_MAX = 200;   // releaseRangeList / ccRangeList staff limit
-export const NOTICE_REMIND_AFTER_TYPES = ["never", "unOperate", "count"];
-export const NOTICE_REMIND_RANGE_TYPES = ["all", "receiver", "partialRemind", "notReminder"];
-
-export const QUESTIONNAIRE_STATUS_DRAFT = 1;
-export const QUESTIONNAIRE_STATUS_ONGOING = 2;
-export const QUESTIONNAIRE_STATUS_WITHDRAWN = 3;
-export const QUESTIONNAIRE_STATUS_FINISHED = 4;
-export const QUESTIONNAIRE_STATUS_READY_TO_PUBLISH = 5;
-export const QUESTIONNAIRE_SCOPE_INTERNAL = 1;
-export const QUESTIONNAIRE_SCOPE_PUBLIC = 2;
-export const QUESTIONNAIRE_ANSWER_LIMIT_ONCE = 1;
-export const QUESTIONNAIRE_ANSWER_LIMIT_UNLIMITED = -1;
-export const QUESTIONNAIRE_QUESTION_TYPES = [
-  "radio", "checkbox", "picturesVote", "fillblank", "name", "phone",
-  "email", "sex", "age", "date", "dateTime", "address", "multiScore",
-  "remark", "picturesUpload", "filesUpload",
-];
-
-export const BOARDROOM_STATUS_APPROVING = 0;
-export const BOARDROOM_STATUS_PENDING_SIGN = 1;
-export const BOARDROOM_STATUS_SIGN_TIMEOUT = 2;
-export const BOARDROOM_STATUS_REJECTED = 3;
-export const BOARDROOM_STATUS_CANCELED = 4;
-export const BOARDROOM_STATUS_RESERVED = 5;
-export const BOARDROOM_STATUS_FINISHED = 6;
-export const BOARDROOM_RESERVE_TYPE_SINGLE = "0";
-export const BOARDROOM_RESERVE_TYPE_REPEAT = "1";
-export const BOARDROOM_EDIT_TYPE_CURRENT = "1";
-export const BOARDROOM_EDIT_TYPE_CURRENT_AND_AFTER = "2";
-export const BOARDROOM_CANCEL_TYPE_CURRENT = "1";
-export const BOARDROOM_CANCEL_TYPE_CURRENT_AND_AFTER = "2";
-export const BOARDROOM_CANCEL_TYPE_ALL_UNFINISHED = "3";
-
-export const PERSONAL_TODO_TYPE_PERSONAL = 1;
-export const PERSONAL_TODO_STATUS_UNFINISHED = 0;
-export const PERSONAL_TODO_STATUS_FINISHED = 1;
-export const PERSONAL_TODO_PRIORITY_LOW = 0;
-export const PERSONAL_TODO_PRIORITY_NORMAL = 1;
-export const PERSONAL_TODO_PRIORITY_URGENT = 2;
-export const PERSONAL_TODO_PRIORITY_VERY_URGENT = 3;
-export const PERSONAL_TODO_PLATFORM_APP = 1;
-export const PERSONAL_TODO_PLATFORM_WEB = 2;
-export const PERSONAL_TODO_PLATFORM_API = 3;
-export const PERSONAL_TODO_RESOURCE_MAX_SIZE = 9 * 1024 * 1024;
 
 export const CALLBACK_EVENT_TYPES: Record<string, string> = {
   account_message: "public_account",
@@ -357,4 +232,4 @@ export const VC_FETCH_RANGE_PERSON = "person";
 export const VC_CREATE_SOURCE_CLIENT = 0;
 export const VC_CREATE_SOURCE_THIRD_PARTY = 1;
 
-export const VERSION = "1.8.0";
+export const VERSION = "1.9.0";

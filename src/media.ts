@@ -6,7 +6,7 @@ import { buildApiUrl } from "./urlHelpers";
 import { doGet, doPost, doPostMultipart, parseApiResponse, FetchFn } from "./http";
 import { TokenManager } from "./auth";
 import { MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO, APP_MEDIA_TYPE_FILE, guessMediaType, guessAppMediaType } from "./constants";
-import { UploadMediaResult, DownloadMediaResult, MediaPathResult } from "./models";
+import { UploadMediaResult, DownloadMediaResult, DownloadFileResult, MediaPathResult } from "./models";
 import { LansengerFileError } from "./exceptions";
 import FormData = require("form-data");
 
@@ -195,11 +195,58 @@ export async function downloadMediaByShareId(
 }
 
 /**
+ * Resolve the output path, sniffing the image format for the extension.
+ */
+function resolveTargetPath(targetPath: string | undefined, mediaId: string, mediaType: string, mediaBytes: Buffer): string {
+  const extMap: Record<string, string> = { image: ".jpg", video: ".mp4", file: ".dat", voice: ".amr" };
+  let ext = extMap[mediaType] || ".dat";
+  if (mediaType === "image" && mediaBytes.length >= 8) {
+    if (mediaBytes[0] === 0xff && mediaBytes[1] === 0xd8) ext = ".jpg";
+    else if (mediaBytes.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) ext = ".png";
+  }
+  if (!targetPath) {
+    const tmpDir = os.tmpdir();
+    targetPath = path.join(tmpDir, `lansenger_${mediaType}_${mediaId}${ext}`);
+  }
+  return targetPath;
+}
+
+/**
+ * Download media and save to a file, reporting failure as a result object.
+ *
+ * Same download logic as downloadMediaToFile, but follows the SDK-wide
+ * *Result convention: a failed download or a failed save returns
+ * `DownloadFileResult({ success: false, error })` instead of throwing.
+ */
+export async function downloadMediaToFileResult(
+  config: LansengerConfig,
+  tokenManager: TokenManager,
+  fetchFn: FetchFn,
+  mediaId: string,
+  targetPath?: string,
+  mediaType: string = "file",
+): Promise<DownloadFileResult> {
+  const result = await downloadMedia(config, tokenManager, fetchFn, mediaId);
+  if (!result.success || !result.data) {
+    return new DownloadFileResult({ success: false, error: result.error });
+  }
+  const mediaBytes = result.data;
+  const resolvedPath = resolveTargetPath(targetPath, mediaId, mediaType, mediaBytes);
+  try {
+    fs.writeFileSync(resolvedPath, mediaBytes);
+  } catch (e) {
+    return new DownloadFileResult({ success: false, error: `Save failed: ${e instanceof Error ? e.message : String(e)}` });
+  }
+  return new DownloadFileResult({ success: true, path: resolvedPath, size: mediaBytes.length });
+}
+
+/**
  * Download media and save to a file.
  *
  * Note: unlike most SDK functions (which return a *Result with a success
  * field), this throws LansengerFileError on failure and returns the path
- * string on success.
+ * string on success. Use downloadMediaToFileResult if you prefer the
+ * result-object contract.
  */
 export async function downloadMediaToFile(
   config: LansengerConfig,
@@ -211,19 +258,14 @@ export async function downloadMediaToFile(
 ): Promise<string> {
   const result = await downloadMedia(config, tokenManager, fetchFn, mediaId);
   if (!result.success || !result.data) throw new LansengerFileError(`Download failed: ${result.error}`);
-  const extMap: Record<string, string> = { image: ".jpg", video: ".mp4", file: ".dat", voice: ".amr" };
-  let ext = extMap[mediaType] || ".dat";
   const mediaBytes = result.data;
-  if (mediaType === "image" && mediaBytes.length >= 8) {
-    if (mediaBytes[0] === 0xff && mediaBytes[1] === 0xd8) ext = ".jpg";
-    else if (mediaBytes.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) ext = ".png";
+  const resolvedPath = resolveTargetPath(targetPath, mediaId, mediaType, mediaBytes);
+  try {
+    fs.writeFileSync(resolvedPath, mediaBytes);
+  } catch (e) {
+    throw new LansengerFileError(`Save failed: ${e instanceof Error ? e.message : String(e)}`);
   }
-  if (!targetPath) {
-    const tmpDir = os.tmpdir();
-    targetPath = path.join(tmpDir, `lansenger_${mediaType}_${mediaId}${ext}`);
-  }
-  fs.writeFileSync(targetPath, mediaBytes);
-  return targetPath;
+  return resolvedPath;
 }
 
 export async function fetchMediaPath(
