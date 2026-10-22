@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doPost, parseApiResponse, FetchFn } from "./http";
+import { doPost, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import { ChatListResult, ChatMessagesResult, ChatStaffInfo, ChatGroupInfo, ChatMessageInfo } from "./models";
 
 export async function fetchChatList(
@@ -20,7 +20,7 @@ export async function fetchChatList(
   const errCode = data!.errCode ?? -1;
   if (errCode !== 0) {
     const msg = data!.errMsg || "Unknown error";
-    return new ChatListResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` });
+    return new ChatListResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
   }
   const rd = data!.data || {};
   const staffInfos: ChatStaffInfo[] = [];
@@ -65,7 +65,7 @@ export async function fetchChatMessages(
   const errCode = data!.errCode ?? -1;
   if (errCode !== 0) {
     const msg = data!.errMsg || "Unknown error";
-    return new ChatMessagesResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` });
+    return new ChatMessagesResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
   }
   const rd = data!.data || {};
   const messages: ChatMessageInfo[] = [];

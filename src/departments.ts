@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doGet, parseApiResponse, FetchFn } from "./http";
+import { doGet, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import {
   DepartmentDetailResult,
   DepartmentChildrenResult,
@@ -24,7 +24,7 @@ export async function fetchDepartmentDetail(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new DepartmentDetailResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new DepartmentDetailResult({ success: false, error: apiErr });
+  if (!ok) return new DepartmentDetailResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new DepartmentDetailResult({
     success: true, id: d.id, name: d.name, external_id: d.externalId,
@@ -50,7 +50,7 @@ export async function fetchDepartmentChildren(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new DepartmentChildrenResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new DepartmentChildrenResult({ success: false, error: apiErr });
+  if (!ok) return new DepartmentChildrenResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new DepartmentChildrenResult({ success: true, departments: d.departments, raw_response: data! });
 }
@@ -72,7 +72,7 @@ export async function fetchDepartmentStaffs(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new DepartmentStaffsResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new DepartmentStaffsResult({ success: false, error: apiErr });
+  if (!ok) return new DepartmentStaffsResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new DepartmentStaffsResult({
     success: true, has_more: d.hasMore || false, total: d.total || 0,

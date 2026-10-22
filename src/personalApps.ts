@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doGet, doPost, parseApiResponse, FetchFn } from "./http";
+import { doGet, doPost, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import { PersonalAppCreateResult, PersonalAppInfoResult, PersonalAppListResult } from "./models";
 
 export async function createPersonalApp(
@@ -20,7 +20,7 @@ export async function createPersonalApp(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new PersonalAppCreateResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new PersonalAppCreateResult({ success: false, error: apiErr });
+  if (!ok) return new PersonalAppCreateResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
 
   const d = data!.data || {};
   return new PersonalAppCreateResult({
@@ -55,7 +55,7 @@ export async function updatePersonalApp(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new PersonalAppInfoResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new PersonalAppInfoResult({ success: false, error: apiErr });
+  if (!ok) return new PersonalAppInfoResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new PersonalAppInfoResult({ success: true, app_id: appId, raw_response: data! });
 }
 
@@ -75,7 +75,7 @@ export async function fetchPersonalApp(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new PersonalAppInfoResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new PersonalAppInfoResult({ success: false, error: apiErr });
+  if (!ok) return new PersonalAppInfoResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
 
   const d = data!.data || {};
   return new PersonalAppInfoResult({
@@ -102,7 +102,7 @@ export async function deletePersonalApp(
   const [data, httpErr] = await doPost(url, {}, opts?.fetchFn);
   if (httpErr) return new PersonalAppInfoResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new PersonalAppInfoResult({ success: false, error: apiErr });
+  if (!ok) return new PersonalAppInfoResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new PersonalAppInfoResult({ success: true, app_id: appId, raw_response: data! });
 }
 
@@ -118,7 +118,7 @@ export async function fetchPersonalAppList(
   const [data, httpErr] = await doGet(url, opts.fetchFn);
   if (httpErr) return new PersonalAppListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new PersonalAppListResult({ success: false, error: apiErr });
+  if (!ok) return new PersonalAppListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
 
   const d = data!.data || {};
   return new PersonalAppListResult({

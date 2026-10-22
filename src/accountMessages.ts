@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doPost, parseApiResponse, FetchFn } from "./http";
+import { doPost, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import { AccountMessageResult } from "./models";
 
 export async function sendAccountMessage(
@@ -31,7 +31,7 @@ export async function sendAccountMessage(
   const errCode = data!.errCode ?? -1;
   if (errCode !== 0) {
     const msg = data!.errMsg || "Unknown error";
-    return new AccountMessageResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` });
+    return new AccountMessageResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
   }
   const d = data!.data || {};
   return new AccountMessageResult({

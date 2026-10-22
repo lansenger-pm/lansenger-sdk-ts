@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doPost, parseApiResponse, FetchFn } from "./http";
+import { doPost, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import {
   VideoconferenceDetailResult, VideoconferenceOpResult,
   VideoconferenceListResult, VideoconferenceStatusListResult,
@@ -81,7 +81,7 @@ export async function createMeeting(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceDetailResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceDetailResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceDetailResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new VideoconferenceDetailResult({
     success: true, mid: d.id ?? d.mid, subject: d.subject,
@@ -119,7 +119,7 @@ export async function modifyMeeting(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceOpResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceOpResult({ success: true, raw_response: data!, ..._op(data!) });
 }
 
@@ -133,7 +133,7 @@ export async function cancelMeeting(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceOpResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceOpResult({ success: true, raw_response: data!, ..._op(data!) });
 }
 
@@ -147,7 +147,7 @@ export async function stopMeeting(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceOpResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceOpResult({ success: true, raw_response: data!, ..._op(data!) });
 }
 
@@ -161,7 +161,7 @@ export async function fetchMeetingDetail(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceDetailResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceDetailResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceDetailResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new VideoconferenceDetailResult({
     success: true, mid: d.id, subject: d.subject,
@@ -193,7 +193,7 @@ export async function fetchMeetingList(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceListResult({ success: true, raw_response: data!, ..._pageData(data!.data) });
 }
 
@@ -215,7 +215,7 @@ export async function fetchMeetingRecordList(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceListResult({ success: true, raw_response: data!, ..._pageData(data!.data) });
 }
 
@@ -232,7 +232,7 @@ export async function fetchMemberSimplerecord(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceListResult({ success: true, raw_response: data!, ..._pageData(data!.data) });
 }
 
@@ -249,7 +249,7 @@ export async function fetchFixroomList(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceListResult({ success: true, raw_response: data!, ..._pageData(data!.data) });
 }
 
@@ -266,7 +266,7 @@ export async function fetchMeetingStatus(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceStatusListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceStatusListResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceStatusListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const statuses = (data!.data || {}).mids || [];
   return new VideoconferenceStatusListResult({ success: true, statuses, raw_response: data! });
 }
@@ -282,7 +282,7 @@ export async function subscribeMeetingEvents(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceOpResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceOpResult({ success: true, raw_response: data!, ..._op(data!) });
 }
 
@@ -297,7 +297,7 @@ export async function fetchMeetingParams(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceParamResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceParamResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceParamResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new VideoconferenceParamResult({ success: true, data: d.meetingInfo, raw_response: data! });
 }
@@ -312,7 +312,7 @@ export async function fetchHistoryMeetings(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceListResult({ success: true, raw_response: data!, ..._pageData(data!.data) });
 }
 
@@ -326,7 +326,7 @@ export async function fetchActiveMeetings(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceListResult({ success: true, raw_response: data!, ..._pageData(data!.data) });
 }
 
@@ -352,7 +352,7 @@ export async function controlMeetingMember(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceOpResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceOpResult({ success: true, raw_response: data!, ..._op(data!) });
 }
 
@@ -372,7 +372,7 @@ export async function inviteMeetingMembers(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceOpResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceOpResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceOpResult({ success: true, raw_response: data!, ..._op(data!) });
 }
 
@@ -389,7 +389,7 @@ export async function fetchMeetingMemberList(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceListResult({ success: true, raw_response: data!, ..._pageData(data!.data) });
 }
 
@@ -403,7 +403,7 @@ export async function fetchVodList(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceVodListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceVodListResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceVodListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const items = (data!.data || {}).items || [];
   return new VideoconferenceVodListResult({ success: true, items, raw_response: data! });
 }
@@ -421,7 +421,7 @@ export async function fetchVodDownloadUrls(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceVodUrlResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceVodUrlResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceVodUrlResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new VideoconferenceVodUrlResult({ success: true, data: data!.data || {}, raw_response: data! });
 }
 
@@ -437,7 +437,7 @@ export async function fetchOrgVideoconfConf(
   const [data, httpErr] = await doPost(url, body, opts.fetchFn);
   if (httpErr) return new VideoconferenceConfResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new VideoconferenceConfResult({ success: false, error: apiErr });
+  if (!ok) return new VideoconferenceConfResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new VideoconferenceConfResult({
     success: true, max_person: d.maxPerson, default_max_person: d.defaultMaxPerson,

@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doGet, parseApiResponse, FetchFn } from "./http";
+import { doGet, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import { UserInfoResult } from "./models";
 
 export async function fetchUserInfo(
@@ -17,7 +17,7 @@ export async function fetchUserInfo(
   const errCode = data!.errCode ?? -1;
   if (errCode !== 0) {
     const msg = data!.errMsg || "Unknown error";
-    return new UserInfoResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` });
+    return new UserInfoResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
   }
   const d = data!.data || {};
   return new UserInfoResult({

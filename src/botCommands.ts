@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doPost, parseApiResponse, FetchFn } from "./http";
+import { doPost, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import { BotCommandResult, BotCommandQueryResult } from "./models";
 
 export async function createBotCommands(
@@ -23,7 +23,7 @@ export async function createBotCommands(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new BotCommandResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new BotCommandResult({ success: false, error: apiErr });
+  if (!ok) return new BotCommandResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new BotCommandResult({ success: true, raw_response: data! });
 }
 
@@ -45,7 +45,7 @@ export async function fetchBotCommands(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new BotCommandQueryResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new BotCommandQueryResult({ success: false, error: apiErr });
+  if (!ok) return new BotCommandQueryResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
 
   const d = data!.data || {};
   return new BotCommandQueryResult({
@@ -77,6 +77,6 @@ export async function deleteBotCommands(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new BotCommandResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new BotCommandResult({ success: false, error: apiErr });
+  if (!ok) return new BotCommandResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new BotCommandResult({ success: true, raw_response: data! });
 }

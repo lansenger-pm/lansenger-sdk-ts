@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doPost, parseApiResponse, FetchFn } from "./http";
+import { doPost, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import { SendMessageResult } from "./models";
 import { REMINDER_TYPE_NONE, REMINDER_TYPE_POPUP, REMINDER_TYPE_SMS, REMINDER_TYPE_PHONE } from "./constants";
 
@@ -24,7 +24,7 @@ export async function sendReminder(
   const errCode = data!.errCode ?? -1;
   if (errCode !== 0) {
     const msg = data!.errMsg || "Unknown error";
-    return new SendMessageResult({ success: false, error: `API error (errCode=${errCode}): ${msg}`, operation: "send_reminder", retryable: true });
+    return new SendMessageResult({ success: false, error: `API error (errCode=${errCode}): ${msg}`, operation: "send_reminder", retryable: true , err_code: errCodeOf(data) });
   }
   return new SendMessageResult({ success: true, operation: "send_reminder", raw_response: data! });
 }

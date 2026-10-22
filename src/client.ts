@@ -85,11 +85,7 @@ import {
   updateGroupInfo,
   updateGroupMembers,
 } from "./groups";
-import {
-  FetchFn,
-  doGet,
-  doPost,
-} from "./http";
+import { errCodeOf, FetchFn, doGet, doPost } from "./http";
 import {
   downloadMedia,
   downloadMediaByShareId,
@@ -225,10 +221,58 @@ function _parseSendResponse(data: AnyDict, msgType: string = "", operation: stri
   const errCode = data.errCode ?? -1;
   if (errCode !== 0) {
     const msg = data.errMsg || "Unknown error";
-    return new SendMessageResult({ success: false, error: `API error (errCode=${errCode}): ${msg}`, msg_type: msgType, operation, retryable: true });
+    return new SendMessageResult({ success: false, error: `API error (errCode=${errCode}): ${msg}`, msg_type: msgType, operation, retryable: true , err_code: errCodeOf(data) });
   }
   const d = data.data || {};
   return new SendMessageResult({ success: true, message_id: d.msgId, msg_type: msgType, operation, raw_response: data });
+}
+
+/**
+ * Parse the revoke response (4.6.7), including per-message `subStatus`.
+ *
+ * The revoke API answers 200/errCode=0 even when individual messages fail;
+ * the per-message outcome lives in `data.subStatus`. Treating that as plain
+ * success silently reports partial failures as revoked.
+ */
+function _parseRevokeResponse(data: AnyDict): SendMessageResult {
+  const rawCode = data.errCode ?? -1;
+  if (rawCode !== 0) {
+    const msg = data.errMsg || "Unknown error";
+    return new SendMessageResult({
+      success: false,
+      error: `API error (errCode=${rawCode}): ${msg}`,
+      operation: "revoke",
+      retryable: true,
+      err_code: errCodeOf(data),
+    });
+  }
+  const body = data.data;
+  const subStatus: AnyDict[] | null =
+    body && typeof body === "object" && Array.isArray(body.subStatus) ? body.subStatus : null;
+  if (subStatus) {
+    const failed = subStatus.filter(
+      (item) => item && typeof item === "object" && (item.errCode ?? 0) !== 0,
+    );
+    if (failed.length > 0) {
+      const details = failed
+        .map((item) => `errCode=${item.errCode}: ${item.errMsg || ""}`.trim())
+        .join("; ");
+      return new SendMessageResult({
+        success: false,
+        error: `revoke failed for ${failed.length}/${subStatus.length} message(s): ${details}`,
+        operation: "revoke",
+        err_code: errCodeOf(failed[0]),
+        sub_status: subStatus,
+        raw_response: data,
+      });
+    }
+  }
+  return new SendMessageResult({
+    success: true,
+    operation: "revoke",
+    sub_status: subStatus,
+    raw_response: data,
+  });
 }
 
 export class LansengerClient {
@@ -801,15 +845,53 @@ export class LansengerClient {
     return _parseSendResponse(data!, "dynamic_update", "update_dynamic_card");
   }
 
+  /**
+   * Revoke previously sent messages (4.6.7).
+   *
+   * Sender contract (4.6.7):
+   * - `chat_type: "bot"` revokes messages the bot sent one-to-one.
+   * - `chat_type: "group"` requires `sender_id` = the sender's **staffId**
+   *   (human open id). A bot identity has no staffId, so a group message sent
+   *   under the bot's own identity cannot be revoked through this API — send it
+   *   with `user_token` / `sender_id` when it has to stay revocable.
+   * - The server answers errCode 59003 (「当前组织禁用机器人」) for some
+   *   bot-identity revokes even when the bot is enabled for sending; `err_code`
+   *   is the machine-readable truth — do not parse the message text.
+   *
+   * Per-message outcomes are exposed in `sub_status`; if any message failed,
+   * `success` is false and `err_code` carries the first failing code.
+   */
   async revokeMessage(messageIds: string[], opts?: { chat_type?: string; sender_id?: string }): Promise<SendMessageResult> {
+    const chatType = opts?.chat_type || "bot";
+    if (!messageIds || messageIds.length === 0) {
+      return new SendMessageResult({ success: false, error: "message_ids is required", operation: "revoke" });
+    }
+    if (!["staff", "group", "notification", "account", "bot"].includes(chatType)) {
+      return new SendMessageResult({
+        success: false,
+        error: `unsupported chat_type='${chatType}': expected staff, group, notification, account or bot`,
+        operation: "revoke",
+      });
+    }
+    if ((chatType === "staff" || chatType === "group") && !opts?.sender_id) {
+      return new SendMessageResult({
+        success: false,
+        error:
+          `chat_type='${chatType}' requires sender_id (the sender's staffId). ` +
+          "A bot has no staffId, so group messages sent under the bot's own identity " +
+          "cannot be revoked through this API — send with user_token/sender_id when the " +
+          "message must stay revocable (4.6.7)",
+        operation: "revoke",
+      });
+    }
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     const url = buildApiUrl(this._config, "message", "revoke", token);
-    const payload: AnyDict = { messageIds, chatType: opts?.chat_type || "bot" };
+    const payload: AnyDict = { messageIds, chatType };
     if (opts?.sender_id) payload.senderId = opts.sender_id;
     const [data, httpErr] = await doPost(url, payload, this._fetchFn);
     if (httpErr) return new SendMessageResult({ success: false, error: httpErr, operation: "revoke_message" });
-    return _parseSendResponse(data!, "", "revoke_message");
+    return _parseRevokeResponse(data!);
   }
 
   /**
@@ -1009,7 +1091,7 @@ export class LansengerClient {
     const errCode = data!.errCode ?? -1;
     if (errCode !== 0) {
       const msg = data!.errMsg || "Unknown error";
-      return new BotMessageResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` });
+      return new BotMessageResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
     }
     const d = data!.data || {};
     return new BotMessageResult({ success: true, message_id: d.msgId, invalid_staff: d.invalidStaff, invalid_department: d.invalidDepartment, raw_response: data! });

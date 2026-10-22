@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doGet, doPost, parseApiResponse, FetchFn } from "./http";
+import { doGet, doPost, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import {
   CalendarPrimaryResult, ScheduleCreateResult, ScheduleInfoResult,
   ScheduleUpdateResult, ScheduleListResult, ScheduleAttendeesResult,
@@ -51,7 +51,7 @@ export async function fetchPrimaryCalendar(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new CalendarPrimaryResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new CalendarPrimaryResult({ success: false, error: apiErr });
+  if (!ok) return new CalendarPrimaryResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new CalendarPrimaryResult({
     success: true, calendar_id: d.calendarId, summary: d.summary,
@@ -107,7 +107,7 @@ export async function createSchedule(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new ScheduleCreateResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new ScheduleCreateResult({ success: false, error: apiErr });
+  if (!ok) return new ScheduleCreateResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new ScheduleCreateResult({ success: true, schedule_id: d.scheduleId, raw_response: data! });
 }
@@ -127,7 +127,7 @@ export async function fetchSchedule(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new ScheduleInfoResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new ScheduleInfoResult({ success: false, error: apiErr });
+  if (!ok) return new ScheduleInfoResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new ScheduleInfoResult({
     success: true, schedule_id: d.scheduleId, summary: d.summary,
@@ -163,7 +163,7 @@ export async function deleteSchedule(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new ScheduleCreateResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new ScheduleCreateResult({ success: false, error: apiErr });
+  if (!ok) return new ScheduleCreateResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   const sid = Array.isArray(d.scheduleIds) && d.scheduleIds.length > 0 ? d.scheduleIds[0] : scheduleId;
   return new ScheduleCreateResult({ success: true, schedule_id: sid, raw_response: data! });
@@ -214,7 +214,7 @@ export async function updateSchedule(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new ScheduleUpdateResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new ScheduleUpdateResult({ success: false, error: apiErr });
+  if (!ok) return new ScheduleUpdateResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new ScheduleUpdateResult({ success: true, schedule_ids: d.scheduleIds, raw_response: data! });
 }
@@ -236,7 +236,7 @@ export async function fetchScheduleList(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new ScheduleListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new ScheduleListResult({ success: false, error: apiErr });
+  if (!ok) return new ScheduleListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new ScheduleListResult({ success: true, schedule_list: d.scheduleList, raw_response: data! });
 }
@@ -259,7 +259,7 @@ export async function fetchScheduleAttendees(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new ScheduleAttendeesResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new ScheduleAttendeesResult({ success: false, error: apiErr });
+  if (!ok) return new ScheduleAttendeesResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new ScheduleAttendeesResult({
     success: true, total: d.total || 0, attendees: d.attendees, raw_response: data!,
@@ -285,7 +285,7 @@ export async function addScheduleAttendees(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new ScheduleCreateResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new ScheduleCreateResult({ success: false, error: apiErr });
+  if (!ok) return new ScheduleCreateResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   const sid = Array.isArray(d.scheduleIds) && d.scheduleIds.length > 0 ? d.scheduleIds[0] : scheduleId;
   return new ScheduleCreateResult({ success: true, schedule_id: sid, raw_response: data! });
@@ -310,7 +310,7 @@ export async function deleteScheduleAttendees(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new ScheduleCreateResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new ScheduleCreateResult({ success: false, error: apiErr });
+  if (!ok) return new ScheduleCreateResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new ScheduleCreateResult({ success: true, schedule_id: scheduleId, raw_response: data! });
 }
 
@@ -340,7 +340,7 @@ export async function updateScheduleAttendeeMeta(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new ScheduleAttendeeMetaResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new ScheduleAttendeeMetaResult({ success: false, error: apiErr });
+  if (!ok) return new ScheduleAttendeeMetaResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new ScheduleAttendeeMetaResult({ success: true, raw_response: data! });
 }
 
@@ -382,7 +382,7 @@ export async function updateScheduleAttendees(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new ScheduleAttendeesUpdateResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new ScheduleAttendeesUpdateResult({ success: false, error: apiErr });
+  if (!ok) return new ScheduleAttendeesUpdateResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
 
   const d = data!.data || {};
   return new ScheduleAttendeesUpdateResult({

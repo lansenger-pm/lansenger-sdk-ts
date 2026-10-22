@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doPost, parseApiResponse, FetchFn } from "./http";
+import { doPost, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import { StreamMessageResult } from "./models";
 
 export async function createStreamMessage(
@@ -19,7 +19,7 @@ export async function createStreamMessage(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new StreamMessageResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new StreamMessageResult({ success: false, error: apiErr });
+  if (!ok) return new StreamMessageResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   const msgId = d.msgId;
   // Server has been observed returning success with an empty payload
@@ -47,7 +47,7 @@ export async function fetchStreamMessage(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new StreamMessageResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new StreamMessageResult({ success: false, error: apiErr });
+  if (!ok) return new StreamMessageResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new StreamMessageResult({ success: true, message_id: d.msgId, raw_response: data! });
 }

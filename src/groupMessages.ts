@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doPost, parseApiResponse, FetchFn } from "./http";
+import { doPost, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import { SendMessageResult } from "./models";
 
 export async function sendGroupMessage(
@@ -27,7 +27,7 @@ export async function sendGroupMessage(
   const errCode = data!.errCode ?? -1;
   if (errCode !== 0) {
     const msg = data!.errMsg || "Unknown error";
-    return new SendMessageResult({ success: false, error: `API error (errCode=${errCode}): ${msg}`, retryable: true });
+    return new SendMessageResult({ success: false, error: `API error (errCode=${errCode}): ${msg}`, retryable: true , err_code: errCodeOf(data) });
   }
   const d = data!.data || {};
   return new SendMessageResult({

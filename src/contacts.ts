@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doGet, doPost, parseApiResponse, FetchFn } from "./http";
+import { doGet, doPost, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import {
   StaffBasicInfoResult,
   StaffDetailResult,
@@ -23,7 +23,7 @@ export async function fetchStaffBasicInfo(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new StaffBasicInfoResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new StaffBasicInfoResult({ success: false, error: apiErr });
+  if (!ok) return new StaffBasicInfoResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new StaffBasicInfoResult({
     success: true, org_id: d.orgId, org_name: d.orgName, name: d.name,
@@ -45,7 +45,7 @@ export async function fetchStaffDetail(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new StaffDetailResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new StaffDetailResult({ success: false, error: apiErr });
+  if (!ok) return new StaffDetailResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new StaffDetailResult({
     success: true, name: d.name, signature: d.signature, avatar_id: d.avatarId,
@@ -74,7 +74,7 @@ export async function fetchDepartmentAncestors(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new DepartmentAncestorsResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new DepartmentAncestorsResult({ success: false, error: apiErr });
+  if (!ok) return new DepartmentAncestorsResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const resultData = data!.data || [];
   const ancestorGroups: Record<string, string>[][] = [];
   for (const entry of resultData) {
@@ -102,7 +102,7 @@ export async function fetchStaffIdMapping(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new StaffIdMappingResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new StaffIdMappingResult({ success: false, error: apiErr });
+  if (!ok) return new StaffIdMappingResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new StaffIdMappingResult({ success: true, staff_id: d.staffId, raw_response: data! });
 }
@@ -125,7 +125,7 @@ export async function fetchOrgExtraFieldIds(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new ExtraFieldIdsResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new ExtraFieldIdsResult({ success: false, error: apiErr });
+  if (!ok) return new ExtraFieldIdsResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new ExtraFieldIdsResult({
     success: true, has_more: d.hasMore || false, total: d.total || 0,
@@ -165,7 +165,7 @@ export async function searchStaff(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new StaffSearchResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new StaffSearchResult({ success: false, error: apiErr });
+  if (!ok) return new StaffSearchResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new StaffSearchResult({
     success: true, has_more: d.hasMore || false, total: d.total || 0,
@@ -185,7 +185,7 @@ export async function fetchOrgInfo(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new OrgInfoResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new OrgInfoResult({ success: false, error: apiErr });
+  if (!ok) return new OrgInfoResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new OrgInfoResult({
     success: true, org_id: d.orgId, org_name: d.orgName, icon_url: d.iconUrl,

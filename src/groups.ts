@@ -1,6 +1,6 @@
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doGet, doPost, parseApiResponse, FetchFn } from "./http";
+import { doGet, doPost, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import {
   CreateGroupResult, GroupInfoResult, GroupMemberResult,
   GroupListResult, IsInGroupResult, UpdateGroupResult, UpdateGroupMembersResult,
@@ -36,7 +36,7 @@ export async function createGroup(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new CreateGroupResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new CreateGroupResult({ success: false, error: apiErr });
+  if (!ok) return new CreateGroupResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new CreateGroupResult({
     success: true, group_id: d.groupId, total_members: d.totalMembers || 0,
@@ -57,7 +57,7 @@ export async function fetchGroupInfo(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new GroupInfoResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new GroupInfoResult({ success: false, error: apiErr });
+  if (!ok) return new GroupInfoResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new GroupInfoResult({
     success: true, name: d.name, description: d.description,
@@ -88,7 +88,7 @@ export async function fetchGroupMembers(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new GroupMemberResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new GroupMemberResult({ success: false, error: apiErr });
+  if (!ok) return new GroupMemberResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new GroupMemberResult({
     success: true, total_members: d.totalMembers || 0,
@@ -110,7 +110,7 @@ export async function fetchGroupList(
   const [data, httpErr] = await doGet(url, opts?.fetchFn);
   if (httpErr) return new GroupListResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new GroupListResult({ success: false, error: apiErr });
+  if (!ok) return new GroupListResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new GroupListResult({
     success: true, total_group_ids: d.totalGroupIds || 0,
@@ -143,7 +143,7 @@ export async function checkIsInGroup(
     if (apiErr && apiErr.includes("errCode=10000")) {
       apiErr += " (the server returns this code both for query failures and for non-members; membership could not be determined)";
     }
-    return new IsInGroupResult({ success: false, error: apiErr });
+    return new IsInGroupResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   }
   const d = data!.data || {};
   return new IsInGroupResult({
@@ -186,7 +186,7 @@ export async function updateGroupInfo(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new UpdateGroupResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new UpdateGroupResult({ success: false, error: apiErr });
+  if (!ok) return new UpdateGroupResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new UpdateGroupResult({ success: true, raw_response: data! });
 }
 
@@ -211,7 +211,7 @@ export async function updateGroupMembers(
   const [data, httpErr] = await doPost(url, body, opts?.fetchFn);
   if (httpErr) return new UpdateGroupMembersResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new UpdateGroupMembersResult({ success: false, error: apiErr });
+  if (!ok) return new UpdateGroupMembersResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   const d = data!.data || {};
   return new UpdateGroupMembersResult({
     success: true, total_members: d.totalMembers || 0,
@@ -234,6 +234,6 @@ export async function dismissGroup(
   const [data, httpErr] = await doPost(url, {}, opts?.fetchFn);
   if (httpErr) return new UpdateGroupResult({ success: false, error: httpErr });
   const [ok, apiErr] = parseApiResponse(data!);
-  if (!ok) return new UpdateGroupResult({ success: false, error: apiErr });
+  if (!ok) return new UpdateGroupResult({ success: false, error: apiErr, err_code: errCodeOf(data) });
   return new UpdateGroupResult({ success: true, raw_response: data! });
 }

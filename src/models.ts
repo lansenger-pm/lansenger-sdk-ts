@@ -9,6 +9,8 @@ export class SendMessageResult {
   operation: string | null;
   raw_response: AnyDict | null;
   retryable: boolean;
+  err_code: number | null;
+  sub_status: AnyDict[] | null;
 
   constructor(init: {
     success: boolean;
@@ -19,6 +21,8 @@ export class SendMessageResult {
     operation?: string | null;
     raw_response?: AnyDict | null;
     retryable?: boolean;
+    err_code?: number | null;
+    sub_status?: AnyDict[] | null;
   }) {
     this.success = init.success;
     this.message_id = init.message_id ?? null;
@@ -28,12 +32,16 @@ export class SendMessageResult {
     this.operation = init.operation ?? null;
     this.raw_response = init.raw_response ?? null;
     this.retryable = init.retryable ?? false;
+    this.err_code = init.err_code ?? null;
+    this.sub_status = init.sub_status ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success, platform: this.platform };
     if (this.message_id !== null) d.message_id = this.message_id;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
+    if (this.sub_status !== null) d.sub_status = this.sub_status;
     return d;
   }
 }
@@ -51,6 +59,7 @@ export class StaffBasicInfoResult {
   departments: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
   constructor(init: {
     success: boolean;
@@ -65,6 +74,7 @@ export class StaffBasicInfoResult {
     departments?: AnyDict[] | null;
     error?: string | null;
     raw_response?: AnyDict | null;
+    err_code?: number | null
   }) {
     this.success = init.success;
     this.org_id = init.org_id ?? null;
@@ -78,6 +88,7 @@ export class StaffBasicInfoResult {
     this.departments = init.departments ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -87,6 +98,7 @@ export class StaffBasicInfoResult {
       if (v !== null) d[key] = v;
     }
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -125,6 +137,7 @@ export class StaffDetailResult {
   join_date!: number | null;
   error!: string | null;
   raw_response!: AnyDict | null;
+  err_code: number | null;
 
   constructor(init: {
     success: boolean;
@@ -160,12 +173,14 @@ export class StaffDetailResult {
     join_date?: number | null;
     error?: string | null;
     raw_response?: AnyDict | null;
+    err_code?: number | null
   }) {
     this.success = init.success;
     const keys = ["name", "signature", "avatar_id", "avatar_url", "status", "departments", "gender", "org_id", "org_name", "login_name", "employee_number", "email", "external_id", "nationality", "birthdate", "id_number", "native_place", "duties", "parties", "address", "mobile_phone", "extra_phones", "introduction", "education", "career", "login_ways", "tags", "extra_field_set", "leaders", "join_date", "error", "raw_response"] as const;
     for (const k of keys) {
       (this as any)[k] = init[k] ?? null;
     }
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -175,6 +190,7 @@ export class StaffDetailResult {
       if (v !== null) d[key] = v;
     }
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -184,18 +200,21 @@ export class DepartmentAncestorsResult {
   ancestor_groups: Record<string, string>[][] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; ancestor_groups?: Record<string, string>[][] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; ancestor_groups?: Record<string, string>[][] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.ancestor_groups = init.ancestor_groups ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.ancestor_groups !== null) d.ancestor_groups = this.ancestor_groups;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -205,18 +224,21 @@ export class StaffIdMappingResult {
   staff_id: string | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; staff_id?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; staff_id?: string | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.staff_id = init.staff_id ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.staff_id !== null) d.staff_id = this.staff_id;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -232,6 +254,7 @@ export class OrgInfoResult {
   org_billing_date: number | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
   constructor(init: {
     success: boolean;
@@ -244,6 +267,7 @@ export class OrgInfoResult {
     org_billing_date?: number | null;
     error?: string | null;
     raw_response?: AnyDict | null;
+    err_code?: number | null
   }) {
     this.success = init.success;
     this.org_id = init.org_id ?? null;
@@ -255,6 +279,7 @@ export class OrgInfoResult {
     this.org_billing_date = init.org_billing_date ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -264,6 +289,7 @@ export class OrgInfoResult {
       if (v !== null) d[key] = v;
     }
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -275,20 +301,23 @@ export class ExtraFieldIdsResult {
   extra_field_ids: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; has_more?: boolean; total?: number; extra_field_ids?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; has_more?: boolean; total?: number; extra_field_ids?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.has_more = init.has_more ?? false;
     this.total = init.total ?? 0;
     this.extra_field_ids = init.extra_field_ids ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success, has_more: this.has_more, total: this.total };
     if (this.extra_field_ids !== null) d.extra_field_ids = this.extra_field_ids;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -300,20 +329,23 @@ export class StaffSearchResult {
   staff_info: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; has_more?: boolean; total?: number; staff_info?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; has_more?: boolean; total?: number; staff_info?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.has_more = init.has_more ?? false;
     this.total = init.total ?? 0;
     this.staff_info = init.staff_info ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success, has_more: this.has_more, total: this.total };
     if (this.staff_info !== null) d.staff_info = this.staff_info;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -326,8 +358,9 @@ export class QueryGroupsResult {
   platform: string;
   operation: string;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; total_group_ids?: number; group_ids?: string[]; error?: string | null; platform?: string; operation?: string; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; total_group_ids?: number; group_ids?: string[]; error?: string | null; platform?: string; operation?: string; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.total_group_ids = init.total_group_ids ?? 0;
     this.group_ids = init.group_ids ?? [];
@@ -335,6 +368,7 @@ export class QueryGroupsResult {
     this.platform = init.platform ?? "lansenger";
     this.operation = init.operation ?? "query_groups";
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -346,6 +380,7 @@ export class QueryGroupsResult {
       operation: this.operation,
     };
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -356,13 +391,15 @@ export class UploadMediaResult {
   created_time: string | null;
   raw_response: AnyDict | null;
   error: string | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; media_id?: string | null; created_time?: string | null; raw_response?: AnyDict | null; error?: string | null }) {
+  constructor(init: { success: boolean; media_id?: string | null; created_time?: string | null; raw_response?: AnyDict | null; error?: string | null; err_code?: number | null }) {
     this.success = init.success;
     this.media_id = init.media_id ?? null;
     this.created_time = init.created_time ?? null;
     this.raw_response = init.raw_response ?? null;
     this.error = init.error ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -370,6 +407,7 @@ export class UploadMediaResult {
     if (this.media_id !== null) d.media_id = this.media_id;
     if (this.created_time !== null) d.created_time = this.created_time;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -378,17 +416,20 @@ export class DownloadMediaResult {
   success: boolean;
   data: Buffer | null;
   error: string | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; data?: Buffer | null; error?: string | null }) {
+  constructor(init: { success: boolean; data?: Buffer | null; error?: string | null; err_code?: number | null }) {
     this.success = init.success;
     this.data = init.data ?? null;
     this.error = init.error ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.data !== null) d.size = this.data.length;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -398,12 +439,14 @@ export class DownloadFileResult {
   path: string | null;
   size: number;
   error: string | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; path?: string | null; size?: number; error?: string | null }) {
+  constructor(init: { success: boolean; path?: string | null; size?: number; error?: string | null; err_code?: number | null }) {
     this.success = init.success;
     this.path = init.path ?? null;
     this.size = init.size ?? 0;
     this.error = init.error ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -411,6 +454,7 @@ export class DownloadFileResult {
     if (this.path !== null) d.path = this.path;
     if (this.success) d.size = this.size;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -423,8 +467,9 @@ export class MediaPathResult {
   size: string | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; media_path?: string | null; name?: string | null; type?: string | null; size?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; media_path?: string | null; name?: string | null; type?: string | null; size?: string | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.media_path = init.media_path ?? null;
     this.name = init.name ?? null;
@@ -432,6 +477,7 @@ export class MediaPathResult {
     this.size = init.size ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -441,6 +487,7 @@ export class MediaPathResult {
       if (v !== null) d[key] = v;
     }
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -671,6 +718,7 @@ export class UserTokenResult {
   state: string | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
   constructor(init: {
     success: boolean;
@@ -683,6 +731,7 @@ export class UserTokenResult {
     state?: string | null;
     error?: string | null;
     raw_response?: AnyDict | null;
+    err_code?: number | null
   }) {
     this.success = init.success;
     this.user_token = init.user_token ?? null;
@@ -694,6 +743,7 @@ export class UserTokenResult {
     this.state = init.state ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -710,6 +760,7 @@ export class UserTokenResult {
     if (this.scope !== null) d.scope = this.scope;
     if (this.state !== null) d.state = this.state;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -730,6 +781,7 @@ export class UserInfoResult {
   department: Record<string, string>[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
   constructor(init: {
     success: boolean;
@@ -747,6 +799,7 @@ export class UserInfoResult {
     department?: Record<string, string>[] | null;
     error?: string | null;
     raw_response?: AnyDict | null;
+    err_code?: number | null
   }) {
     this.success = init.success;
     this.staff_id = init.staff_id ?? null;
@@ -763,6 +816,7 @@ export class UserInfoResult {
     this.department = init.department ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -780,6 +834,7 @@ export class UserInfoResult {
     if (this.mobile_phone !== null) d.mobile_phone = this.mobile_phone;
     if (this.department !== null) d.department = this.department;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -791,14 +846,16 @@ export class AccountMessageResult {
   invalid_department: string[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; message_id?: string | null; invalid_staff?: string[] | null; invalid_department?: string[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; message_id?: string | null; invalid_staff?: string[] | null; invalid_department?: string[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.message_id = init.message_id ?? null;
     this.invalid_staff = init.invalid_staff ?? null;
     this.invalid_department = init.invalid_department ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -807,6 +864,7 @@ export class AccountMessageResult {
     if (this.invalid_staff !== null) d.invalid_staff = this.invalid_staff;
     if (this.invalid_department !== null) d.invalid_department = this.invalid_department;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -816,18 +874,21 @@ export class UserMessageResult {
   message_id: string | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; message_id?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; message_id?: string | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.message_id = init.message_id ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.message_id !== null) d.message_id = this.message_id;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -839,14 +900,16 @@ export class BotMessageResult {
   invalid_department: string[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; message_id?: string | null; invalid_staff?: string[] | null; invalid_department?: string[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; message_id?: string | null; invalid_staff?: string[] | null; invalid_department?: string[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.message_id = init.message_id ?? null;
     this.invalid_staff = init.invalid_staff ?? null;
     this.invalid_department = init.invalid_department ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -855,6 +918,7 @@ export class BotMessageResult {
     if (this.invalid_staff !== null) d.invalid_staff = this.invalid_staff;
     if (this.invalid_department !== null) d.invalid_department = this.invalid_department;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -864,18 +928,21 @@ export class StreamMessageResult {
   message_id: string | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; message_id?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; message_id?: string | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.message_id = init.message_id ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.message_id !== null) d.message_id = this.message_id;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -928,8 +995,9 @@ export class CreateGroupResult {
   invalid_department: string[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; group_id?: string | null; total_members?: number; invalid_staff?: string[] | null; invalid_department?: string[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; group_id?: string | null; total_members?: number; invalid_staff?: string[] | null; invalid_department?: string[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.group_id = init.group_id ?? null;
     this.total_members = init.total_members ?? 0;
@@ -937,6 +1005,7 @@ export class CreateGroupResult {
     this.invalid_department = init.invalid_department ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -946,6 +1015,7 @@ export class CreateGroupResult {
     if (this.invalid_staff !== null) d.invalid_staff = this.invalid_staff;
     if (this.invalid_department !== null) d.invalid_department = this.invalid_department;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -970,6 +1040,7 @@ export class GroupInfoResult {
   send_msg_status!: boolean | null;
   error!: string | null;
   raw_response!: AnyDict | null;
+  err_code: number | null;
 
   constructor(init: {
     success: boolean;
@@ -991,12 +1062,14 @@ export class GroupInfoResult {
     send_msg_status?: boolean | null;
     error?: string | null;
     raw_response?: AnyDict | null;
+    err_code?: number | null
   }) {
     this.success = init.success;
     const keys = ["name", "description", "avatar_id", "avatar_url", "owner", "creator", "state", "manage_mode", "location_share", "needs_confirm", "is_public", "max_members", "max_history_msg_count", "total_members", "remind_all", "send_msg_status", "error", "raw_response"] as const;
     for (const k of keys) {
       (this as any)[k] = init[k] ?? null;
     }
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1006,6 +1079,7 @@ export class GroupInfoResult {
       if (v !== null) d[key] = v;
     }
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1016,19 +1090,22 @@ export class GroupMemberResult {
   members: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; total_members?: number; members?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; total_members?: number; members?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.total_members = init.total_members ?? 0;
     this.members = init.members ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success, total_members: this.total_members };
     if (this.members !== null) d.members = this.members;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1037,16 +1114,19 @@ export class UpdateGroupResult {
   success: boolean;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1060,8 +1140,9 @@ export class UpdateGroupMembersResult {
   invalid_department: string[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; total_members?: number; added_staff_count?: number; deleted_staff_count?: number; invalid_staff?: string[] | null; invalid_department?: string[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; total_members?: number; added_staff_count?: number; deleted_staff_count?: number; invalid_staff?: string[] | null; invalid_department?: string[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.total_members = init.total_members ?? 0;
     this.added_staff_count = init.added_staff_count ?? 0;
@@ -1070,6 +1151,7 @@ export class UpdateGroupMembersResult {
     this.invalid_department = init.invalid_department ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1077,6 +1159,7 @@ export class UpdateGroupMembersResult {
     if (this.invalid_staff !== null) d.invalid_staff = this.invalid_staff;
     if (this.invalid_department !== null) d.invalid_department = this.invalid_department;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1087,19 +1170,22 @@ export class GroupListResult {
   group_ids: string[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; total_group_ids?: number; group_ids?: string[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; total_group_ids?: number; group_ids?: string[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.total_group_ids = init.total_group_ids ?? 0;
     this.group_ids = init.group_ids ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success, total_group_ids: this.total_group_ids };
     if (this.group_ids !== null) d.group_ids = this.group_ids;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1109,17 +1195,20 @@ export class IsInGroupResult {
   is_in_group: boolean;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; is_in_group?: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; is_in_group?: boolean; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.is_in_group = init.is_in_group ?? false;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success, is_in_group: this.is_in_group };
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1146,6 +1235,7 @@ export class DepartmentDetailResult {
   dept_type!: number | null;
   error!: string | null;
   raw_response!: AnyDict | null;
+  err_code: number | null;
 
   constructor(init: {
     success: boolean;
@@ -1169,12 +1259,14 @@ export class DepartmentDetailResult {
     dept_type?: number | null;
     error?: string | null;
     raw_response?: AnyDict | null;
+    err_code?: number | null
   }) {
     this.success = init.success;
     const keys = ["id", "name", "external_id", "parent_id", "order", "has_children", "normal_members", "inactive_members", "frozen_members", "deleted_members", "tags", "ancestor_departments", "leaders", "emails", "phones", "addresses", "introductions", "dept_type", "error", "raw_response"] as const;
     for (const k of keys) {
       (this as any)[k] = init[k] ?? null;
     }
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1184,6 +1276,7 @@ export class DepartmentDetailResult {
       if (v !== null) d[key] = v;
     }
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1193,18 +1286,21 @@ export class DepartmentChildrenResult {
   departments: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; departments?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; departments?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.departments = init.departments ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.departments !== null) d.departments = this.departments;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1216,20 +1312,23 @@ export class DepartmentStaffsResult {
   staffs: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; has_more?: boolean; total?: number; staffs?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; has_more?: boolean; total?: number; staffs?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.has_more = init.has_more ?? false;
     this.total = init.total ?? 0;
     this.staffs = init.staffs ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success, has_more: this.has_more, total: this.total };
     if (this.staffs !== null) d.staffs = this.staffs;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1245,6 +1344,7 @@ export class CalendarPrimaryResult {
   role!: string | null;
   error!: string | null;
   raw_response!: AnyDict | null;
+  err_code: number | null;
 
   constructor(init: {
     success: boolean;
@@ -1257,12 +1357,14 @@ export class CalendarPrimaryResult {
     role?: string | null;
     error?: string | null;
     raw_response?: AnyDict | null;
+    err_code?: number | null
   }) {
     this.success = init.success;
     const keys = ["calendar_id", "summary", "description", "permissions", "color", "type", "role", "error", "raw_response"] as const;
     for (const k of keys) {
       (this as any)[k] = init[k] ?? null;
     }
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1272,6 +1374,7 @@ export class CalendarPrimaryResult {
       if (v !== null) d[key] = v;
     }
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1281,18 +1384,21 @@ export class ScheduleCreateResult {
   schedule_id: string | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; schedule_id?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; schedule_id?: string | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.schedule_id = init.schedule_id ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.schedule_id !== null) d.schedule_id = this.schedule_id;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1310,6 +1416,7 @@ export class ScheduleInfoResult {
   rsvp_status!: string | null;
   error!: string | null;
   raw_response!: AnyDict | null;
+  err_code: number | null;
 
   constructor(init: {
     success: boolean;
@@ -1324,12 +1431,14 @@ export class ScheduleInfoResult {
     rsvp_status?: string | null;
     error?: string | null;
     raw_response?: AnyDict | null;
+    err_code?: number | null
   }) {
     this.success = init.success;
     const keys = ["schedule_id", "summary", "description", "repeat_type", "all_day", "start_time", "end_time", "creator", "rsvp_status", "error", "raw_response"] as const;
     for (const k of keys) {
       (this as any)[k] = init[k] ?? null;
     }
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1339,6 +1448,7 @@ export class ScheduleInfoResult {
       if (v !== null) d[key] = v;
     }
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1348,18 +1458,21 @@ export class ScheduleListResult {
   schedule_list: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; schedule_list?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; schedule_list?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.schedule_list = init.schedule_list ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.schedule_list !== null) d.schedule_list = this.schedule_list;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1370,19 +1483,22 @@ export class ScheduleAttendeesResult {
   attendees: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; total?: number; attendees?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; total?: number; attendees?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.total = init.total ?? 0;
     this.attendees = init.attendees ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success, total: this.total };
     if (this.attendees !== null) d.attendees = this.attendees;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1392,18 +1508,21 @@ export class ScheduleUpdateResult {
   schedule_ids: string[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; schedule_ids?: string[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; schedule_ids?: string[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.schedule_ids = init.schedule_ids ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.schedule_ids !== null) d.schedule_ids = this.schedule_ids;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1412,16 +1531,19 @@ export class ScheduleAttendeeMetaResult {
   success: boolean;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1432,13 +1554,15 @@ export class ScheduleAttendeesUpdateResult {
   failed_attendees: string[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; schedule_ids?: string[] | null; failed_attendees?: string[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; schedule_ids?: string[] | null; failed_attendees?: string[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.schedule_ids = init.schedule_ids ?? null;
     this.failed_attendees = init.failed_attendees ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1446,6 +1570,7 @@ export class ScheduleAttendeesUpdateResult {
     if (this.schedule_ids !== null) d.schedule_ids = this.schedule_ids;
     if (this.failed_attendees !== null) d.failed_attendees = this.failed_attendees;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1454,16 +1579,19 @@ export class BotCommandResult {
   success: boolean;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1477,8 +1605,9 @@ export class BotCommandQueryResult {
   commands: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; scope_type?: number | null; chat_id?: string | null; chat_type?: string | null; staff_id?: string | null; commands?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; scope_type?: number | null; chat_id?: string | null; chat_type?: string | null; staff_id?: string | null; commands?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.scope_type = init.scope_type ?? null;
     this.chat_id = init.chat_id ?? null;
@@ -1487,6 +1616,7 @@ export class BotCommandQueryResult {
     this.commands = init.commands ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1497,6 +1627,7 @@ export class BotCommandQueryResult {
     if (this.staff_id !== null) d.staff_id = this.staff_id;
     if (this.commands !== null) d.commands = this.commands;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1509,8 +1640,9 @@ export class PersonalAppCreateResult {
   passport_addr: string | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; app_id?: string | null; secret?: string | null; apigw_addr?: string | null; passport_addr?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; app_id?: string | null; secret?: string | null; apigw_addr?: string | null; passport_addr?: string | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.app_id = init.app_id ?? null;
     this.secret = init.secret ?? null;
@@ -1518,6 +1650,7 @@ export class PersonalAppCreateResult {
     this.passport_addr = init.passport_addr ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1527,6 +1660,7 @@ export class PersonalAppCreateResult {
     if (this.apigw_addr !== null) d.apigw_addr = this.apigw_addr;
     if (this.passport_addr !== null) d.passport_addr = this.passport_addr;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1541,8 +1675,9 @@ export class PersonalAppInfoResult {
   passport_addr: string | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; app_id?: string | null; name?: string | null; avatar_id?: string | null; description?: string | null; apigw_addr?: string | null; passport_addr?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; app_id?: string | null; name?: string | null; avatar_id?: string | null; description?: string | null; apigw_addr?: string | null; passport_addr?: string | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.app_id = init.app_id ?? null;
     this.name = init.name ?? null;
@@ -1552,6 +1687,7 @@ export class PersonalAppInfoResult {
     this.passport_addr = init.passport_addr ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1563,6 +1699,7 @@ export class PersonalAppInfoResult {
     if (this.apigw_addr !== null) d.apigw_addr = this.apigw_addr;
     if (this.passport_addr !== null) d.passport_addr = this.passport_addr;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1572,18 +1709,21 @@ export class PersonalAppListResult {
   app_list: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; app_list?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; app_list?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.app_list = init.app_list ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.app_list !== null) d.app_list = this.app_list;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1626,13 +1766,15 @@ export class ChatListResult {
   group_infos: ChatGroupInfo[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; staff_infos?: ChatStaffInfo[] | null; group_infos?: ChatGroupInfo[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; staff_infos?: ChatStaffInfo[] | null; group_infos?: ChatGroupInfo[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.staff_infos = init.staff_infos ?? null;
     this.group_infos = init.group_infos ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1640,6 +1782,7 @@ export class ChatListResult {
     if (this.staff_infos !== null) d.staff_infos = this.staff_infos.map(s => s.toDict());
     if (this.group_infos !== null) d.group_infos = this.group_infos.map(g => g.toDict());
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1751,8 +1894,9 @@ export class ChatMessagesResult {
   messages: ChatMessageInfo[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; has_more?: boolean; total?: number; last_version?: string; name?: string; chat_type?: string; messages?: ChatMessageInfo[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; has_more?: boolean; total?: number; last_version?: string; name?: string; chat_type?: string; messages?: ChatMessageInfo[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.has_more = init.has_more ?? false;
     this.total = init.total ?? 0;
@@ -1762,12 +1906,14 @@ export class ChatMessagesResult {
     this.messages = init.messages ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success, has_more: this.has_more, total: this.total, last_version: this.last_version, name: this.name, chat_type: this.chat_type };
     if (this.messages !== null) d.messages = this.messages.map(m => m.toDict());
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1777,19 +1923,22 @@ export class VideoconferenceOpResult {
   message: string | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; done?: boolean; message?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; done?: boolean; message?: string | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.done = init.done ?? false;
     this.message = init.message ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success, done: this.done };
     if (this.message !== null) d.message = this.message;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1806,8 +1955,9 @@ export class VideoconferenceDetailResult {
   admin: string | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; mid?: number | null; subject?: string | null; meeting_number?: string | null; start_time?: number | null; stop_time?: number | null; type?: number | null; status?: number | null; admin?: string | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; mid?: number | null; subject?: string | null; meeting_number?: string | null; start_time?: number | null; stop_time?: number | null; type?: number | null; status?: number | null; admin?: string | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.mid = init.mid ?? null;
     this.subject = init.subject ?? null;
@@ -1819,6 +1969,7 @@ export class VideoconferenceDetailResult {
     this.admin = init.admin ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1828,6 +1979,7 @@ export class VideoconferenceDetailResult {
       if (v !== null && v !== undefined) d[k] = v;
     }
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1839,20 +1991,23 @@ export class VideoconferenceListResult {
   items: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; offset?: number; total?: number; items?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; offset?: number; total?: number; items?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.offset = init.offset ?? 0;
     this.total = init.total ?? 0;
     this.items = init.items ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success, offset: this.offset, total: this.total };
     if (this.items !== null) d.items = this.items;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1862,18 +2017,21 @@ export class VideoconferenceStatusListResult {
   statuses: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; statuses?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; statuses?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.statuses = init.statuses ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.statuses !== null) d.statuses = this.statuses;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1883,18 +2041,21 @@ export class VideoconferenceParamResult {
   data: AnyDict | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; data?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; data?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.data = init.data ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.data !== null) d.data = this.data;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1904,18 +2065,21 @@ export class VideoconferenceVodListResult {
   items: AnyDict[] | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; items?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; items?: AnyDict[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.items = init.items ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.items !== null) d.items = this.items;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1925,18 +2089,21 @@ export class VideoconferenceVodUrlResult {
   data: AnyDict | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; data?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; data?: AnyDict | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.data = init.data ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
     const d: AnyDict = { success: this.success };
     if (this.data !== null) d.data = this.data;
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }
@@ -1950,8 +2117,9 @@ export class VideoconferenceConfResult {
   space_size: number | null;
   error: string | null;
   raw_response: AnyDict | null;
+  err_code: number | null;
 
-  constructor(init: { success: boolean; max_person?: number | null; default_max_person?: number | null; allowed_record_flag?: number | null; force_passwd_flag?: number | null; space_size?: number | null; error?: string | null; raw_response?: AnyDict | null }) {
+  constructor(init: { success: boolean; max_person?: number | null; default_max_person?: number | null; allowed_record_flag?: number | null; force_passwd_flag?: number | null; space_size?: number | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
     this.success = init.success;
     this.max_person = init.max_person ?? null;
     this.default_max_person = init.default_max_person ?? null;
@@ -1960,6 +2128,7 @@ export class VideoconferenceConfResult {
     this.space_size = init.space_size ?? null;
     this.error = init.error ?? null;
     this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
   }
 
   toDict(): AnyDict {
@@ -1969,6 +2138,7 @@ export class VideoconferenceConfResult {
       if (v !== null && v !== undefined) d[k] = v;
     }
     if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
     return d;
   }
 }

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.9.1] - 2026-10-22
+
+### Added
+
+- **结果类的结构化错误码**：全部 `*Result` 新增 `err_code: number | null`（`toDict()` 同步输出），失败时透传服务端 `errCode`。此前错误码只拼在 `error` 人类可读串里，调用方必须正则解析才能分流重试/兜底/告警（LXBUGS-128629）。`http.errCodeOf(data)` 统一归一化：字符串码转 `number`，字段缺失 / `-1` 哨兵 / 非数字一律 `null`；本地参数校验失败与传输层错误不伪造服务端码。
+
+### Fixed
+
+- **client.revokeMessage**（4.6.7）：
+  - 解析 `data.subStatus` 逐条结果到 `SendMessageResult.sub_status`：服务端在整体 `errCode=0` 时仍可能逐条失败，此前会被当成撤回成功。任一条失败即 `success=false`，`err_code` 透传首个失败码，`error` 汇总 `n/m` 与各条码；
+  - 补齐撤回契约文档：`sender_id` 是发送者 **staffId**（人类 openId），群撤回必填；机器人身份没有 staffId，其自身发出的群消息无法通过该接口撤回；对机器人身份的撤回，服务端可能返回 59003「当前组织禁用机器人」，请以 `err_code` 为准（LXBUGS-128628）；
+  - `chat_type` 非法值本地直接报错（服务端口径 50082 非法的 chatType）；群撤缺少 `sender_id` 时补全为可执行说明（staffId + 机器人无 staffId + 需 user_token/sender_id 发送）。
+
 ## [1.9.0] - 2026-10-09
 
 ### Added

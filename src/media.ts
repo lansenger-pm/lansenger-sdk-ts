@@ -3,7 +3,7 @@ import * as path from "path";
 import * as os from "os";
 import { LansengerConfig } from "./config";
 import { buildApiUrl } from "./urlHelpers";
-import { doGet, doPost, doPostMultipart, parseApiResponse, FetchFn } from "./http";
+import { doGet, doPost, doPostMultipart, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import { TokenManager } from "./auth";
 import { MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO, APP_MEDIA_TYPE_FILE, guessMediaType, guessAppMediaType } from "./constants";
 import { UploadMediaResult, DownloadMediaResult, DownloadFileResult, MediaPathResult } from "./models";
@@ -32,7 +32,7 @@ export async function uploadMedia(
     const errCode = data!.errCode ?? -1;
     if (errCode !== 0) {
       const msg = data!.errMsg || "Unknown upload error";
-      return new UploadMediaResult({ success: false, error: `Upload API error (errCode=${errCode}): ${msg}` });
+      return new UploadMediaResult({ success: false, error: `Upload API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
     }
     const d = data!.data || {};
     if (!d.mediaId) return new UploadMediaResult({ success: false, error: "Upload response missing mediaId" });
@@ -67,7 +67,7 @@ export async function uploadAppMedia(
     const errCode = data!.errCode ?? -1;
     if (errCode !== 0) {
       const msg = data!.errMsg || "Unknown upload error";
-      return new UploadMediaResult({ success: false, error: `Upload API error (errCode=${errCode}): ${msg}` });
+      return new UploadMediaResult({ success: false, error: `Upload API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
     }
     const d = data!.data || {};
     if (!d.mediaId) return new UploadMediaResult({ success: false, error: "Upload response missing mediaId" });
@@ -113,7 +113,7 @@ export async function uploadAppMediaV2(
     const errCode = data!.errCode ?? -1;
     if (errCode !== 0) {
       const msg = data!.errMsg || "Unknown upload error";
-      return new UploadMediaResult({ success: false, error: `Upload API error (errCode=${errCode}): ${msg}` });
+      return new UploadMediaResult({ success: false, error: `Upload API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
     }
     const d = data!.data || {};
     if (!d.mediaId) return new UploadMediaResult({ success: false, error: "Upload response missing mediaId" });
@@ -147,6 +147,7 @@ export async function downloadMedia(
           return new DownloadMediaResult({
             success: false,
             error: `Download returned an API error instead of a file (errCode=${parsed.errCode}): ${parsed.errMsg || parsed.message || ""} — media may not exist or the identity lacks access; the chat-history fileUrls signed link (~1h validity) is a reliable fallback`,
+            err_code: errCodeOf(parsed),
           });
         }
       } catch {
@@ -183,7 +184,7 @@ export async function downloadMediaByShareId(
         const data = JSON.parse(buf.toString("utf-8"));
         const errCode = data.errCode ?? -1;
         const msg = data.errMsg || "Unknown download error";
-        return new DownloadMediaResult({ success: false, error: `Download API error (errCode=${errCode}): ${msg}` });
+        return new DownloadMediaResult({ success: false, error: `Download API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
       } catch {
         return new DownloadMediaResult({ success: false, error: "Download returned JSON content-type but unparseable body" });
       }
@@ -282,7 +283,7 @@ export async function fetchMediaPath(
   const errCode = data!.errCode ?? -1;
   if (errCode !== 0) {
     const msg = data!.errMsg || "Unknown error";
-    return new MediaPathResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` });
+    return new MediaPathResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
   }
   const d = data!.data || {};
   return new MediaPathResult({

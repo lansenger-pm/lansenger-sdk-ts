@@ -68,6 +68,15 @@ export async function doPostMultipart(
   }
 }
 
+export function errCodeOf(data: AnyDict | null | undefined): number | null {
+  if (!data || typeof data !== "object") return null;
+  const raw = data.errCode;
+  if (raw === undefined || raw === null || typeof raw === "boolean") return null;
+  const value = typeof raw === "number" ? raw : Number(String(raw).trim());
+  if (!Number.isFinite(value) || value === -1) return null;
+  return value;
+}
+
 export function parseApiResponse(
   data: AnyDict,
 ): [boolean, string | null] {

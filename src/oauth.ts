@@ -1,7 +1,7 @@
 import { LansengerConfig } from "./config";
 import { API_ENDPOINTS, OAUTH2_SCOPE_BASIC_USER_INFO } from "./constants";
 import { buildApiUrl } from "./urlHelpers";
-import { doGet, parseApiResponse, FetchFn } from "./http";
+import { doGet, parseApiResponse, errCodeOf, FetchFn } from "./http";
 import { UserTokenResult } from "./models";
 import { LansengerConfigError } from "./exceptions";
 import { randomUUID } from "crypto";
@@ -53,7 +53,7 @@ export async function exchangeCodeForUserToken(
   const errCode = data!.errCode ?? -1;
   if (errCode !== 0) {
     const msg = data!.errMsg || "Unknown error";
-    return new UserTokenResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` });
+    return new UserTokenResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
   }
   const d = data!.data || {};
   return new UserTokenResult({
@@ -79,7 +79,7 @@ export async function refreshUserToken(
   const errCode = data!.errCode ?? -1;
   if (errCode !== 0) {
     const msg = data!.errMsg || "Unknown error";
-    return new UserTokenResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` });
+    return new UserTokenResult({ success: false, error: `API error (errCode=${errCode}): ${msg}` , err_code: errCodeOf(data) });
   }
   const d = data!.data || {};
   return new UserTokenResult({
