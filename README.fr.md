@@ -38,6 +38,7 @@ Les trois types de robots utilisent le même mécanisme d'authentification : `ap
 - **Applications personnelles** — gérer les bots personnels
 - **Événements de callback** — 25 types d'événements, parsing structuré, décryptage AES (spec 4.10.1.4), vérification de signature SHA1
 - **Lecture de chats** — liste de chats, messages de chat (4.24 MCP)
+- **Enregistrements intelligents** (4.60) — liste/détail d'enregistrements, soumission des tâches de transcription et de compte rendu, tags et modèles de compte rendu
 
 ## Installation rapide
 
@@ -422,6 +423,39 @@ const isValid = verifyCallbackSignature(
 ```typescript
 const types = LansengerClient.getCallbackEventTypes(); // 25 types d'événements, 13 catégories
 ```
+
+## 9. Enregistrements intelligents (4.60)
+
+```typescript
+// 4.60.1 Liste des enregistrements — pagination dans le body (page/pageSize, >100 tronqué par le serveur)
+const list = await client.fetchSmartRecordingList({ page: 1, pageSize: 20, user_token: "ut" });
+
+// 4.60.2 Détail d'un enregistrement — interrogez cet endpoint pour suivre la transcription / le compte rendu
+const detail = await client.fetchSmartRecordingDetail({ recordingId: "1001-2002", user_token: "ut" });
+
+// 4.60.3 Soumettre une transcription — acceptation seulement (convertState=5) ; une nouvelle soumission consomme à nouveau du quota
+await client.createSmartRecordingTranscriptionTask({ recordingId: "1001-2002", user_token: "ut" });
+
+// 4.60.4 Soumettre un compte rendu — exige convertState === 4 && hasTranscription === true, sinon 64007
+await client.createSmartRecordingSummaryTask({ recordingId: "1001-2002", templateId: "tpl1", user_token: "ut" });
+
+// 4.60.5 Tags d'enregistrement (pas de pagination)
+const tags = await client.fetchSmartRecordingTags({ user_token: "ut" });
+
+// 4.60.6 Modèles de compte rendu — pagination dans la query (page/page_size, >100 ou non numérique → 45000)
+const templates = await client.fetchSmartRecordingTemplates({ page: 1, pageSize: 20, user_token: "ut" });
+```
+
+| # | Méthode client | Endpoint | Remarques |
+|---|----------------|----------|-----------|
+| 4.60.1 | `fetchSmartRecordingList` | `POST /v1/smart_recording/recordings/fetch` | body `page` / `pageSize`, défaut 1 / 20 |
+| 4.60.2 | `fetchSmartRecordingDetail` | `GET /v1/smart_recording/recordings/{recording_id}/fetch` | `errCode=0` sans `recording` → `success=true`, `recording=null` |
+| 4.60.3 | `createSmartRecordingTranscriptionTask` | `POST /v1/smart_recording/recordings/{recording_id}/transcribe/create` | accepté → `convertState=5` ; le SDK ne fait jamais de polling |
+| 4.60.4 | `createSmartRecordingSummaryTask` | `POST /v1/smart_recording/recordings/{recording_id}/summary/create` | `templateId` optionnel ; transcription terminée requise |
+| 4.60.5 | `fetchSmartRecordingTags` | `GET /v1/smart_recording/tags/fetch` | pas de pagination |
+| 4.60.6 | `fetchSmartRecordingTemplates` | `GET /v1/smart_recording/templates/fetch` | query `page` / `page_size`, défaut 1 / 20 |
+
+Les six endpoints exigent `app_token` **et** `user_token` (identité employé : un utilisateur ne voit que les enregistrements auxquels il a droit). Les ID d'enregistrement sont des ID ouverts de la forme `<oid>-<id>`, transmis tels quels — sans parsing ni troncature (pour éviter toute perte de précision sur les grands entiers). Le statut HTTP est toujours 200 ; le succès dépend uniquement de `errCode === 0`, et en cas d'échec le code serveur est exposé dans `err_code` (`-1` (APP_TOKEN absent / invalide) est traité comme absent et normalisé en `null` ; les autres codes serveur (`-2`~`-5` auth/chemin, 45000 paramètres invalides, 10005 pas de permission, 64000 enregistrement introuvable, 64003 modèle introuvable, 64005 quota dépassé, 64006 compte rendu en cours, 64007 précondition non remplie) sont transmis tels quels ; le `errCode` / `errMsg` du serveur reste accessible via `err_code` / `error` ; `raw_response` n'est rempli qu'en cas de succès). La pagination doit suivre `hasMore` — une page vide avec `hasMore=true` est légale. Soumettre une tâche ne signifie que « acceptée » : interrogez l'endpoint de détail pour `convertState` / `summaryState` / `hasTranscription` / `hasSummary`. `duration` est en millisecondes ; `createTime` / `modifyTime` sont en microsecondes (transmis tels quels). `recordingMarker` est un tableau JSON encodé en Base64 d'entrées `{"offT": <ms>}`, transmis en chaîne brute (à décoder avant usage ; absent / vide / `W10=` = aucun marqueur). Les tags et modèles peuvent omettre silencieusement des entrées dont l'ID ouvert n'a pas pu être converti — considérez ces listes comme partielles ; la sémantique de `hasMore` du modèle n'est pas définie par le wiki, utilisez-le seulement comme indice booléen de pagination.
 
 ## Matrice de capacités des types de messages
 

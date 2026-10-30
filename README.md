@@ -38,6 +38,7 @@ All three bot types use the same auth mechanism: `appToken` is required for ever
 - **Personal apps** (4.38) — create/update/query/delete/list personal bots with user token
 - **Callback events** — 25 event types, structured parsing, AES decryption (per 4.10.1.4), SHA1 signature verification
 - **Chat reading** — fetch chat list, fetch chat messages (4.24 MCP)
+- **Smart recordings** (4.60) — recording list & detail, transcription / minutes task submission, tags and minutes templates
 
 ## Quick Install
 
@@ -425,6 +426,39 @@ const isValid = verifyCallbackSignature(
 ```typescript
 const types = LansengerClient.getCallbackEventTypes(); // 25 event types across 13 categories
 ```
+
+## 9. Smart Recordings (4.60)
+
+```typescript
+// 4.60.1 Recording list — paging goes in the body (page/pageSize, >100 truncated by the server)
+const list = await client.fetchSmartRecordingList({ page: 1, pageSize: 20, user_token: "ut" });
+
+// 4.60.2 Recording detail — poll this endpoint to watch transcription / minutes progress
+const detail = await client.fetchSmartRecordingDetail({ recordingId: "1001-2002", user_token: "ut" });
+
+// 4.60.3 Submit transcription task — accepted only (convertState=5); re-submitting consumes quota again
+await client.createSmartRecordingTranscriptionTask({ recordingId: "1001-2002", user_token: "ut" });
+
+// 4.60.4 Submit minutes task — requires convertState === 4 && hasTranscription === true (else 64007)
+await client.createSmartRecordingSummaryTask({ recordingId: "1001-2002", templateId: "tpl1", user_token: "ut" });
+
+// 4.60.5 Recording tags (no paging)
+const tags = await client.fetchSmartRecordingTags({ user_token: "ut" });
+
+// 4.60.6 Minutes templates — paging goes in the query (page/page_size, >100 or non-numeric → 45000)
+const templates = await client.fetchSmartRecordingTemplates({ page: 1, pageSize: 20, user_token: "ut" });
+```
+
+| # | Client method | Endpoint | Notes |
+|---|---------------|----------|-------|
+| 4.60.1 | `fetchSmartRecordingList` | `POST /v1/smart_recording/recordings/fetch` | body `page` / `pageSize`, default 1 / 20 |
+| 4.60.2 | `fetchSmartRecordingDetail` | `GET /v1/smart_recording/recordings/{recording_id}/fetch` | `errCode=0` with missing `recording` → `success=true`, `recording=null` |
+| 4.60.3 | `createSmartRecordingTranscriptionTask` | `POST /v1/smart_recording/recordings/{recording_id}/transcribe/create` | accepted → `convertState=5`; SDK never polls |
+| 4.60.4 | `createSmartRecordingSummaryTask` | `POST /v1/smart_recording/recordings/{recording_id}/summary/create` | optional `templateId`; needs finished transcription |
+| 4.60.5 | `fetchSmartRecordingTags` | `GET /v1/smart_recording/tags/fetch` | no paging |
+| 4.60.6 | `fetchSmartRecordingTemplates` | `GET /v1/smart_recording/templates/fetch` | query `page` / `page_size`, default 1 / 20 |
+
+All six endpoints require `app_token` **and** `user_token` (employee identity: a user only sees recordings they are permitted to access). Record IDs are open IDs of the form `<oid>-<id>` and are passed through verbatim — no parsing, no truncation (avoids large-integer precision loss). HTTP status is always 200; success is decided solely by `errCode === 0`, and failures expose the server code in `err_code` (`-1` — missing / invalid APP_TOKEN — is treated as absent and normalized to `null`; other server codes — `-2`~`-5` auth/path, 45000 invalid params, 10005 no permission, 64000 recording not found, 64003 template not found, 64005 quota exceeded, 64006 minutes processing, 64007 precondition failed — pass through unchanged, and the server `errCode` / `errMsg` remain available via `err_code` / `error`; `raw_response` is only populated on success). Paging must follow `hasMore` — it is legal to get an empty page with `hasMore=true`. Task submission only means "accepted", so poll the detail endpoint for `convertState` / `summaryState` / `hasTranscription` / `hasSummary`. `duration` is in milliseconds; `createTime` / `modifyTime` are in microseconds (passed through as-is). `recordingMarker` is a Base64-encoded JSON array of `{"offT": <ms>}` entries, passed through as a raw string (decode it before use; missing / empty / `W10=` means no markers). Tags and templates may silently omit entries whose open-ID conversion failed — treat them as partial sets, and note that the wiki does not define `hasMore` semantics for the template list (use it only as a boolean paging hint).
 
 ## Message Type Capability Matrix
 

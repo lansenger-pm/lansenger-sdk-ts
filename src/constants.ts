@@ -125,6 +125,16 @@ export const API_ENDPOINTS: Record<string, Record<string, string>> = {
     delete: "/v1/personal/apps/{app_id}/delete",
     list_fetch: "/v1/personal/apps/list/fetch",
   },
+  // 智能录音 / 智能语音（API 规范 4.60）。路径从 /v1 起：api_gateway_url 已含 /open/apigw，
+  // 再带前缀会被网关拒绝（errCode=-5）。所有接口都要求 app_token + user_token（员工身份）。
+  smart_recording: {
+    recordings_fetch: "/v1/smart_recording/recordings/fetch",
+    recording_detail: "/v1/smart_recording/recordings/{recording_id}/fetch",
+    transcribe_create: "/v1/smart_recording/recordings/{recording_id}/transcribe/create",
+    summary_create: "/v1/smart_recording/recordings/{recording_id}/summary/create",
+    tags_fetch: "/v1/smart_recording/tags/fetch",
+    templates_fetch: "/v1/smart_recording/templates/fetch",
+  },
 };
 
 export const OAUTH2_SCOPE_BASIC_USER_INFO = "basic_userinfor";
@@ -232,4 +242,4 @@ export const VC_FETCH_RANGE_PERSON = "person";
 export const VC_CREATE_SOURCE_CLIENT = 0;
 export const VC_CREATE_SOURCE_THIRD_PARTY = 1;
 
-export const VERSION = "1.9.1";
+export const VERSION = "1.10.0";

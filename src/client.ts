@@ -136,6 +136,12 @@ import {
   ScheduleListResult,
   ScheduleUpdateResult,
   SendMessageResult,
+  SmartRecordingDetailResult,
+  SmartRecordingListResult,
+  SmartRecordingSummaryResult,
+  SmartRecordingTagListResult,
+  SmartRecordingTemplateListResult,
+  SmartRecordingTranscribeResult,
   StaffBasicInfoResult,
   StaffDetailResult,
   StaffIdMappingResult,
@@ -176,6 +182,14 @@ import {
 import {
   sendReminder,
 } from "./reminders";
+import {
+  createSummaryTask,
+  createTranscriptionTask,
+  fetchRecordingDetail,
+  fetchRecordingList,
+  fetchRecordingTags,
+  fetchRecordingTemplates,
+} from "./smartRecordings";
 import {
   createStreamMessage,
   fetchStreamMessage,
@@ -1480,5 +1494,50 @@ export class LansengerClient {
     await this._ensureInit();
     const token = await this._tokenManager!.getToken();
     return fetchOrgVideoconfConf(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  // ── Smart Recordings / 智能录音 / 智能语音（API 规范 4.60, /v1/smart_recording）──
+  // 全部接口都需要 user_token（员工身份，只能访问本人有权限的录音）；SDK 不自动轮询。
+
+  /** 4.60.1 获取录音列表。翻页只依据 `hasMore`（可能「本页 0 条 + hasMore=true」）。 */
+  async fetchSmartRecordingList(opts?: { page?: number; pageSize?: number; user_token?: string }): Promise<SmartRecordingListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchRecordingList(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  /** 4.60.2 获取录音详情。`data.recording` 缺失时 success=true + recording=null。 */
+  async fetchSmartRecordingDetail(opts: { recordingId: string; user_token?: string }): Promise<SmartRecordingDetailResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchRecordingDetail(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  /** 4.60.3 提交转写任务。受理成功时 convertState=5，需轮询详情；重复提交会重复扣配额。 */
+  async createSmartRecordingTranscriptionTask(opts: { recordingId: string; user_token?: string }): Promise<SmartRecordingTranscribeResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return createTranscriptionTask(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  /** 4.60.4 提交纪要任务。前置 convertState=4 且 hasTranscription=true，否则服务端 64007；受理后 summaryState=5。 */
+  async createSmartRecordingSummaryTask(opts: { recordingId: string; templateId?: string; user_token?: string }): Promise<SmartRecordingSummaryResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return createSummaryTask(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  /** 4.60.5 获取标签列表（无分页；服务端可能静默缺条）。 */
+  async fetchSmartRecordingTags(opts?: { user_token?: string }): Promise<SmartRecordingTagListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchRecordingTags(this._config, token, { ...opts, fetchFn: this._fetchFn! });
+  }
+
+  /** 4.60.6 获取纪要模板列表。query 用 `page_size`；>100 或非数字服务端返回 45000。 */
+  async fetchSmartRecordingTemplates(opts?: { page?: number; pageSize?: number; user_token?: string }): Promise<SmartRecordingTemplateListResult> {
+    await this._ensureInit();
+    const token = await this._tokenManager!.getToken();
+    return fetchRecordingTemplates(this._config, token, { ...opts, fetchFn: this._fetchFn! });
   }
 }

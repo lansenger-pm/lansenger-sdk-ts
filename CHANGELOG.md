@@ -7,11 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.0] - 2026-10-30
+
+### Added
+
+- **智能录音 / 智能语音（API 规范 4.60）**：新增 6 个开放接口 —— 录音列表（`fetchRecordingList`）、录音详情（`fetchRecordingDetail`）、提交转写任务（`createTranscriptionTask`）、提交纪要任务（`createSummaryTask`）、标签列表（`fetchRecordingTags`）、纪要模板列表（`fetchRecordingTemplates`）；`LansengerClient` 同步提供域前缀方法 `fetchSmartRecordingList()` / `fetchSmartRecordingDetail()` / `createSmartRecordingTranscriptionTask()` / `createSmartRecordingSummaryTask()` / `fetchSmartRecordingTags()` / `fetchSmartRecordingTemplates()`（opts 均支持 `user_token` 透传）。
+- 新增结果类型 `SmartRecordingListResult` / `SmartRecordingDetailResult` / `SmartRecordingTranscribeResult` / `SmartRecordingSummaryResult` / `SmartRecordingTagListResult` / `SmartRecordingTemplateListResult`，数据模型 `SmartRecording` / `SmartRecordingTag` / `SmartRecordingTemplate` / `SmartRecordingState`，以及常量 `API_ENDPOINTS.smart_recording`，均从包入口导出。
+- **接口口径**：
+  - 6 个接口都要求 `user_token`（员工身份，只能访问本人有权限的录音）；记录级 ID 是开放 ID（`<oid>-<id>`），SDK 原样透传、不解析不截断（避免大整数精度丢失）；
+  - HTTP 状态恒为 200，成败只看 `errCode`，失败时 `err_code` 透传服务端 errCode（`-1`（缺失/无效 APP_TOKEN）视为缺失、归一为 `null`；其余服务端码 -2~-5 鉴权/路径、45000 参数错误、10005 无权限、64000 录音不存在、64003 模板不存在、64005 配额超限、64006 纪要处理中、64007 参数不合法等原样透传）；
+  - 录音列表分页用 body `page` / `pageSize`（默认 1/20，服务端 >100 静默截断为 100）；模板列表分页用 query `page` / `page_size`（>100 或非数字返回 45000，不截断）。两处翻页都只依据 `hasMore`（允许「本页 0 条 + hasMore=true」）；
+  - 提交转写/纪要只代表「任务已受理」（`convertState` / `summaryState` 恒为 5），SDK 不做自动轮询；提交纪要需先满足 `convertState === 4 && hasTranscription === true`（否则 64007）；转写重复提交会重复扣配额，调用方需自行幂等；
+  - 详情接口 `errCode=0` 但 `data.recording` 缺失时返回 `success=true` + `recording=null`，不映射 64000；
+  - 时间口径：`duration` 为毫秒，`createTime` / `modifyTime` 为微秒（原样透传，不换算）。
+  - `recordingMarker` 为 Base64(JSON 数组 `{"offT": 毫秒}`)，SDK 原样透传字符串；标签与模板列表可能静默缺条（个别条目开放 ID 转换失败），模板列表 `hasMore` 语义 wiki 未定义，仅作布尔翻页提示。
+- 新增 `tests/smartRecordings.test.ts`（mock http 层：成功 / 错误 envelope / 可选字段缺失 / 分页参数 / 鉴权 query / 本地必填校验 / client 域方法接线）与 `API_ENDPOINTS.smart_recording` 常量断言；版本 1.9.1 → 1.10.0。
+
 ## [1.9.1] - 2026-10-22
 
 ### Added
 
-- **结果类的结构化错误码**：全部 `*Result` 新增 `err_code: number | null`（`toDict()` 同步输出），失败时透传服务端 `errCode`。此前错误码只拼在 `error` 人类可读串里，调用方必须正则解析才能分流重试/兜底/告警（LXBUGS-128629）。`http.errCodeOf(data)` 统一归一化：字符串码转 `number`，字段缺失 / `-1` 哨兵 / 非数字一律 `null`；本地参数校验失败与传输层错误不伪造服务端码。
+- **结果类的结构化错误码**：全部 `*Result` 新增 `err_code: number | null`（`toDict()` 同步输出），失败时透传服务端 `errCode`。此前错误码只拼在 `error` 人类可读串里，调用方必须正则解析才能分流重试/兜底/告警（LXBUGS-128629）。`http.errCodeOf(data)` 统一归一化：字符串码转 `number`，字段缺失 / `-1`（缺失/无效 APP_TOKEN）/ 非数字一律 `null`；本地参数校验失败与传输层错误不伪造服务端码。
 
 ### Fixed
 

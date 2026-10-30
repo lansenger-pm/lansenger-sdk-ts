@@ -2142,3 +2142,268 @@ export class VideoconferenceConfResult {
     return d;
   }
 }
+
+// ── Smart Recordings / 智能录音 / 智能语音（API 规范 4.60）───────────────────
+//
+// 状态口径：所有 *State 字段统一取值 {0,1,2,3,4,5} =
+// 0 未知 / 1 未处理 / 2 处理中 / 3 失败 / 4 已完成 / 5 重新生成中。
+// 提交转写/纪要接口仅代表「任务已受理」，返回状态恒为 5；SDK 不做自动轮询，
+// 调用方需按需轮询录音详情（convertState / summaryState + hasTranscription / hasSummary）。
+// 时间单位：duration / offT 为毫秒；createTime / modifyTime 为微秒（原样透传，不换算）。
+// 字段缺失口径：可选字段在服务端未生成时可能不返回；audioId / transcriptionId /
+// summaryId / chaptersId 在对应产物未生成时缺失，是正常状态而非错误。
+
+/** 转写/纪要/章节/录音状态：0 未知，1 未处理，2 处理中，3 失败，4 已完成，5 重新生成中。 */
+export type SmartRecordingState = 0 | 1 | 2 | 3 | 4 | 5;
+
+/** 智能录音（4.60 录音列表/详情元素）。 */
+export interface SmartRecording {
+  /** 录音 ID（必返）。开放 ID 形如 `<oid>-<id>`，SDK 原样透传，不解析、不截断。 */
+  recordingId: string;
+  /** 录音标题，可空。 */
+  name?: string | null;
+  /** 设备序列号，可空。 */
+  sn?: string | null;
+  /** 录音设备名称，可空。 */
+  deviceName?: string | null;
+  /** 录音时长（毫秒）。 */
+  duration?: number | null;
+  /** 转写状态。 */
+  state?: SmartRecordingState;
+  /** 转写（语音转文字）状态。 */
+  convertState?: SmartRecordingState;
+  /** 纪要（AI 摘要）状态。 */
+  summaryState?: SmartRecordingState;
+  /** 章节状态。 */
+  chapterState?: SmartRecordingState;
+  /** 共享状态（0/1，口径以服务端为准）。 */
+  shared?: number | null;
+  /** 创建时间（微秒）。 */
+  createTime?: number | null;
+  /** 修改时间（微秒）。 */
+  modifyTime?: number | null;
+  /** 关联标签 ID 列表。 */
+  tagIds?: string[] | null;
+  /** 使用的纪要模板 ID。 */
+  templateId?: string | null;
+  /** 录音标记；缺失或为 `W10=`（空集）时调用方应按空列表处理。 */
+  recordingMarker?: string | null;
+  /** 音频 mediaId；空录音可能缺失。 */
+  audioId?: string | null;
+  /** 转写产物 mediaId；未生成时缺失。 */
+  transcriptionId?: string | null;
+  /** 纪要产物 mediaId；未生成时缺失。 */
+  summaryId?: string | null;
+  /** 章节产物 mediaId；未生成时缺失。 */
+  chaptersId?: string | null;
+  /** 是否有音频。 */
+  hasAudio?: boolean;
+  /** 是否已有转写产物。 */
+  hasTranscription?: boolean;
+  /** 是否已有纪要产物。 */
+  hasSummary?: boolean;
+  /** 是否已有章节产物。 */
+  hasChapters?: boolean;
+}
+
+/** 智能录音标签（4.60.5）。 */
+export interface SmartRecordingTag {
+  /** 标签 ID（必返）。 */
+  tagId: string;
+  /** 标签名称，可空。 */
+  name?: string | null;
+  /** 排序权重（浮点）。 */
+  sortWeight?: number | null;
+  /** 创建时间（微秒）。 */
+  createTime?: number | null;
+  /** 修改时间（微秒）。 */
+  modifyTime?: number | null;
+}
+
+/** 智能录音纪要模板（4.60.6）。 */
+export interface SmartRecordingTemplate {
+  /** 模板 ID（必返）。 */
+  templateId: string;
+  /** 模板名称，可空。 */
+  name?: string | null;
+  /** 模板描述，可空。 */
+  description?: string | null;
+  /** 模板提示词，可空。 */
+  prompt?: string | null;
+  /** 模板状态（int 透传，取值以服务端为准）。 */
+  state?: number | null;
+  /** 模板可见/启用状态（int 透传，口径以服务端为准）。 */
+  templateState?: number | null;
+  /** 排序序号。 */
+  orderNumber?: number | null;
+  /** 创建时间（微秒）。 */
+  createTime?: number | null;
+  /** 修改时间（微秒）。 */
+  modifyTime?: number | null;
+}
+
+/** 4.60.1 录音列表结果。`hasMore` 恒有值（失败时为 false），翻页只认它（可能空列表 + hasMore=true）。 */
+export class SmartRecordingListResult {
+  success: boolean;
+  recordings: SmartRecording[] | null;
+  total: number | null;
+  hasMore: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+  err_code: number | null;
+
+  constructor(init: { success: boolean; recordings?: SmartRecording[] | null; total?: number | null; hasMore?: boolean; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
+    this.success = init.success;
+    this.recordings = init.recordings ?? null;
+    this.total = init.total ?? null;
+    this.hasMore = init.hasMore ?? false;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, hasMore: this.hasMore };
+    if (this.recordings !== null) d.recordings = this.recordings;
+    if (this.total !== null) d.total = this.total;
+    if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
+    return d;
+  }
+}
+
+/** 4.60.2 录音详情结果。errCode=0 但 data.recording 缺失时 success=True、recording=null（不映射 64000）。 */
+export class SmartRecordingDetailResult {
+  success: boolean;
+  recording: SmartRecording | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  err_code: number | null;
+
+  constructor(init: { success: boolean; recording?: SmartRecording | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
+    this.success = init.success;
+    this.recording = init.recording ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.recording !== null) d.recording = this.recording;
+    if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
+    return d;
+  }
+}
+
+/** 4.60.3 提交转写任务结果。受理成功时 convertState 恒为 5（重新生成中），需轮询详情。 */
+export class SmartRecordingTranscribeResult {
+  success: boolean;
+  recordingId: string | null;
+  convertState: number | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  err_code: number | null;
+
+  constructor(init: { success: boolean; recordingId?: string | null; convertState?: number | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
+    this.success = init.success;
+    this.recordingId = init.recordingId ?? null;
+    this.convertState = init.convertState ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.recordingId !== null) d.recordingId = this.recordingId;
+    if (this.convertState !== null) d.convertState = this.convertState;
+    if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
+    return d;
+  }
+}
+
+/** 4.60.4 提交纪要任务结果。受理成功时 summaryState 恒为 5（重新生成中），需轮询详情。 */
+export class SmartRecordingSummaryResult {
+  success: boolean;
+  recordingId: string | null;
+  summaryState: number | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  err_code: number | null;
+
+  constructor(init: { success: boolean; recordingId?: string | null; summaryState?: number | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
+    this.success = init.success;
+    this.recordingId = init.recordingId ?? null;
+    this.summaryState = init.summaryState ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.recordingId !== null) d.recordingId = this.recordingId;
+    if (this.summaryState !== null) d.summaryState = this.summaryState;
+    if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
+    return d;
+  }
+}
+
+/** 4.60.5 标签列表结果。 */
+export class SmartRecordingTagListResult {
+  success: boolean;
+  tags: SmartRecordingTag[] | null;
+  error: string | null;
+  raw_response: AnyDict | null;
+  err_code: number | null;
+
+  constructor(init: { success: boolean; tags?: SmartRecordingTag[] | null; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
+    this.success = init.success;
+    this.tags = init.tags ?? null;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success };
+    if (this.tags !== null) d.tags = this.tags;
+    if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
+    return d;
+  }
+}
+
+/** 4.60.6 纪要模板列表结果。`hasMore` 恒有值（失败时为 false）。 */
+export class SmartRecordingTemplateListResult {
+  success: boolean;
+  templates: SmartRecordingTemplate[] | null;
+  total: number | null;
+  hasMore: boolean;
+  error: string | null;
+  raw_response: AnyDict | null;
+  err_code: number | null;
+
+  constructor(init: { success: boolean; templates?: SmartRecordingTemplate[] | null; total?: number | null; hasMore?: boolean; error?: string | null; raw_response?: AnyDict | null; err_code?: number | null }) {
+    this.success = init.success;
+    this.templates = init.templates ?? null;
+    this.total = init.total ?? null;
+    this.hasMore = init.hasMore ?? false;
+    this.error = init.error ?? null;
+    this.raw_response = init.raw_response ?? null;
+    this.err_code = init.err_code ?? null;
+  }
+
+  toDict(): AnyDict {
+    const d: AnyDict = { success: this.success, hasMore: this.hasMore };
+    if (this.templates !== null) d.templates = this.templates;
+    if (this.total !== null) d.total = this.total;
+    if (this.error !== null) d.error = this.error;
+    if (this.err_code !== null) d.err_code = this.err_code;
+    return d;
+  }
+}

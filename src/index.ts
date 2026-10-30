@@ -50,6 +50,12 @@ export {
 } from "./exceptions";
 export {
   SendMessageResult,
+  SmartRecordingDetailResult,
+  SmartRecordingListResult,
+  SmartRecordingSummaryResult,
+  SmartRecordingTagListResult,
+  SmartRecordingTemplateListResult,
+  SmartRecordingTranscribeResult,
   StaffBasicInfoResult,
   StaffDetailResult,
   DepartmentAncestorsResult,
@@ -111,6 +117,12 @@ export {
   VideoconferenceConfResult,
   ChatMessageInfo,
   ChatMessagesResult,
+} from "./models";
+export type {
+  SmartRecording,
+  SmartRecordingState,
+  SmartRecordingTag,
+  SmartRecordingTemplate,
 } from "./models";
 export {
   fetchStaffBasicInfo,
@@ -194,6 +206,14 @@ export { sendAccountMessage } from "./accountMessages";
 export { sendUserMessage } from "./userMessages";
 export { sendGroupMessage } from "./groupMessages";
 export { fetchChatList, fetchChatMessages } from "./chats";
+export {
+  fetchRecordingList,
+  fetchRecordingDetail,
+  createTranscriptionTask,
+  createSummaryTask,
+  fetchRecordingTags,
+  fetchRecordingTemplates,
+} from "./smartRecordings";
 export {
   parseCallbackPayload,
   verifyCallbackSignature,

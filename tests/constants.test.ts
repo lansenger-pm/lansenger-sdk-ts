@@ -50,6 +50,16 @@ describe("API_ENDPOINTS", () => {
     expect(API_ENDPOINTS.oauth2.authorize).toBe("/oauth2/authorize");
     expect(API_ENDPOINTS.oauth2.user_token_create).toBe("/v2/user_token/create");
   });
+
+  test("has smart_recording endpoints (4.60, paths start at /v1)", () => {
+    const sr = API_ENDPOINTS.smart_recording;
+    expect(sr.recordings_fetch).toBe("/v1/smart_recording/recordings/fetch");
+    expect(sr.recording_detail).toBe("/v1/smart_recording/recordings/{recording_id}/fetch");
+    expect(sr.transcribe_create).toBe("/v1/smart_recording/recordings/{recording_id}/transcribe/create");
+    expect(sr.summary_create).toBe("/v1/smart_recording/recordings/{recording_id}/summary/create");
+    expect(sr.tags_fetch).toBe("/v1/smart_recording/tags/fetch");
+    expect(sr.templates_fetch).toBe("/v1/smart_recording/templates/fetch");
+  });
 });
 
 describe("Media type constants", () => {
@@ -142,6 +152,6 @@ describe("Other constants", () => {
   });
 
   test("VERSION", () => {
-    expect(VERSION).toBe("1.9.1");
+    expect(VERSION).toBe("1.10.0");
   });
 });

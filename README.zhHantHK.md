@@ -38,6 +38,7 @@
 - **個人應用** — 創建/修改/查詢/刪除/列表個人機械人應用
 - **回呼事件** — 25 種事件類型、結構化訊息解析、AES 解密（4.10.1.4）、SHA1 簽名驗證
 - **聊天讀取** — 取得聊天列表、取得聊天訊息（4.24 MCP）
+- **智能錄音** (4.60) — 錄音列表/詳情、轉寫與紀要任務提交、標籤與紀要範本
 
 ## 快速安裝
 
@@ -422,6 +423,39 @@ const isValid = verifyCallbackSignature(
 ```typescript
 const types = LansengerClient.getCallbackEventTypes(); // 25 種事件類型，13 個類別
 ```
+
+## 9. 智能錄音 (4.60)
+
+```typescript
+// 4.60.1 錄音列表 —— 分頁參數走 body（page/pageSize，超過 100 服務器靜默截斷為 100）
+const list = await client.fetchSmartRecordingList({ page: 1, pageSize: 20, user_token: "ut" });
+
+// 4.60.2 錄音詳情 —— 輪詢該端點觀察轉寫 / 紀要進度
+const detail = await client.fetchSmartRecordingDetail({ recordingId: "1001-2002", user_token: "ut" });
+
+// 4.60.3 提交轉寫任務 —— 僅代表受理（convertState=5）；重複提交會重複扣配額
+await client.createSmartRecordingTranscriptionTask({ recordingId: "1001-2002", user_token: "ut" });
+
+// 4.60.4 提交紀要任務 —— 需先滿足 convertState === 4 && hasTranscription === true，否則 64007
+await client.createSmartRecordingSummaryTask({ recordingId: "1001-2002", templateId: "tpl1", user_token: "ut" });
+
+// 4.60.5 錄音標籤（無分頁）
+const tags = await client.fetchSmartRecordingTags({ user_token: "ut" });
+
+// 4.60.6 紀要範本 —— 分頁參數走 query（page/page_size，超過 100 或非數字回傳 45000）
+const templates = await client.fetchSmartRecordingTemplates({ page: 1, pageSize: 20, user_token: "ut" });
+```
+
+| # | 客戶端方法 | 端點 | 說明 |
+|---|-----------|------|------|
+| 4.60.1 | `fetchSmartRecordingList` | `POST /v1/smart_recording/recordings/fetch` | body `page` / `pageSize`，預設 1 / 20 |
+| 4.60.2 | `fetchSmartRecordingDetail` | `GET /v1/smart_recording/recordings/{recording_id}/fetch` | `errCode=0` 但缺 `recording` 時回傳 `success=true`、`recording=null` |
+| 4.60.3 | `createSmartRecordingTranscriptionTask` | `POST /v1/smart_recording/recordings/{recording_id}/transcribe/create` | 受理後 `convertState=5`；SDK 不自動輪詢 |
+| 4.60.4 | `createSmartRecordingSummaryTask` | `POST /v1/smart_recording/recordings/{recording_id}/summary/create` | 可選 `templateId`；需轉寫已完成 |
+| 4.60.5 | `fetchSmartRecordingTags` | `GET /v1/smart_recording/tags/fetch` | 無分頁 |
+| 4.60.6 | `fetchSmartRecordingTemplates` | `GET /v1/smart_recording/templates/fetch` | query `page` / `page_size`，預設 1 / 20 |
+
+6 個 API 都要求 `app_token` **和** `user_token`（員工身分：只能存取本人有權限的錄音）。記錄級 ID 是 `<oid>-<id>` 形式的開放 ID，SDK 原樣透傳——不解析、不截斷（避免大整數精度遺失）。HTTP 狀態恆為 200，成敗只看 `errCode === 0`；失敗時服務器錯誤碼放在 `err_code`（服務器 `-1`（缺失/無效 APP_TOKEN）視為缺失、歸一為 `null`；其餘服務器碼（-2 ~ -5 鑑權/路徑、45000 參數錯誤、10005 無權限、64000 錄音不存在、64003 範本不存在、64005 配額超限、64006 紀要處理中、64007 參數不合法）原樣透傳；服務端 `errCode` / `errMsg` 仍可從 `err_code` / `error` 取得（`raw_response` 僅成功時填充））。翻頁只依據 `hasMore`——允許「本頁 0 筆 + hasMore=true」。提交任務只代表「已受理」，請輪詢詳情端點查看 `convertState` / `summaryState` / `hasTranscription` / `hasSummary`。`duration` 為毫秒，`createTime` / `modifyTime` 為微秒（原樣透傳，不換算）。`recordingMarker` 是 Base64 編碼的 `{"offT": <毫秒>}` JSON 陣列，以原始字串透傳（使用前自行解碼；缺失 / 空字串 / `W10=` 表示無標記）。標籤與範本列表可能因個別條目開放 ID 轉換失敗而靜默缺條，請按部分集合處理；範本列表的 `hasMore` 語義 wiki 未定義，僅作為布林翻頁提示使用。
 
 ## 訊息類型能力矩陣
 
